@@ -1,4 +1,4 @@
-cloaked-octo-shame
+cloak
 ==================
 
 A library for building multiplayer games with socket.io
