@@ -12,8 +12,8 @@ cloak.events({
 
     pulse: function() {
       var age = this.age();
-      if (this.data.lastReportedAge + 1000 > age) {
-        this.messageMembers('room age ' + age);
+      if (this.data.lastReportedAge + 1000 < age) {
+        this.messageMembers('room age ' + Math.round(age / 1000));
         this.data.lastReportedAge = age;
       }
     },
