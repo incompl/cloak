@@ -24,6 +24,10 @@ cloak.on('begin', function(configArg) {
       output(room.name + ' (' + room.userCount + '/' + room.size + ')');
     });
     var joining = rooms[0];
+    if (joining === undefined) {
+      output('no rooms');
+      return;
+    }
     output('joining ' + joining.name);
     cloak.joinRoom(joining.id, function(success) {
       output(success ? 'joined' : 'failed');
@@ -38,6 +42,10 @@ cloak.on('resume', function(configArg) {
 
 cloak.on('end', function(msg) {
   output('end');
+});
+
+cloak.on('message', function(msg) {
+  output(msg);
 });
 
 cloak.on('error', function(msg) {

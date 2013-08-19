@@ -82,6 +82,10 @@ window.cloak = (function() {
         }
       });
 
+      socket.on('message', function(data) {
+        cloak.trigger('message', data);
+      });
+
       handleResponsesFor(socket, 'listRoomsResponse', 'rooms');
       handleResponsesFor(socket, 'joinRoomResponse', 'success');
 

@@ -1,8 +1,8 @@
 /* jshint node:true */
 
-var shame = require('./shame');
+var cloak = require('./cloak');
 
-shame.createRoom('cool room');
-shame.createRoom('lame room', 3);
+cloak.createRoom('cool room');
+cloak.createRoom('lame room', 3);
 
-shame.run();
+cloak.run();
