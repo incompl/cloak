@@ -1,4 +1,4 @@
-'use strict';
+/* globals module */
 
 module.exports = function(grunt) {
 
@@ -6,7 +6,9 @@ module.exports = function(grunt) {
   grunt.initConfig({
     jshint: {
       options: {
-        jshintrc: '.jshintrc'
+        'undef': true,
+        'browser': true,
+        '-W008': true
       },
       gruntfile: {
         src: 'Gruntfile.js'
@@ -25,13 +27,28 @@ module.exports = function(grunt) {
         tasks: ['jshint:app']
       }
     },
+    copy: {
+      prod: {
+        files: [
+          {
+            expand: true,
+            flatten: true,
+            src: ['../../src/client/cloak.js'],
+            dest: 'lib',
+            filter: 'isFile'
+          }
+        ]
+      },
+    }
+
   });
 
   // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
   // Default task.
-  grunt.registerTask('default', ['jshint']);
+  grunt.registerTask('default', ['jshint', 'copy:prod']);
 
 };
