@@ -5,22 +5,35 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  function Room(nameArg, sizeArg) {
+  var roomEvents;
+
+  function Room(nameArg, sizeArg, roomEventsArg) {
     this.id = uuid.v4();
     this.name = nameArg;
     this.members = [];
     this.size = sizeArg;
     this.created = new Date().getTime();
+    this.data = {};
+    roomEvents = roomEventsArg;
+
+    if (roomEvents.init) {
+      roomEvents.init.call(this);
+    }
   }
 
   Room.prototype = {
 
-    delete: function() {
-      this.messageMembers('Leaving room ' + this.name);
+    close: function() {
+      if (roomEvents.close) {
+        roomEvents.close.call(this);
+      }
+      this.members = [];
     },
 
     pulse: function() {
-      this.messageMembers('room age ' + this.age());
+      if (roomEvents.pulse) {
+        roomEvents.pulse.call(this);
+      }
     },
 
     age: function() {

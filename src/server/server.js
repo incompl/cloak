@@ -2,6 +2,30 @@
 
 var cloak = require('./cloak');
 
+cloak.events({
+
+  room: {
+
+    init: function() {
+      this.data.lastReportedAge = 0;
+    },
+
+    pulse: function() {
+      var age = this.age();
+      if (this.data.lastReportedAge + 1000 > age) {
+        this.messageMembers('room age ' + age);
+        this.data.lastReportedAge = age;
+      }
+    },
+
+    close: function() {
+      this.messageMembers('you have left ' + this.name);
+    }
+
+  }
+
+});
+
 cloak.createRoom('cool room');
 cloak.createRoom('lame room', 3);
 

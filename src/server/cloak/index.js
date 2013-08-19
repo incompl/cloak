@@ -12,6 +12,7 @@ module.exports = (function() {
   var users = {};
   var rooms = {};
   var socketIdToUserId = {};
+  var events;
 
   var defaults = {
     port: 8090,
@@ -47,6 +48,10 @@ module.exports = (function() {
     // configure the server
     configure: function(configArg) {
       config = _.extend(config, configArg);
+    },
+
+    events: function(eventsArg) {
+      events = eventsArg;
     },
 
     // run the server
@@ -131,13 +136,13 @@ module.exports = (function() {
     },
 
     createRoom: function(name, size) {
-      var room = new Room(name, size || config.defaultRoomSize);
+      var room = new Room(name, size || config.defaultRoomSize, events.room);
       rooms[room.id] = room;
     },
 
     deleteRoom: function(id) {
       var room = rooms[id];
-      room.delete();
+      room.close();
       delete rooms[id];
     },
 
