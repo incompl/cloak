@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "connect": "~2.8.5"
+  }
+}

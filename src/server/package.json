@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "underscore": "~1.5.1",
+    "node-uuid": "~1.4.1"
   }
 }
