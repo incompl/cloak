@@ -66,7 +66,11 @@ module.exports = (function() {
         console.log(cloak.host(socket) + ' connects');
 
         socket.on('disconnect', function(data) {
+          var uid = socketIdToUserId[socket.id];
+          var user = cloak.getUser(uid);
+          user.leaveRoom();
           delete socketIdToUserId[socket.id];
+          delete users[uid];
           console.log(cloak.host(socket) + ' disconnects');
         });
 
@@ -116,7 +120,7 @@ module.exports = (function() {
           var room = rooms[data.id];
           var success = false;
           if (room && room.members.length < room.size) {
-            room.members.push(users[uid]);
+            room.addMember(users[uid]);
             success = true;
           }
           socket.emit('cloak-joinRoomResponse', {

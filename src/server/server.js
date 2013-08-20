@@ -31,6 +31,10 @@ cloak.configure({
       }
     },
 
+    newMember: function(user) {
+      console.log('total members: ' + this.members.length);
+    },
+
     close: function() {
       var newRoomNum = this.data.roomNum + 1;
       var room = cloak.createRoom('room ' + newRoomNum);

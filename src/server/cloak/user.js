@@ -20,6 +20,13 @@ module.exports = (function() {
 
     setSocket: function(socketArg) {
       socket = socketArg;
+    },
+
+    leaveRoom: function() {
+      if (this.room !== undefined) {
+        this.room.members = _(this.room.members).without(this);
+        delete this.room;
+      }
     }
 
   };

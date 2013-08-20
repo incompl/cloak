@@ -36,6 +36,14 @@ module.exports = (function() {
       }
     },
 
+    addMember: function(user) {
+      this.members.push(user);
+      user.room = this;
+      if (roomEvents.newMember) {
+        roomEvents.newMember.call(this, user);
+      }
+    },
+
     age: function() {
       return new Date().getTime() - this.created;
     },
