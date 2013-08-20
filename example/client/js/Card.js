@@ -27,7 +27,6 @@ Crafty.c('Card', {
         results.push(card);
       }
     }.bind(this));
-    console.log(results);
     return results;
   },
 

@@ -69,11 +69,19 @@ window.game = (function() {
           groupsToRemove.push(+key);
         }
       });
-      console.log(groupsToRemove);
       _.each(game.cards, function(card) {
         if (_.contains(groupsToRemove, card.group)) {
           card.destroy();
+          game.cards = _.reject(game.cards, function(thisCard) { return _.isEqual(thisCard, card); });
         }
+      });
+      // Weirdly, this triggers "too soon" sometimes so I put in this timeout
+      setTimeout(game.refreshTargets, 0);
+    },
+
+    refreshTargets: function() {
+      Crafty('Target').each(function() {
+        this.refresh();
       });
     }
   };
