@@ -24,6 +24,7 @@ if (game.config.cardWidth > maxCardWidth) {
 
 game.config.gameWidth = game.config.cardWidth * 16;
 game.config.gameHeight = game.config.cardWidth * 15;
+game.config.cardBuffer = game.config.cardWidth / 8;
 
 cloak.on('connect', function() {
   console.log('connect');

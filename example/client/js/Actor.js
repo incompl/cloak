@@ -4,6 +4,7 @@
 Crafty.c('Actor', {
   init: function() {
     this.requires('DOM, 2D')
-      .attr({ w: game.config.cardWidth, h: game.config.cardHeight });
+      .attr({ w: game.config.cardWidth, h: game.config.cardHeight })
+      .css('border-radius', (this.w/5)+'px');
   },
 });
