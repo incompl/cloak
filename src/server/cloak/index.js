@@ -12,7 +12,7 @@ module.exports = (function() {
   var users = {};
   var rooms = {};
   var socketIdToUserId = {};
-  var events;
+  var events = {};
 
   var defaults = {
     port: 8090,
@@ -29,7 +29,6 @@ module.exports = (function() {
   setInterval(function() {
     _(rooms).forEach(function(room) {
       if (new Date().getTime() - room.created >= config.roomLife) {
-        console.log('end of life for room ' + room.id);
         cloak.deleteRoom(room.id);
       }
       else {
@@ -47,16 +46,21 @@ module.exports = (function() {
 
     // configure the server
     configure: function(configArg) {
-      config = _.extend(config, configArg);
-    },
-
-    events: function(eventsArg) {
-      events = eventsArg;
+      _(configArg).forEach(function(val, key) {
+        if (key === 'room') {
+          events[key] = val;
+        }
+        else {
+          config[key] = val;
+        }
+      });
     },
 
     // run the server
     run: function() {
       var io = socketIO.listen(config.port);
+
+      io.set('log level', 1);
 
       io.sockets.on('connection', function(socket) {
         console.log(cloak.host(socket) + ' connects');
@@ -66,30 +70,30 @@ module.exports = (function() {
           console.log(cloak.host(socket) + ' disconnects');
         });
 
-        socket.on('begin', function(data) {
+        socket.on('cloak-begin', function(data) {
           var user = new User(socket);
           users[user.id] = user;
           socketIdToUserId[socket.id] = user.id;
           cloak.setupHandlers(socket);
-          socket.emit('beginResponse', {uid:user.id, config:config});
+          socket.emit('cloak-beginResponse', {uid:user.id, config:config});
           console.log(cloak.host(socket) + ' begins');
         });
 
-        socket.on('resume', function(data) {
+        socket.on('cloak-resume', function(data) {
           var uid = data.uid;
           var user = users[uid];
           if (user !== undefined) {
             socketIdToUserId[socket.id] = uid;
             user.setSocket(socket);
             cloak.setupHandlers(socket);
-            socket.emit('resumeResponse', {
+            socket.emit('cloak-resumeResponse', {
               valid: true,
               config: config
             });
             console.log(cloak.host(socket) + ' resumes');
           }
           else {
-            socket.emit('resumeResponse', {valid: false});
+            socket.emit('cloak-resumeResponse', {valid: false});
             console.log(cloak.host(socket) + ' fails to resume');
           }
         });
@@ -101,22 +105,29 @@ module.exports = (function() {
 
       if (!config.autoJoinRoom) {
 
-        socket.on('listRooms', function(data) {
-          socket.emit('listRoomsResponse', {
+        socket.on('cloak-listRooms', function(data) {
+          socket.emit('cloak-listRoomsResponse', {
             rooms: cloak.listRooms()
           });
         });
 
-        socket.on('joinRoom', function(data) {
-          var uid = cloak.getUidFor(socket);
+        socket.on('cloak-joinRoom', function(data) {
+          var uid = cloak.getUidForSocket(socket);
           var room = rooms[data.id];
           var success = false;
           if (room && room.members.length < room.size) {
             room.members.push(users[uid]);
             success = true;
           }
-          socket.emit('joinRoomResponse', {
+          socket.emit('cloak-joinRoomResponse', {
             success: success
+          });
+        });
+
+        _(config.messages).each(function(handler, name) {
+          socket.on('message-' + name, function(arg) {
+            var user = cloak.getUserForSocket(socket);
+            handler(arg, user);
           });
         });
 
@@ -138,6 +149,7 @@ module.exports = (function() {
     createRoom: function(name, size) {
       var room = new Room(name, size || config.defaultRoomSize, events.room);
       rooms[room.id] = room;
+      return room;
     },
 
     deleteRoom: function(id) {
@@ -146,8 +158,22 @@ module.exports = (function() {
       delete rooms[id];
     },
 
-    getUidFor: function(socket) {
+    getUidForSocket: function(socket) {
       return socketIdToUserId[socket.id];
+    },
+
+    getUserForSocket: function(socket) {
+      return this.getUser(this.getUidForSocket(socket));
+    },
+
+    getUser: function(uid) {
+      return users[uid];
+    },
+
+    messageAll: function(name, arg) {
+      _(users).forEach(function(user) {
+        user.message(name, arg);
+      });
     }
 
   };

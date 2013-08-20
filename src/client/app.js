@@ -1,55 +1,72 @@
 /* global cloak,_ */
 
-var config;
-
 function output(msg) {
   var msgElem = document.createElement('div');
   msgElem.innerText = msg;
   document.querySelector('#output').appendChild(msgElem);
 }
 
-cloak.on('connect', function() {
-  output('connect');
-});
+cloak.configure({
 
-cloak.on('disconnect', function() {
-  output('disconnect');
-});
+  messages: {
 
-cloak.on('begin', function(configArg) {
-  output('begin');
-  config = configArg;
-  cloak.listRooms(function(rooms) {
-    _(rooms).each(function(room) {
-      output(room.name + ' (' + room.userCount + '/' + room.size + ')');
-    });
-    var joining = rooms[0];
-    if (joining === undefined) {
-      output('no rooms');
-      return;
+    foo: function(arg) {
+      output('foo: ' + arg);
+    },
+
+    bar: function(arg) {
+      output('bar: ' + arg);
+      cloak.message('sup', 'hehe');
+    },
+
+    yo: function(arg) {
+      output('yo: ' + arg);
     }
-    output('joining ' + joining.name);
-    cloak.joinRoom(joining.id, function(success) {
-      output(success ? 'joined' : 'failed');
-    });
-  });
-});
 
-cloak.on('resume', function(configArg) {
-  output('resume');
-  config = configArg;
-});
+  },
 
-cloak.on('end', function(msg) {
-  output('end');
-});
+  serverEvents: {
 
-cloak.on('message', function(msg) {
-  output(msg);
-});
+    'connect': function() {
+      output('connect');
+    },
 
-cloak.on('error', function(msg) {
-  output(msg);
+    'disconnect': function() {
+      output('disconnect');
+    },
+
+    'begin': function() {
+      output('begin');
+      cloak.listRooms(function(rooms) {
+        _(rooms).each(function(room) {
+          output(room.name + ' (' + room.userCount + '/' + room.size + ')');
+        });
+        var joining = rooms[0];
+        if (joining === undefined) {
+          output('no rooms');
+          return;
+        }
+        output('joining ' + joining.name);
+        cloak.joinRoom(joining.id, function(success) {
+          output(success ? 'joined' : 'failed');
+        });
+      });
+    },
+
+    'resume': function() {
+      output('resume');
+    },
+
+    'end': function() {
+      output('end');
+    },
+
+    'error': function(msg) {
+      output('server error: ' + msg);
+    }
+
+  }
+
 });
 
 cloak.run('http://localhost:8090');

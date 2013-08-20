@@ -7,7 +7,8 @@ window.cloak = (function() {
   var socket;
   var url;
   var events = {};
-  var config;
+  var config = {};
+  var serverConfig;
   var callbacks = {};
 
   function handleResponsesFor(socket, responseName, dataProperty) {
@@ -22,6 +23,19 @@ window.cloak = (function() {
   }
 
   var cloak = {
+
+    configure: function(configArg) {
+      _(configArg).forEach(function(val, key) {
+        if (key === 'serverEvents') {
+          _(val).forEach(function(eventHandler, eventName) {
+            cloak.on('cloak-' + eventName, eventHandler);
+          });
+        }
+        else {
+          config[key] = val;
+        }
+      });
+    },
 
     on: function(event, handler) {
       if (events[event] === undefined) {
@@ -48,53 +62,56 @@ window.cloak = (function() {
       socket = io.connect(url);
 
       socket.on('connect', function() {
-        cloak.trigger('connect');
+        cloak.trigger('cloak-connect');
         if (uid === undefined) {
-          socket.emit('begin', {});
+          socket.emit('cloak-begin', {});
         }
         else {
-          socket.emit('resume', {uid: uid});
+          socket.emit('cloak-resume', {uid: uid});
         }
       });
 
       socket.on('disconnect', function() {
-        cloak.trigger('disconnect');
+        cloak.trigger('cloak-disconnect');
         if (!done) {
           socket.socket.connect();
         }
       });
 
-      socket.on('beginResponse', function(data) {
+      socket.on('cloak-beginResponse', function(data) {
         uid = data.uid;
-        config = data.config;
+        serverConfig = data.config;
         done = false;
-        cloak.trigger('begin', config);
+        cloak.trigger('cloak-begin');
       });
 
-      socket.on('resumeResponse', function(data) {
+      socket.on('cloak-resumeResponse', function(data) {
         if (data.valid) {
-          config = data.config;
-          cloak.trigger('resume', config);
+          serverConfig = data.config;
+          cloak.trigger('cloak-resume');
         }
         else {
-          cloak.trigger('error', 'Could not resume.');
+          cloak.trigger('cloak-error', 'Could not resume.');
           cloak.end();
         }
       });
 
-      socket.on('message', function(data) {
-        cloak.trigger('message', data);
-      });
+      handleResponsesFor(socket, 'cloak-listRoomsResponse', 'rooms');
+      handleResponsesFor(socket, 'cloak-joinRoomResponse', 'success');
 
-      handleResponsesFor(socket, 'listRoomsResponse', 'rooms');
-      handleResponsesFor(socket, 'joinRoomResponse', 'success');
+      _(config.messages).forEach(function(handler, name) {
+        socket.on('message-' + name, function(data) {
+          cloak.trigger('message-' + name, data);
+        });
+        cloak.on('message-' + name, handler);
+      });
 
     },
 
     end: function() {
       done = true;
       this.disconnect();
-      cloak.trigger('end');
+      cloak.trigger('cloak-end');
     },
 
     disconnect: function() {
@@ -113,13 +130,17 @@ window.cloak = (function() {
     },
 
     listRooms: function(callback) {
-      this.callback('listRoomsResponse', callback);
-      socket.emit('listRooms', {});
+      this.callback('cloak-listRoomsResponse', callback);
+      socket.emit('cloak-listRooms', {});
     },
 
     joinRoom: function(id, callback) {
-      this.callback('joinRoomResponse', callback);
-      socket.emit('joinRoom', {id: id});
+      this.callback('cloak-joinRoomResponse', callback);
+      socket.emit('cloak-joinRoom', {id: id});
+    },
+
+    message: function(name, arg) {
+      socket.emit('message-' + name, arg);
     }
 
   };

@@ -40,9 +40,9 @@ module.exports = (function() {
       return new Date().getTime() - this.created;
     },
 
-    messageMembers: function(msg) {
+    messageMembers: function(name, arg) {
       _.forEach(this.members, function(member) {
-        member.message(msg);
+        member.message(name, arg);
       }.bind(this));
     }
 

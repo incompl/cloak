@@ -14,8 +14,8 @@ module.exports = (function() {
 
   User.prototype = {
 
-    message: function(arg) {
-      socket.emit('message', arg);
+    message: function(name, arg) {
+      socket.emit('message-' + name, arg);
     },
 
     setSocket: function(socketArg) {
