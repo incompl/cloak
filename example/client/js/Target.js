@@ -9,20 +9,24 @@ Crafty.c('Target', {
         this.onClick();
       });
     game.targets.push(this);
+    this.used = false;
   },
 
   onClick: function() {
-    var card = game.draw();
-    Crafty.e('Card')
-      .attr({ x: this.x, y: this.y })
-      .color(card.suit)
-      .text(card.val);
+    if (this.used) {
+      return;
+    }
+    var card = Crafty.e('Card')
+      .attr({ x: this.x, y: this.y });
+    card.getAdjacentCards();
+    card.evaluateGroup();
+    this.used = true;
 
     // add the empty targets around the card
-    this.placeTargetIfEmpty(this.x + this.w, this.y); 
-    this.placeTargetIfEmpty(this.x - this.w, this.y); 
-    this.placeTargetIfEmpty(this.x, this.y + this.h); 
-    this.placeTargetIfEmpty(this.x, this.y - this.h); 
+    this.placeTargetIfEmpty(this.x + this.w + game.config.cardBuffer, this.y); 
+    this.placeTargetIfEmpty(this.x - this.w - game.config.cardBuffer, this.y); 
+    this.placeTargetIfEmpty(this.x, this.y + this.h + game.config.cardBuffer); 
+    this.placeTargetIfEmpty(this.x, this.y - this.h - game.config.cardBuffer); 
   },
 
   targetInRect: function(target, x, y) {
