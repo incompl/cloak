@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "connect": "~2.8.5",
+    "socket.io-client": "~0.9.16"
+  }
+}

@@ -13,9 +13,12 @@ module.exports = (function() {
   var rooms = {};
   var socketIdToUserId = {};
   var events = {};
+  var io;
+  var gameLoopInterval;
 
   var defaults = {
     port: 8090,
+    logLevel: 1,
     defaultRoomSize: 5,
     autoJoinRoom: false,
     autoCreateRooms: false,
@@ -24,18 +27,6 @@ module.exports = (function() {
   };
 
   var config = _.extend({}, defaults);
-
-  // game loop
-  setInterval(function() {
-    _(rooms).forEach(function(room) {
-      if (new Date().getTime() - room.created >= config.roomLife) {
-        cloak.deleteRoom(room.id);
-      }
-      else {
-        room.pulse();
-      }
-    });
-  }, 100);
 
   var cloak = {
 
@@ -58,9 +49,10 @@ module.exports = (function() {
 
     // run the server
     run: function() {
-      var io = socketIO.listen(config.port);
 
-      io.set('log level', 1);
+      io = socketIO.listen(config.port);
+
+      io.set('log level', config.logLevel);
 
       io.sockets.on('connection', function(socket) {
         console.log(cloak.host(socket) + ' connects');
@@ -102,6 +94,17 @@ module.exports = (function() {
           }
         });
       });
+
+      gameLoopInterval = setInterval(function() {
+        _(rooms).forEach(function(room) {
+          if (new Date().getTime() - room.created >= config.roomLife) {
+            cloak.deleteRoom(room.id);
+          }
+          else {
+            room.pulse();
+          }
+        });
+      }, 100);
 
     },
 
@@ -178,6 +181,11 @@ module.exports = (function() {
       _(users).forEach(function(user) {
         user.message(name, arg);
       });
+    },
+
+    stop: function() {
+      clearInterval(gameLoopInterval);
+      io.server.close();
     }
 
   };
