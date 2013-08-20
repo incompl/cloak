@@ -8,7 +8,7 @@ cloak.configure({
 
   messages: {
 
-    'sup': function(arg, user) {
+    sup: function(arg, user) {
       setTimeout(function() {
         user.message('yo', 'hehe');
       }, 3000);
