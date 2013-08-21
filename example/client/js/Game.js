@@ -10,11 +10,7 @@ window.game = (function() {
       Crafty.background('#ddd');
 
       game.targets = [];
-      var home = Crafty.e('Target');
-      home.attr({
-          x: game.config.gameWidth/2 - home.w,
-          y: game.config.gameHeight/2 - home.h
-        });
+      game.placeHomeTarget();
 
       // generate deck (move to server)
       game.deck = [];
@@ -35,8 +31,6 @@ window.game = (function() {
       game.groups.sum = {};
       game.groups.count = {};
       game.cards = [];
-      
-
     },
 
     newGroupId: function() {
@@ -77,11 +71,24 @@ window.game = (function() {
       });
       // Weirdly, this triggers "too soon" sometimes so I put in this timeout
       setTimeout(game.refreshTargets, 0);
+      game.updateGroups();
     },
 
     refreshTargets: function() {
       Crafty('Target').each(function() {
         this.refresh();
+      });
+      // if we have no targets at all left, place a target in the middle.
+      if (_.isEmpty(game.groups.sum)) {
+        setTimeout(game.placeHomeTarget(),0);
+      }
+    },
+
+    placeHomeTarget: function() {
+      var home = Crafty.e('Target');
+      home.attr({
+        x: game.config.gameWidth/2 - home.w,
+        y: game.config.gameHeight/2 - home.h
       });
     }
   };
