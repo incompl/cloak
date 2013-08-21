@@ -5,21 +5,19 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  var socket;
-
   function User(socketArg) {
     this.id = uuid.v4();
-    socket = socketArg;
+    this._socket = socketArg;
   }
 
   User.prototype = {
 
     message: function(name, arg) {
-      socket.emit('message-' + name, arg);
+      this._socket.emit('message-' + name, arg);
     },
 
     setSocket: function(socketArg) {
-      socket = socketArg;
+      this._socket = socketArg;
     },
 
     leaveRoom: function() {
