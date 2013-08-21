@@ -50,7 +50,7 @@ Crafty.c('Card', {
     if (this.val === 'A') {
       result = 11;
     }
-    else if (this.val === 'O') {
+    else if (this.val === '&#x25cf;') {
       result = 10;
     }
     else {
