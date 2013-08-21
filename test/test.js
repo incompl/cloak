@@ -5,26 +5,48 @@ var path = require('path');
 var _ = require('underscore');
 var io = require('socket.io-client');
 
+var clients;
+
+function createServer() {
+  delete require.cache['../src/server/cloak'];
+  return require('../src/server/cloak');
+}
+
+function createClient() {
+  delete require.cache['../src/client/cloak'];
+  var client = require('../src/client/cloak');
+  clients.push(client);
+  return client;
+}
+
 module.exports = {
 
   setUp: function(callback) {
     this.port = 8091;
     this.host = 'http://localhost:' + this.port;
-    this.client = require('../src/client/cloak');
-    this.server = require('../src/server/cloak');
+    console.log('creating server');
+    this.server = createServer();
+    clients = [];
     callback();
   },
 
   tearDown: function(callback) {
-    this.client.end();
-    this.server.stop();
-    callback();
+    _(clients).forEach(function(client) {
+      console.log('ending client');
+      client.end();
+    });
+    clients = null;
+    console.log('stopping server');
+    this.server.stop(function() {
+      console.log('server stopped');
+      callback();
+    });
   },
 
   messageBasics: function(test) {
 
-    var client = this.client;
     var server = this.server;
+    var client = createClient();
 
     server.configure({
       port: this.port,

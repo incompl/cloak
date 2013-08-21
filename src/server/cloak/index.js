@@ -183,9 +183,12 @@ module.exports = (function() {
       });
     },
 
-    stop: function() {
+    stop: function(callback) {
       clearInterval(gameLoopInterval);
       io.server.close();
+      io.server.on('close', function() {
+        callback();
+      });
     }
 
   };
