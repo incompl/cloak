@@ -1,4 +1,4 @@
-/* global Crafty,console,game,_ */
+/* global Crafty,console,game,_,cloak */
 
 // A Target is an empty space you can put a card on
 Crafty.c('Target', {
@@ -13,9 +13,18 @@ Crafty.c('Target', {
   },
 
   onClick: function() {
-    if (this.used) {
+    // If this target already has a card on it, the draw card isn't fresh,
+    // or it's not your turn don't place anything
+    if (this.used || !game.drawCard.fresh || game.turn !== game.team) {
       return;
     }
+    this.placeCard();
+
+    // Done with turn, let the server know where we clicked
+    cloak.message('turnDone', this[0]);
+  },
+
+  placeCard: function() {
     var card = Crafty.e('Card')
       .attr({ x: this.x, y: this.y });
     card.getAdjacentCards();
@@ -23,6 +32,7 @@ Crafty.c('Target', {
     game.updateGroups();
     game.removeAndScore();
     this.used = true;
+    game.drawCard.setFresh(false);
 
     // add the empty targets around the card
     this.placeTargetIfEmpty(this.x + this.w + game.config.cardBuffer, this.y); 

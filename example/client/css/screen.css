@@ -1,0 +1,16 @@
+#turn {
+  position: absolute;
+  z-index: 1000;
+  font-family: sans;
+  width: 30%;
+  margin-left: 70%;
+  color: white;
+  font-size: 3em;
+  float: right;
+  margin-left: 500px;
+  background-color: #ddd;
+}
+
+body {
+  background-color: #ddd;
+}

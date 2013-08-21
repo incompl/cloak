@@ -1,4 +1,4 @@
-/* global Crafty,_,console,game,player */
+/* global Crafty,_,console,game,player,cloak */
 
 window.game = (function() {
   return {
@@ -8,9 +8,19 @@ window.game = (function() {
     begin: function() {
       Crafty.init(game.config.gameWidth, game.config.gameHeight, document.getElementById('game'));
       Crafty.background('#ddd');
+      
+      game.turn = '';
 
+      // Place our home target
       game.targets = [];
       game.placeHomeTarget();
+
+      // Place our draw spot
+      game.drawCard = Crafty.e('CardDrawn');
+      game.drawCard.attr({
+        x: game.config.cardBuffer,
+        y: game.config.cardBuffer
+      });
 
       // generate deck (move to server)
       game.deck = [];
@@ -23,14 +33,15 @@ window.game = (function() {
         game.deck.push({ suit: 'red', val: num });
       });
 
-      game.draw = function() {
-        return game.deck[Math.floor(Math.random()*game.deck.length)];
-      };
-
       game.groups = {};
       game.groups.sum = {};
       game.groups.count = {};
       game.cards = [];
+    },
+
+    draw: function() {
+      cloak.message('requestCard');
+      //return game.deck[Math.floor(Math.random()*game.deck.length)];
     },
 
     newGroupId: function() {

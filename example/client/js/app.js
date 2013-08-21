@@ -26,32 +26,72 @@ game.config.gameWidth = game.config.cardWidth * 16;
 game.config.gameHeight = game.config.cardWidth * 15;
 game.config.cardBuffer = game.config.cardWidth / 8;
 
-cloak.on('connect', function() {
-  console.log('connect');
-});
 
-cloak.on('disconnect', function() {
-  console.log('disconnect');
-});
+cloak.configure({
+  messages: {
+    'card': function(card) {
+      console.log('the card:', card);
+      game.drawCard.val = card.val;
+      game.drawCard.suit = card.suit;
+      game.drawCard.setFresh(true);
+    },
 
-cloak.on('begin', function(configArg) {
-  console.log('begin');
-  config = configArg;
-  cloak.listRooms(function(rooms) {
-    _(rooms).each(function(room) {
-      console.log(room.name + ' (' + room.userCount + '/' + room.size + ')');
-    });
-    var joining = rooms[0];
-    if (joining === undefined) {
-      console.log('no rooms');
-      return;
+    'userMessage': function(msg) {
+      console.log('The server says: ' + msg);
+    },
+
+    'turn': function(msg) {
+      game.turn = msg;
+      console.log('Turn: ' + game.turn);
+      var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
+      document.getElementById('turn').innerText = turnText;
+    },
+
+    'assignTeam': function(team) {
+      console.log('my team is', team);
+      game.team = team;
+    },
+
+    'placedTarget': function(data) {
+      console.log('target was:', data);
+      //set the next card
+      game.drawCard.val = data[1].val;
+      game.drawCard.suit = data[1].suit;
+      // find the target and simulate a click on it
+      var target = _.findWhere(game.targets, {0: data[0]});
+      target.placeCard();
     }
-    console.log('joining ' + joining.name);
-    cloak.joinRoom(joining.id, function(success) {
-      console.log(success ? 'joined' : 'failed');
-    });
-  });
+  },
+
+  serverEvents: {
+    'connect': function() {
+      console.log('connect');
+    },
+
+    'disconnect': function() {
+      console.log('disconnect');
+    },
+
+    'begin': function() {
+      console.log('begin');
+      cloak.listRooms(function(rooms) {
+        _(rooms).each(function(room) {
+          console.log(room.name + ' (' + room.userCount + '/' + room.size + ')');
+        });
+        var joining = rooms[0];
+        if (joining === undefined) {
+          console.log('no rooms');
+          return;
+        }
+        console.log('joining ' + joining.name);
+        cloak.joinRoom(joining.id, function(success) {
+          console.log(success ? 'joined' : 'failed');
+        });
+      });
+    }
+  }
+
 });
 
-cloak.run('http://localhost:8090');
+cloak.run('http://10.0.0.213:8090');
 game.begin();

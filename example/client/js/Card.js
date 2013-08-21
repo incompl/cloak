@@ -4,15 +4,19 @@
 Crafty.c('Card', {
   init: function() {
     this.group = game.newGroupId();
-    var draw = game.draw();
+    var draw = {
+      val: game.drawCard.val,
+      suit: game.drawCard.suit
+    };
+    var fontSize = ((this.w-35) > 20) ? (this.w-35) : 20;
     this.requires('Actor, Color, Text')
       .color(draw.suit)
       .textColor('#ffffff')
-      .textFont({ size: (this.w-35)+'px', weight: 'bold', family: 'Sans' })
-      .text(draw.val + '/' + this.group)
+      .textFont({ size: fontSize+'px', weight: 'bold', family: 'Sans' })
       .css('text-align', 'center');
     this.suit = draw.suit;
     this.val = draw.val;
+    this.updateText();
     game.cards.push(this);
   },
 
@@ -42,7 +46,7 @@ Crafty.c('Card', {
   },
 
   updateText: function() {
-    this.text(this.val + '/' + this.group);
+    this.text(this.val);// + '/' + this.group);
   },
 
   getPoints: function() {

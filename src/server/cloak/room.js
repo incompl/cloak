@@ -24,6 +24,7 @@ module.exports = (function() {
   Room.prototype = {
 
     close: function() {
+      console.log('close happened');
       if (roomEvents.close) {
         roomEvents.close.call(this);
       }
@@ -49,7 +50,9 @@ module.exports = (function() {
     },
 
     messageMembers: function(name, arg) {
+      console.log('our members', this.members.length);
       _.forEach(this.members, function(member) {
+        console.log(member.id);
         member.message(name, arg);
       }.bind(this));
     }
