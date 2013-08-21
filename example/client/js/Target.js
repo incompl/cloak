@@ -20,6 +20,8 @@ Crafty.c('Target', {
       .attr({ x: this.x, y: this.y });
     card.getAdjacentCards();
     card.evaluateGroup();
+    game.updateGroups();
+    game.removeAndScore();
     this.used = true;
 
     // add the empty targets around the card
@@ -44,6 +46,36 @@ Crafty.c('Target', {
     if (valid) {
       Crafty.e('Target')
         .attr({ x: x, y: y });
+    }
+  },
+
+  // if I am next to a card, then refresh me, I'm a valid target
+  // if I'm under a card, don't refresh me but I should continue to exist
+  // otherwise destroy me
+  refresh: function() {
+    var valid = false;
+    var destroy = true;
+    var target = this;
+    Crafty('Card').each(function() {
+      if (this.intersect(target.x + target.w + game.config.cardBuffer, target.y, target.w, target.h) ||
+          this.intersect(target.x - target.w - game.config.cardBuffer, target.y, target.w, target.h) ||
+          this.intersect(target.x, target.y + target.h + game.config.cardBuffer, target.w, target.h) ||
+          this.intersect(target.x, target.y - target.h - game.config.cardBuffer, target.w, target.h)
+        ) {
+        valid = true;
+        destroy = false;
+      }
+      if (this.intersect(target.x, target.y, target.w, target.h)) {
+        destroy = false;
+      }
+    });
+    if (valid) {
+      this.used = false;
+    }
+    else if (destroy) {
+      this.destroy();
+      var currentTarget = this;
+      game.targets = _.reject(game.targets, function(thisTarget) { return _.isEqual(thisTarget, currentTarget); });
     }
   }
 
