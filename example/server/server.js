@@ -48,7 +48,7 @@ cloak.configure({
         }
       };
 
-      var nums = ['&#x25b2;', '1', '2', '3', '4', '5', '6', '7', '8', '9', '&#x25cf;', '&#x25cf;', '&#x25cf;', '&#x25cf;'];
+      var nums = ['&#x25b2;', '2', '3', '4', '5', '6', '7', '8', '9', '&#x25cf;', '&#x25cf;', '&#x25cf;', '&#x25cf;'];
 
       _.each(nums, function(num) {
         this.deck.black.push({ suit: 'black', val: num });
