@@ -1,6 +1,6 @@
-/* global io,console,_ */
+/* global cloak:true,module,io:true,console,_:true */
 
-window.cloak = (function() {
+cloak = (function() {
 
   var uid;
   var done = true;
@@ -25,6 +25,14 @@ window.cloak = (function() {
   var cloak = {
 
     configure: function(configArg) {
+
+      if (configArg.underscore) {
+        _ = configArg.underscore;
+      }
+      if (configArg.io) {
+        io = configArg.io;
+      }
+
       _(configArg).forEach(function(val, key) {
         if (key === 'serverEvents') {
           _(val).forEach(function(eventHandler, eventName) {
@@ -148,3 +156,7 @@ window.cloak = (function() {
   return cloak;
 
 })();
+
+if (typeof window === 'undefined') {
+  module.exports = cloak;
+}

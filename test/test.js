@@ -2,45 +2,61 @@
 
 var connect = require('connect');
 var path = require('path');
-var cloak = require('../src/server/cloak');
+var _ = require('underscore');
 var io = require('socket.io-client');
 
 module.exports = {
 
   setUp: function(callback) {
-    console.log('setUp');
+    this.port = 8091;
+    this.host = 'http://localhost:' + this.port;
+    this.client = require('../src/client/cloak');
+    this.server = require('../src/server/cloak');
     callback();
   },
 
   tearDown: function(callback) {
-    console.log('tearDown');
+    this.client.end();
+    this.server.stop();
     callback();
   },
 
-  sendMessage: function(test) {
-    var socket;
-    cloak.configure({
-      port: 8091,
+  messageBasics: function(test) {
+
+    var client = this.client;
+    var server = this.server;
+
+    server.configure({
+      port: this.port,
       messages: {
-        dog: function() {
-          try {
-            test.ok(true, 'received message');
-            socket.disconnect();
-            cloak.stop();
-          }
-          catch(e) {
-            console.log(e);
-          }
+        dog: function(arg, user) {
+          test.ok(true, 'received message from client');
+          test.equals(arg.foo, 123);
+          user.message('cat', {bar: 456});
+        }
+      }
+    });
+
+    client.configure({
+      underscore: _,
+      io: io,
+      serverEvents: {
+        begin: function() {
+          client.message('dog', {foo: 123});
+        }
+      },
+      messages: {
+        cat: function(arg) {
+          test.ok(true, 'received message from server');
+          test.equals(arg.bar, 456);
           test.done();
         }
       }
     });
-    cloak.run();
-    socket = io.connect('http://localhost:8091');
-    socket.on('connect', function() {
-      socket.emit('cloak-begin', {});
-      socket.emit('message-dog', {});
-    });
-  },
+
+    server.run();
+    client.run(this.host);
+
+  }
 
 };
