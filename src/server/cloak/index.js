@@ -20,11 +20,11 @@ module.exports = (function() {
   var defaults = {
     port: 8090,
     logLevel: 1,
+    gameLoopSpeed: 100,
     defaultRoomSize: 5,
     autoJoinRoom: false,
     autoCreateRooms: false,
-    reconnectWait: 20000,
-    roomLife: 15000
+    roomLife: 0
   };
 
   var config = _.extend({}, defaults);
@@ -32,7 +32,7 @@ module.exports = (function() {
   var cloak = {
 
     // shorthand to get host string for socket
-    host: function(socket) {
+    _host: function(socket) {
       return socket.handshake.address.address;
     },
 
@@ -56,24 +56,24 @@ module.exports = (function() {
       io.set('log level', config.logLevel);
 
       io.sockets.on('connection', function(socket) {
-        console.log(cloak.host(socket) + ' connects');
+        console.log(cloak._host(socket) + ' connects');
 
         socket.on('disconnect', function(data) {
           var uid = socketIdToUserId[socket.id];
-          var user = cloak.getUser(uid);
+          var user = cloak._getUser(uid);
           user.leaveRoom();
           delete socketIdToUserId[socket.id];
           delete users[uid];
-          console.log(cloak.host(socket) + ' disconnects');
+          console.log(cloak._host(socket) + ' disconnects');
         });
 
         socket.on('cloak-begin', function(data) {
           var user = new User(socket);
           users[user.id] = user;
           socketIdToUserId[socket.id] = user.id;
-          cloak.setupHandlers(socket);
+          cloak._setupHandlers(socket);
           socket.emit('cloak-beginResponse', {uid:user.id, config:config});
-          console.log(cloak.host(socket) + ' begins');
+          console.log(cloak._host(socket) + ' begins');
         });
 
         socket.on('cloak-resume', function(data) {
@@ -82,16 +82,16 @@ module.exports = (function() {
           if (user !== undefined) {
             socketIdToUserId[socket.id] = uid;
             user.setSocket(socket);
-            cloak.setupHandlers(socket);
+            cloak._setupHandlers(socket);
             socket.emit('cloak-resumeResponse', {
               valid: true,
               config: config
             });
-            console.log(cloak.host(socket) + ' resumes');
+            console.log(cloak._host(socket) + ' resumes');
           }
           else {
             socket.emit('cloak-resumeResponse', {valid: false});
-            console.log(cloak.host(socket) + ' fails to resume');
+            console.log(cloak._host(socket) + ' fails to resume');
           }
         });
 
@@ -108,7 +108,7 @@ module.exports = (function() {
         });
 
         socket.on('cloak-registerUsername', function(data) {
-          var uid = cloak.getUidForSocket(socket);
+          var uid = cloak._getUidForSocket(socket);
           var username = data.username;
           var usernames = _.pluck(users, 'username');
           var success = false;
@@ -124,18 +124,19 @@ module.exports = (function() {
 
       gameLoopInterval = setInterval(function() {
         _(rooms).forEach(function(room) {
-          if (new Date().getTime() - room.created >= config.roomLife) {
+          if (config.roomLife !== 0 &&
+              new Date().getTime() - room.created >= config.roomLife) {
             cloak.deleteRoom(room.id);
           }
           else {
             room.pulse();
           }
         });
-      }, 100);
+      }, config.gameLoopSpeed);
 
     },
 
-    setupHandlers: function(socket) {
+    _setupHandlers: function(socket) {
 
       if (!config.autoJoinRoom) {
 
@@ -146,7 +147,7 @@ module.exports = (function() {
         });
 
         socket.on('cloak-joinRoom', function(data) {
-          var uid = cloak.getUidForSocket(socket);
+          var uid = cloak._getUidForSocket(socket);
           var room = rooms[data.id];
           var success = false;
           if (room && room.members.length < room.size) {
@@ -160,7 +161,7 @@ module.exports = (function() {
 
         _(config.messages).each(function(handler, name) {
           socket.on('message-' + name, function(arg) {
-            var user = cloak.getUserForSocket(socket);
+            var user = cloak._getUserForSocket(socket);
             handler(arg, user);
           });
         });
@@ -198,15 +199,15 @@ module.exports = (function() {
       delete rooms[id];
     },
 
-    getUidForSocket: function(socket) {
+    _getUidForSocket: function(socket) {
       return socketIdToUserId[socket.id];
     },
 
-    getUserForSocket: function(socket) {
-      return this.getUser(this.getUidForSocket(socket));
+    _getUserForSocket: function(socket) {
+      return this._getUser(this._getUidForSocket(socket));
     },
 
-    getUser: function(uid) {
+    _getUser: function(uid) {
       return users[uid];
     },
 
