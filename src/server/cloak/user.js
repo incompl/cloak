@@ -17,6 +17,10 @@ module.exports = (function() {
       this._socket.emit('message-' + name, arg);
     },
 
+    _serverMessage: function(name, arg) {
+      this._socket.emit('cloak-' + name, arg);
+    },
+
     setSocket: function(socketArg) {
       this._socket = socketArg;
     },

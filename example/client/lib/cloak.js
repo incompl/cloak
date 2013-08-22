@@ -100,6 +100,10 @@
           }
         });
 
+        socket.on('cloak-newRoomMember', function(user) {
+          cloak.trigger('cloak-newRoomMember');
+        });
+
         socket.on('cloak-beginResponse', function(data) {
           uid = data.uid;
           serverConfig = data.config;
@@ -120,6 +124,7 @@
 
         handleResponsesFor(socket, 'cloak-listRoomsResponse', 'rooms');
         handleResponsesFor(socket, 'cloak-joinRoomResponse', 'success');
+        handleResponsesFor(socket, 'cloak-listUsersResponse', 'users');
         handleResponsesFor(socket, 'cloak-registerUsernameResponse', 'success');
 
         _(config.messages).forEach(function(handler, name) {
@@ -160,6 +165,11 @@
       joinRoom: function(id, callback) {
         this.callback('cloak-joinRoomResponse', callback);
         socket.emit('cloak-joinRoom', {id: id});
+      },
+
+      listUsers: function(callback) {
+        this.callback('cloak-listUsersResponse', callback);
+        socket.emit('cloak-listUsers', {});
       },
 
       registerUsername: function(username, callback) {

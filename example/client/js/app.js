@@ -72,6 +72,13 @@ cloak.configure({
       console.log('disconnect');
     },
 
+    'newRoomMember': function(user) {
+      console.log('new room member', user);
+      cloak.listUsers(function(users) {
+        game.refreshLobby(users);
+      });
+    },
+
     'begin': function() {
       console.log('begin');
       cloak.listRooms(function(rooms) {
@@ -79,27 +86,7 @@ cloak.configure({
           console.log(room);
           console.log(room.name + ' (' + room.userCount + '/' + room.size + ')');
         });
-        var joining = rooms[0];
-        if (joining === undefined) {
-          console.log('no rooms');
-          return;
-        }
-        console.log('joining ' + joining.name);
-        cloak.joinRoom(joining.id, function(success) {
-          console.log(success ? 'joined' : 'failed');
-          var lobbyElement = document.getElementById('lobby');
-          if (joining.users.length === 0) {
-            console.log('no other users');
-          }
-          lobbyElement.innerHTML = '<ul>';
-          _.chain(joining.users)
-            .pluck('username')
-            .each(function(username) {
-              console.log('user: ' + username);
-              lobbyElement.innerHTML += '<li>' + username + '</li>';
-            });
-          lobbyElement.innerHTML += '</ul>';
-        });
+
       });
     }
   }

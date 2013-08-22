@@ -15,6 +15,10 @@
   display: none;
 }
 
+#lobby {
+  display: none;
+}
+
 body {
   background-color: #ddd;
   font-family: sans;

@@ -43,6 +43,7 @@ module.exports = (function() {
       if (roomEvents.newMember) {
         roomEvents.newMember.call(this, user);
       }
+      this._serverMessageMembers('newRoomMember', _.pick(user, 'id', 'username'));
     },
 
     age: function() {
@@ -54,6 +55,13 @@ module.exports = (function() {
       _.forEach(this.members, function(member) {
         console.log(member.id);
         member.message(name, arg);
+      }.bind(this));
+    },
+
+    _serverMessageMembers: function(name, arg) {
+      _.forEach(this.members, function(member) {
+        console.log(member.id);
+        member._serverMessage(name, arg);
       }.bind(this));
     }
 

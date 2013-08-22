@@ -95,6 +95,18 @@ module.exports = (function() {
           }
         });
 
+        socket.on('cloak-listUsers', function(data) {
+          var user = cloak.getUserForSocket(socket);
+          socket.emit('cloak-listUsersResponse', {
+            users: _.map(user.room.members, function(member) {
+              return {
+                id: member.id,
+                username: member.username
+              };
+            })
+          });
+        });
+
         socket.on('cloak-registerUsername', function(data) {
           var uid = cloak.getUidForSocket(socket);
           var username = data.username;
@@ -104,7 +116,6 @@ module.exports = (function() {
             success = true;
             users[uid].username = username;
           }
-          console.log('users',users);
           socket.emit('cloak-registerUsernameResponse', {
             success: success
           });

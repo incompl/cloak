@@ -16,8 +16,44 @@ window.game = (function() {
       // Register our username with the server
       cloak.registerUsername(game.username, function(success) {
         console.log(success ? 'username registered' : 'username failed');
+        // if we registered a username, try to join the lobby
+        if (success) {
+          // get a list of rooms
+          cloak.listRooms(function(rooms) {
+            var joining = rooms[0];
+            if (joining === undefined) {
+              console.log('no rooms');
+              return;
+            }
+            console.log('joining ' + joining.name);
+            // try to join the room
+            cloak.joinRoom(joining.id, function(success) {
+              console.log(success ? 'joined' : 'failed');
+              // if we joined the room, list users in the room
+              if (success) {
+                // list out users in the room and add them to our lobby
+                cloak.listUsers(function(users) {
+                  console.log('other users in room', users);
+                  game.refreshLobby(users);
+                });
+              }
+            });
+          });
+        }
       });
-      game.begin();
+    },
+
+    refreshLobby: function(users) {
+      var lobbyElement = document.getElementById('lobby');
+      lobbyElement.style.display = 'block';
+      lobbyElement.innerHTML = '<h3>Lobby</h3><ul>';
+      _.chain(users)
+        .pluck('username')
+        .each(function(username) {
+          console.log('user: ' + username);
+          lobbyElement.innerHTML += '<li>' + username + '</li>';
+        });
+      lobbyElement.innerHTML += '</ul>';
     },
 
     begin: function() {
