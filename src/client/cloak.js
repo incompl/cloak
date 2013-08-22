@@ -131,7 +131,6 @@
         handleResponsesFor(socket, 'cloak-createRoomResponse', 'room');
         handleResponsesFor(socket, 'cloak-listUsersResponse', 'users');
         handleResponsesFor(socket, 'cloak-registerUsernameResponse', 'success');
-        handleResponsesFor(socket, 'cloak-getLobbyResponse', 'success');
 
         _(config.messages).forEach(function(handler, name) {
           socket.on('message-' + name, function(data) {
