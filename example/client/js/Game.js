@@ -66,7 +66,7 @@ window.game = (function() {
             lobbyElement.innerHTML += '<li>' + user.username + '</li>';
           }
           else {
-            lobbyElement.innerHTML += '<li>' + user.username + ' (' + user.room.numMembers + '/' + user.room.size + ')</li>';
+            lobbyElement.innerHTML += '<li>' + user.username + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
           }
         });
       lobbyElement.innerHTML += '</ul>';

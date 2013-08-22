@@ -117,7 +117,7 @@ module.exports = (function() {
                   id: member.room.id,
                   name: member.room.name,
                   size: member.room.size,
-                  numMembers: member.room.members.length,
+                  userCount: member.room.members.length,
                   lobby: (member.room.id === lobby.id)
                 }
               };
