@@ -7,6 +7,8 @@ cloak.configure({
   // 3 hour room life
   roomLife: 1000*60*60*3,
 
+  autoJoinLobby: false,
+
   messages: {
     requestCard: function(arg, user) {
       var card = user.room.deck.draw(user.team);
@@ -79,9 +81,10 @@ cloak.configure({
         user.team = 'none';
         user.message('userMessage', msg);
       }
-      user.message('assignTeam', user.team);
-      user.message('turn', this.turn);
-      //console.log(this.teams);
+      user.message('assignTeam', {
+        team: user.team,
+        turn: this.turn
+      });
     },
 
     pulse: function() {
@@ -95,9 +98,5 @@ cloak.configure({
   }
 
 });
-
-cloak.createRoom('lobby', 1000);
-cloak.createRoom('room-1', 2);
-cloak.createRoom('room-2', 2);
 
 cloak.run();

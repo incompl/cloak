@@ -100,8 +100,12 @@
           }
         });
 
-        socket.on('cloak-newRoomMember', function(user) {
-          cloak._trigger('cloak-newRoomMember');
+        socket.on('cloak-roomMemberJoined', function(user) {
+          cloak._trigger('cloak-roomMemberJoined');
+        });
+
+        socket.on('cloak-roomMemberLeft', function(user) {
+          cloak._trigger('cloak-roomMemberLeft');
         });
 
         socket.on('cloak-beginResponse', function(data) {
@@ -124,8 +128,10 @@
 
         handleResponsesFor(socket, 'cloak-listRoomsResponse', 'rooms');
         handleResponsesFor(socket, 'cloak-joinRoomResponse', 'success');
+        handleResponsesFor(socket, 'cloak-createRoomResponse', 'room');
         handleResponsesFor(socket, 'cloak-listUsersResponse', 'users');
         handleResponsesFor(socket, 'cloak-registerUsernameResponse', 'success');
+        handleResponsesFor(socket, 'cloak-getLobbyResponse', 'success');
 
         _(config.messages).forEach(function(handler, name) {
           socket.on('message-' + name, function(data) {
@@ -157,9 +163,19 @@
         callbacks[name].push(callback);
       },
 
+      createRoom: function(data, callback) {
+        this._callback('cloak-createRoomResponse', callback);
+        socket.emit('cloak-createRoom', data);
+      },
+
       listRooms: function(callback) {
         this._callback('cloak-listRoomsResponse', callback);
         socket.emit('cloak-listRooms', {});
+      },
+
+      joinLobby: function(callback) {
+        this._callback('cloak-joinLobbyResponse', callback);
+        socket.emit('cloak-joinLobby', {});
       },
 
       joinRoom: function(id, callback) {

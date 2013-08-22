@@ -112,9 +112,24 @@ module.exports = (function() {
             users: _.map(user.room.members, function(member) {
               return {
                 id: member.id,
-                username: member.username
+                username: member.username,
+                room: {
+                  id: member.room.id,
+                  name: member.room.name,
+                  size: member.room.size,
+                  numMembers: member.room.members.length,
+                  lobby: (member.room.id === lobby.id)
+                }
               };
             })
+          });
+        });
+
+        socket.on('cloak-joinLobby', function() {
+          var user = cloak._getUserForSocket(socket);
+          lobby.addMember(user);
+          socket.emit('cloak-joinLobbyResponse', {
+            success: true,
           });
         });
 
@@ -167,6 +182,14 @@ module.exports = (function() {
           }
           socket.emit('cloak-joinRoomResponse', {
             success: success
+          });
+        });
+
+        socket.on('cloak-createRoom', function(data) {
+          var user = cloak._getUserForSocket(socket);
+          var room = cloak.createRoom(data.name, data.size);
+          socket.emit('cloak-createRoomResponse', {
+            room: room
           });
         });
 

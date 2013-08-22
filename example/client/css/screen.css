@@ -19,6 +19,18 @@
   display: none;
 }
 
+#rooms {
+  display: none;
+}
+
+.indented {
+  margin-left: 20px;
+}
+
+#new-room-ui {
+  display: none;
+}
+
 body {
   background-color: #ddd;
   font-family: sans;

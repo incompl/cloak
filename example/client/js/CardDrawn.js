@@ -33,6 +33,7 @@ Crafty.c('CardDrawn', {
     if (this.fresh || game.turn !== game.team) {
       return;
     }
+    console.log('draw a card');
     game.draw();
   },
 

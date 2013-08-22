@@ -47,9 +47,12 @@ cloak.configure({
       document.getElementById('turn').innerText = turnText;
     },
 
-    'assignTeam': function(team) {
-      console.log('my team is', team);
-      game.team = team;
+    'assignTeam': function(data) {
+      console.log('my team is', data.team);
+      game.team = data.team;
+      game.turn = data.turn;
+      var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
+      document.getElementById('turn').innerText = turnText;
     },
 
     'placedTarget': function(data) {
@@ -60,6 +63,10 @@ cloak.configure({
       // find the target and simulate a click on it
       var target = _.findWhere(game.targets, {0: data[0]});
       target.placeCard();
+    },
+
+    'beginGame': function() {
+      game.begin();
     }
   },
 
@@ -72,8 +79,15 @@ cloak.configure({
       console.log('disconnect');
     },
 
-    'newRoomMember': function(user) {
-      console.log('new room member', user);
+    'roomMemberJoined': function(user) {
+      console.log('room member joined', user);
+      cloak.listUsers(function(users) {
+        game.refreshLobby(users);
+      });
+    },
+
+    'roomMemberLeft': function(user) {
+      console.log('room member left', user);
       cloak.listUsers(function(users) {
         game.refreshLobby(users);
       });
@@ -86,7 +100,6 @@ cloak.configure({
           console.log(room);
           console.log(room.name + ' (' + room.userCount + '/' + room.size + ')');
         });
-
       });
     }
   }

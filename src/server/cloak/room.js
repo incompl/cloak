@@ -43,7 +43,7 @@ module.exports = (function() {
       if (this._roomEvents.newMember) {
         this._roomEvents.newMember.call(this, user);
       }
-      this._serverMessageMembers('newRoomMember', _.pick(user, 'id', 'username'));
+      this._serverMessageMembers('roomMemberJoined', _.pick(user, 'id', 'username'));
     },
 
     removeMember: function(user) {
@@ -58,6 +58,7 @@ module.exports = (function() {
       if (!this.isLobby && Room._autoJoinLobby) {
         Room._lobby.addMember(user);
       }
+      this._serverMessageMembers('roomMemberLeft', _.pick(user, 'id', 'username'));
     },
 
     age: function() {
