@@ -5,8 +5,9 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  function Room(nameArg, sizeArg, roomEventsArg) {
+  function Room(nameArg, sizeArg, roomEventsArg, isLobby) {
     this._roomEvents = roomEventsArg || {};
+    this.isLobby = isLobby;
     this.id = uuid.v4();
     this.name = nameArg;
     this.members = [];
@@ -42,15 +43,21 @@ module.exports = (function() {
       if (this._roomEvents.newMember) {
         this._roomEvents.newMember.call(this, user);
       }
+      this._serverMessageMembers('newRoomMember', _.pick(user, 'id', 'username'));
     },
 
     removeMember: function(user) {
-      user.room.members = _(user.room.members).without(this);
+      if (user.room !== this) {
+        return;
+      }
+      this.members = _(this.members).without(user);
       delete user.room;
       if (this._roomEvents.memberLeaves) {
         this._roomEvents.memberLeaves.call(this, user);
       }
-      this._serverMessageMembers('newRoomMember', _.pick(user, 'id', 'username'));
+      if (!this.isLobby && Room._autoJoinLobby) {
+        Room._lobby.addMember(user);
+      }
     },
 
     age: function() {

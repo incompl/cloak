@@ -25,7 +25,8 @@ module.exports = (function() {
     defaultRoomSize: 5,
     autoJoinRoom: false,
     autoCreateRooms: false,
-    roomLife: 0
+    roomLife: 0,
+    autoJoinLobby: true
   };
 
   var config = _.extend({}, defaults);
@@ -57,7 +58,10 @@ module.exports = (function() {
 
       io.set('log level', config.logLevel);
 
-      var lobby = new Room('Lobby', 0, events.lobby);
+      var lobby = new Room('Lobby', 0, events.lobby, true);
+
+      Room.prototype._lobby = lobby;
+      Room.prototype._autoJoinLobby = config.autoJoinLobby;
 
       io.sockets.on('connection', function(socket) {
         console.log(cloak._host(socket) + ' connects');
@@ -78,7 +82,9 @@ module.exports = (function() {
           cloak._setupHandlers(socket);
           socket.emit('cloak-beginResponse', {uid:user.id, config:config});
           console.log(cloak._host(socket) + ' begins');
-          lobby.addMember(user);
+          if (config.autoJoinLobby) {
+            lobby.addMember(user);
+          }
         });
 
         socket.on('cloak-resume', function(data) {
@@ -193,7 +199,7 @@ module.exports = (function() {
     },
 
     createRoom: function(name, size) {
-      var room = new Room(name, size || config.defaultRoomSize, events.room);
+      var room = new Room(name, size || config.defaultRoomSize, events.room, false);
       rooms[room.id] = room;
       return room;
     },
