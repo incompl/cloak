@@ -3,12 +3,13 @@
   z-index: 1000;
   font-family: sans;
   width: 30%;
-  margin-left: 70%;
-  color: white;
-  font-size: 3em;
+  margin-left: 65%;
+  margin-right: 5%;
+  font-size: 1.5em;
   float: right;
-  margin-left: 500px;
   background-color: #ddd;
+  text-align: right;
+  color: white;
 }
 
 body {

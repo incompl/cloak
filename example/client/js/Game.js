@@ -22,17 +22,6 @@ window.game = (function() {
         y: game.config.cardBuffer
       });
 
-      // generate deck (move to server)
-      game.deck = [];
-      //var nums = ['&#x25b2;', '1', '2', '3', '4', '5', '6', '7', '8', '9', '&#x25cf;', '&#x25cf;', '&#x25cf;', '&#x25cf;'];
-      var nums = ['7'];
-      _.each(nums, function(num) {
-        game.deck.push({ suit: 'black', val: num });
-        game.deck.push({ suit: 'black', val: num });
-        game.deck.push({ suit: 'red', val: num });
-        game.deck.push({ suit: 'red', val: num });
-      });
-
       game.groups = {};
       game.groups.sum = {};
       game.groups.count = {};
@@ -41,7 +30,6 @@ window.game = (function() {
 
     draw: function() {
       cloak.message('requestCard');
-      //return game.deck[Math.floor(Math.random()*game.deck.length)];
     },
 
     newGroupId: function() {
