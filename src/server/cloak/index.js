@@ -186,10 +186,20 @@ module.exports = (function() {
 
     stop: function(callback) {
       clearInterval(gameLoopInterval);
-      io.server.close();
-      io.server.on('close', function() {
+      if (io) {
+        try {
+          io.server.close();
+          io.server.on('close', function() {
+            callback();
+          });
+        }
+        catch(e) {
+          callback();
+        }
+      }
+      else {
         callback();
-      });
+      }
     }
 
   };
