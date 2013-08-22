@@ -1,7 +1,6 @@
 #turn {
   position: absolute;
   z-index: 1000;
-  font-family: sans;
   width: 30%;
   margin-left: 65%;
   margin-right: 5%;
@@ -9,9 +8,15 @@
   float: right;
   background-color: #ddd;
   text-align: right;
-  color: white;
+  display: none;
+}
+
+#game {
+  display: none;
 }
 
 body {
   background-color: #ddd;
+  font-family: sans;
+  color: white;
 }

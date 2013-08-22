@@ -62,6 +62,7 @@ cloak.configure({
     },
 
     newMember: function(user) {
+      console.log(cloak.listRooms());
       if (this.teams.red === '') {
         this.teams.red = user.id;
         user.team = 'red';
@@ -95,6 +96,8 @@ cloak.configure({
 
 });
 
-cloak.createRoom('room', 2);
+cloak.createRoom('lobby', 1000);
+cloak.createRoom('room-1', 2);
+cloak.createRoom('room-2', 2);
 
 cloak.run();

@@ -6,7 +6,26 @@ window.game = (function() {
     config: {},
 
     begin: function() {
-      Crafty.init(game.config.gameWidth, game.config.gameHeight, document.getElementById('game'));
+      var gameElement = document.getElementById('game');
+      var turnElement = document.getElementById('turn');
+      var networkUIElement = document.getElementById('network-ui');
+      var loginUIElement = document.getElementById('login-ui');
+      var loginElement = document.getElementById('login');
+
+      if (loginElement.value.trim() === '') {
+        loginUIElement.innerHTML += '<p>Enter a valid username!</p>';
+        return;
+      }
+      
+      game.username = loginElement.value;
+      // Register our username with the server
+      cloak.message('username', game.username);
+
+      gameElement.style.display = 'block';
+      turnElement.style.display = 'block';
+      networkUIElement.style.display = 'none';
+      Crafty.init(game.config.gameWidth, game.config.gameHeight, gameElement);
+
       Crafty.background('#ddd');
       
       game.turn = '';

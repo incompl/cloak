@@ -76,6 +76,7 @@ cloak.configure({
       console.log('begin');
       cloak.listRooms(function(rooms) {
         _(rooms).each(function(room) {
+          console.log(room);
           console.log(room.name + ' (' + room.userCount + '/' + room.size + ')');
         });
         var joining = rooms[0];
@@ -86,6 +87,16 @@ cloak.configure({
         console.log('joining ' + joining.name);
         cloak.joinRoom(joining.id, function(success) {
           console.log(success ? 'joined' : 'failed');
+          var lobbyElement = document.getElementById('lobby');
+          if (joining.users.length === 0) {
+            console.log('no other users');
+          }
+          lobbyElement.innerHTML = '<ul>';
+          _.each(joining.users, function(id) {
+            console.log('user: ' + id);
+            lobbyElement.innerHTML += '<li>' + id + '</li>';
+          });
+          lobbyElement.innerHTML += '</ul>';
         });
       });
     }
@@ -94,4 +105,4 @@ cloak.configure({
 });
 
 cloak.run('http://10.0.0.213:8090');
-game.begin();
+//game.begin();

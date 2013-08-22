@@ -148,6 +148,7 @@ module.exports = (function() {
           id: id,
           name: room.name,
           userCount: room.members.length,
+          users: _.pluck(room.members, 'id'),
           size: room.size
         };
       });
