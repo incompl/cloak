@@ -10,6 +10,7 @@ var Room = require('./room.js');
 module.exports = (function() {
 
   var users = {};
+  var usernames = {};
   var rooms = {};
   var socketIdToUserId = {};
   var events = {};
@@ -93,6 +94,21 @@ module.exports = (function() {
             console.log(cloak.host(socket) + ' fails to resume');
           }
         });
+
+        socket.on('cloak-registerUsername', function(data) {
+          var uid = cloak.getUidForSocket(socket);
+          var username = data.username;
+          var usernames = _.pluck(users, 'username');
+          var success = false;
+          if (_.indexOf(usernames, username) === -1) {
+            success = true;
+            users[uid].username = username;
+          }
+          console.log('users',users);
+          socket.emit('cloak-registerUsernameResponse', {
+            success: success
+          });
+        });
       });
 
       gameLoopInterval = setInterval(function() {
@@ -148,7 +164,12 @@ module.exports = (function() {
           id: id,
           name: room.name,
           userCount: room.members.length,
-          users: _.pluck(room.members, 'id'),
+          users: _.map(room.members, function(member) {
+            return {
+              id: member.id,
+              username: member.username
+            };
+          }),
           size: room.size
         };
       });

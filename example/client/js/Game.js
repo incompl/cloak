@@ -5,22 +5,25 @@ window.game = (function() {
     _groupIdCounter: 0,
     config: {},
 
-    begin: function() {
-      var gameElement = document.getElementById('game');
-      var turnElement = document.getElementById('turn');
-      var networkUIElement = document.getElementById('network-ui');
+    registerUsername: function() {
       var loginUIElement = document.getElementById('login-ui');
       var loginElement = document.getElementById('login');
-
       if (loginElement.value.trim() === '') {
         loginUIElement.innerHTML += '<p>Enter a valid username!</p>';
         return;
       }
-      
       game.username = loginElement.value;
       // Register our username with the server
-      cloak.message('username', game.username);
+      cloak.registerUsername(game.username, function(success) {
+        console.log(success ? 'username registered' : 'username failed');
+      });
+      game.begin();
+    },
 
+    begin: function() {
+      var gameElement = document.getElementById('game');
+      var turnElement = document.getElementById('turn');
+      var networkUIElement = document.getElementById('network-ui');
       gameElement.style.display = 'block';
       turnElement.style.display = 'block';
       networkUIElement.style.display = 'none';

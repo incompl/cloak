@@ -92,10 +92,12 @@ cloak.configure({
             console.log('no other users');
           }
           lobbyElement.innerHTML = '<ul>';
-          _.each(joining.users, function(id) {
-            console.log('user: ' + id);
-            lobbyElement.innerHTML += '<li>' + id + '</li>';
-          });
+          _.chain(joining.users)
+            .pluck('username')
+            .each(function(username) {
+              console.log('user: ' + username);
+              lobbyElement.innerHTML += '<li>' + username + '</li>';
+            });
           lobbyElement.innerHTML += '</ul>';
         });
       });

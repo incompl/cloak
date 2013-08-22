@@ -8,6 +8,7 @@ module.exports = (function() {
   function User(socketArg) {
     this.id = uuid.v4();
     this._socket = socketArg;
+    this.username = '';
   }
 
   User.prototype = {

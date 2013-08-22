@@ -62,7 +62,7 @@ cloak.configure({
     },
 
     newMember: function(user) {
-      console.log(cloak.listRooms());
+      //console.log(cloak.listRooms());
       if (this.teams.red === '') {
         this.teams.red = user.id;
         user.team = 'red';
@@ -81,7 +81,7 @@ cloak.configure({
       }
       user.message('assignTeam', user.team);
       user.message('turn', this.turn);
-      console.log(this.teams);
+      //console.log(this.teams);
     },
 
     pulse: function() {

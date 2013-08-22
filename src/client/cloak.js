@@ -120,6 +120,7 @@
 
         handleResponsesFor(socket, 'cloak-listRoomsResponse', 'rooms');
         handleResponsesFor(socket, 'cloak-joinRoomResponse', 'success');
+        handleResponsesFor(socket, 'cloak-registerUsernameResponse', 'success');
 
         _(config.messages).forEach(function(handler, name) {
           socket.on('message-' + name, function(data) {
@@ -159,6 +160,11 @@
       joinRoom: function(id, callback) {
         this.callback('cloak-joinRoomResponse', callback);
         socket.emit('cloak-joinRoom', {id: id});
+      },
+
+      registerUsername: function(username, callback) {
+        this.callback('cloak-registerUsernameResponse', callback);
+        socket.emit('cloak-registerUsername', {username: username});
       },
 
       message: function(name, arg) {
