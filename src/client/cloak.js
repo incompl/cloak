@@ -101,7 +101,7 @@
         });
 
         socket.on('cloak-newRoomMember', function(user) {
-          cloak.trigger('cloak-newRoomMember');
+          cloak._trigger('cloak-newRoomMember');
         });
 
         socket.on('cloak-beginResponse', function(data) {
@@ -168,7 +168,7 @@
       },
 
       listUsers: function(callback) {
-        this.callback('cloak-listUsersResponse', callback);
+        this._callback('cloak-listUsersResponse', callback);
         socket.emit('cloak-listUsers', {});
       },
 

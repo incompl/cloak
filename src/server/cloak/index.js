@@ -96,7 +96,7 @@ module.exports = (function() {
         });
 
         socket.on('cloak-listUsers', function(data) {
-          var user = cloak.getUserForSocket(socket);
+          var user = cloak._getUserForSocket(socket);
           socket.emit('cloak-listUsersResponse', {
             users: _.map(user.room.members, function(member) {
               return {
