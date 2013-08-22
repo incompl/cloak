@@ -27,9 +27,12 @@ module.exports = (function() {
 
     leaveRoom: function() {
       if (this.room !== undefined) {
-        this.room.members = _(this.room.members).without(this);
-        delete this.room;
+        this.room.removeMember(this);
       }
+    },
+
+    enterRoom: function(room) {
+      room.addMember(this);
     }
 
   };

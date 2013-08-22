@@ -32,7 +32,11 @@ cloak.configure({
     },
 
     newMember: function(user) {
-      console.log('total members: ' + this.members.length);
+      console.log('new member, total members: ' + this.members.length);
+    },
+
+    memberLeaves: function(user) {
+      console.log('member leaves, total members: ' + this.members.length);
     },
 
     close: function() {
@@ -41,6 +45,18 @@ cloak.configure({
       room.data.roomNum = newRoomNum;
       this.messageMembers('foo', 'you have left ' + this.name);
       console.log('closed room ' + this.id);
+    }
+
+  },
+
+  lobby: {
+
+    newMember: function(user) {
+      console.log('user enters lobby');
+    },
+
+    memberLeaves: function(user) {
+      console.log('user leaves lobby');
     }
 
   }

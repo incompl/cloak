@@ -5,19 +5,17 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  var roomEvents;
-
   function Room(nameArg, sizeArg, roomEventsArg) {
+    this._roomEvents = roomEventsArg || {};
     this.id = uuid.v4();
     this.name = nameArg;
     this.members = [];
     this.size = sizeArg;
     this.created = new Date().getTime();
     this.data = {};
-    roomEvents = roomEventsArg;
 
-    if (roomEvents.init) {
-      roomEvents.init.call(this);
+    if (this._roomEvents.init) {
+      this._roomEvents.init.call(this);
     }
   }
 
@@ -25,23 +23,32 @@ module.exports = (function() {
 
     close: function() {
       console.log('close happened');
-      if (roomEvents.close) {
-        roomEvents.close.call(this);
+      if (this._roomEvents.close) {
+        this._roomEvents.close.call(this);
       }
       this.members = [];
     },
 
     pulse: function() {
-      if (roomEvents.pulse) {
-        roomEvents.pulse.call(this);
+      if (this._roomEvents.pulse) {
+        this._roomEvents.pulse.call(this);
       }
     },
 
     addMember: function(user) {
+      user.leaveRoom();
       this.members.push(user);
       user.room = this;
-      if (roomEvents.newMember) {
-        roomEvents.newMember.call(this, user);
+      if (this._roomEvents.newMember) {
+        this._roomEvents.newMember.call(this, user);
+      }
+    },
+
+    removeMember: function(user) {
+      user.room.members = _(user.room.members).without(this);
+      delete user.room;
+      if (this._roomEvents.memberLeaves) {
+        this._roomEvents.memberLeaves.call(this, user);
       }
       this._serverMessageMembers('newRoomMember', _.pick(user, 'id', 'username'));
     },
@@ -51,9 +58,7 @@ module.exports = (function() {
     },
 
     messageMembers: function(name, arg) {
-      console.log('our members', this.members.length);
       _.forEach(this.members, function(member) {
-        console.log(member.id);
         member.message(name, arg);
       }.bind(this));
     },

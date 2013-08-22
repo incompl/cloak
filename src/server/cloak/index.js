@@ -16,6 +16,7 @@ module.exports = (function() {
   var events = {};
   var io;
   var gameLoopInterval;
+  var lobby;
 
   var defaults = {
     port: 8090,
@@ -39,7 +40,8 @@ module.exports = (function() {
     // configure the server
     configure: function(configArg) {
       _(configArg).forEach(function(val, key) {
-        if (key === 'room') {
+        if (key === 'room' ||
+            key === 'lobby') {
           events[key] = val;
         }
         else {
@@ -54,6 +56,8 @@ module.exports = (function() {
       io = socketIO.listen(config.port);
 
       io.set('log level', config.logLevel);
+
+      var lobby = new Room('Lobby', 0, events.lobby);
 
       io.sockets.on('connection', function(socket) {
         console.log(cloak._host(socket) + ' connects');
@@ -74,6 +78,7 @@ module.exports = (function() {
           cloak._setupHandlers(socket);
           socket.emit('cloak-beginResponse', {uid:user.id, config:config});
           console.log(cloak._host(socket) + ' begins');
+          lobby.addMember(user);
         });
 
         socket.on('cloak-resume', function(data) {
