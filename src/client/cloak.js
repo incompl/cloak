@@ -72,15 +72,15 @@
         });
 
         socket.on('error', function(data) {
-          console.log('uhghgh');
+          cloak.trigger('cloak-error', data);
         });
 
         socket.on('connect_error', function(data) {
-          console.log('uhghgh2');
+          cloak.trigger('cloak-error', 'Connect error');
         });
 
         socket.on('connect_timeout', function(data) {
-          console.log('uhghgh3');
+          cloak.trigger('cloak-error', 'Connect timeout');
         });
 
         socket.on('connect', function() {
