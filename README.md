@@ -12,3 +12,10 @@ A network layer for HTML5 games using Node.js
 ## License
 
 [MIT](https://github.com/bocoup/cloak/blob/master/LICENSE)
+
+## How To Run Tests
+
+In project root:
+
+* Intall nodeunit globally if needed `npm install nodeunit -g`
+* Run `nodeunit test`

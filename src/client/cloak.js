@@ -36,7 +36,7 @@
         _(configArg).forEach(function(val, key) {
           if (key === 'serverEvents') {
             _(val).forEach(function(eventHandler, eventName) {
-              cloak.on('cloak-' + eventName, eventHandler);
+              cloak._on('cloak-' + eventName, eventHandler);
             });
           }
           else {
@@ -45,18 +45,18 @@
         });
       },
 
-      on: function(event, handler) {
+      _on: function(event, handler) {
         if (events[event] === undefined) {
           events[event] = [];
         }
         events[event].push(handler);
       },
 
-      off: function(event, handler) {
+      _off: function(event, handler) {
         events[event] = _(events[event]).without(handler);
       },
 
-      trigger: function(event, arg) {
+      _trigger: function(event, arg) {
         if (events[event] !== undefined) {
           _.forEach(events[event], function(handler) {
             handler(arg);
@@ -72,19 +72,19 @@
         });
 
         socket.on('error', function(data) {
-          cloak.trigger('cloak-error', data);
+          cloak._trigger('cloak-error', data);
         });
 
         socket.on('connect_error', function(data) {
-          cloak.trigger('cloak-error', 'Connect error');
+          cloak._trigger('cloak-error', 'Connect error');
         });
 
         socket.on('connect_timeout', function(data) {
-          cloak.trigger('cloak-error', 'Connect timeout');
+          cloak._trigger('cloak-error', 'Connect timeout');
         });
 
         socket.on('connect', function() {
-          cloak.trigger('cloak-connect');
+          cloak._trigger('cloak-connect');
           if (uid === undefined) {
             socket.emit('cloak-begin', {});
           }
@@ -94,7 +94,7 @@
         });
 
         socket.on('disconnect', function() {
-          cloak.trigger('cloak-disconnect');
+          cloak._trigger('cloak-disconnect');
           if (!done) {
             socket.socket.connect();
           }
@@ -104,16 +104,16 @@
           uid = data.uid;
           serverConfig = data.config;
           done = false;
-          cloak.trigger('cloak-begin');
+          cloak._trigger('cloak-begin');
         });
 
         socket.on('cloak-resumeResponse', function(data) {
           if (data.valid) {
             serverConfig = data.config;
-            cloak.trigger('cloak-resume');
+            cloak._trigger('cloak-resume');
           }
           else {
-            cloak.trigger('cloak-error', 'Could not resume.');
+            cloak._trigger('cloak-error', 'Could not resume.');
             cloak.end();
           }
         });
@@ -124,20 +124,20 @@
 
         _(config.messages).forEach(function(handler, name) {
           socket.on('message-' + name, function(data) {
-            cloak.trigger('message-' + name, data);
+            cloak._trigger('message-' + name, data);
           });
-          cloak.on('message-' + name, handler);
+          cloak._on('message-' + name, handler);
         });
 
       },
 
       end: function() {
         done = true;
-        this.disconnect();
-        cloak.trigger('cloak-end');
+        this._disconnect();
+        cloak._trigger('cloak-end');
       },
 
-      disconnect: function() {
+      _disconnect: function() {
         socket.disconnect();
       },
 
@@ -145,7 +145,7 @@
         return socket.socket.connected;
       },
 
-      callback: function(name, callback) {
+      _callback: function(name, callback) {
         if (callbacks[name] === undefined) {
           callbacks[name] = [];
         }
@@ -153,17 +153,17 @@
       },
 
       listRooms: function(callback) {
-        this.callback('cloak-listRoomsResponse', callback);
+        this._callback('cloak-listRoomsResponse', callback);
         socket.emit('cloak-listRooms', {});
       },
 
       joinRoom: function(id, callback) {
-        this.callback('cloak-joinRoomResponse', callback);
+        this._callback('cloak-joinRoomResponse', callback);
         socket.emit('cloak-joinRoom', {id: id});
       },
 
       registerUsername: function(username, callback) {
-        this.callback('cloak-registerUsernameResponse', callback);
+        this._callback('cloak-registerUsernameResponse', callback);
         socket.emit('cloak-registerUsername', {username: username});
       },
 
