@@ -56,7 +56,6 @@ cloak.configure({
     },
 
     'placedTarget': function(data) {
-      console.log('target was:', data);
       //set the next card
       game.drawCard.val = data[1].val;
       game.drawCard.suit = data[1].suit;
@@ -67,6 +66,11 @@ cloak.configure({
 
     'beginGame': function() {
       game.begin();
+    },
+
+    'theirScore': function(data) {
+      var theirScoreEl = document.getElementById('theirScore');
+      theirScoreEl.innerText = data.score;
     }
   },
 

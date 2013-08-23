@@ -91,10 +91,10 @@ window.game = (function() {
 
     begin: function() {
       var gameElement = document.getElementById('game');
-      var turnElement = document.getElementById('turn');
+      var infoElement = document.getElementById('info');
       var networkUIElement = document.getElementById('network-ui');
       gameElement.style.display = 'block';
-      turnElement.style.display = 'block';
+      infoElement.style.display = 'block';
       networkUIElement.style.display = 'none';
       Crafty.init(game.config.gameWidth, game.config.gameHeight, gameElement);
 
@@ -121,6 +121,19 @@ window.game = (function() {
 
       // set up islands
       game.islands = {};
+    },
+
+    score: {
+      _score: 0,
+      _el: document.getElementById('score'),
+      get: function() {
+        return this._score;
+      },
+      set: function(num) {
+        this._el.innerText = num;
+        this._score = num;
+        cloak.message('score', this._score);
+      }
     },
 
     draw: function() {
@@ -183,8 +196,14 @@ window.game = (function() {
     removeAndScore: function() {
       var groupsToRemove = [];
       _.each(game.groups.sum, function(val, key) {
+        var groupSuit = _.filter(game.cards, function(el) {
+          return el.group+'' === key;
+        })[0].suit;
         if (val === 21) {
           groupsToRemove.push(key);
+          if (groupSuit === game.team) {
+            game.score.set(game.score.get() + 10);
+          }
         }
       });
       game.removeById(groupsToRemove, 'group');

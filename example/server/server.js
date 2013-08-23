@@ -28,6 +28,15 @@ cloak.configure({
       otherPlayer[0].message('placedTarget', [targetId, user.room.lastCard]);
       // let the users know what turn it is
       user.room.messageMembers('turn', user.room.turn);
+    },
+
+    score: function(score, user) {
+      console.log('score',score);
+      // Score updated, let the other player know
+      var otherPlayer = _.reject(user.room.members, function(member) {
+        return member.id === user.id;
+      });
+      otherPlayer[0].message('theirScore', {score: score});
     }
   },
 
