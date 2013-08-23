@@ -23,11 +23,13 @@ module.exports = (function() {
   Room.prototype = {
 
     close: function() {
-      console.log('close happened');
+      this._closing = true;
       if (this._roomEvents.close) {
         this._roomEvents.close.call(this);
       }
-      this.members = [];
+      _(this.members).forEach(function(user) {
+        user.leaveRoom();
+      });
     },
 
     pulse: function() {
@@ -44,6 +46,7 @@ module.exports = (function() {
         this._roomEvents.newMember.call(this, user);
       }
       this._serverMessageMembers('roomMemberJoined', _.pick(user, 'id', 'username'));
+      user._serverMessage('joinedRoom', _.pick(this, 'name'));
     },
 
     removeMember: function(user) {
@@ -55,10 +58,11 @@ module.exports = (function() {
       if (this._roomEvents.memberLeaves) {
         this._roomEvents.memberLeaves.call(this, user);
       }
-      if (!this.isLobby && Room._autoJoinLobby) {
-        Room._lobby.addMember(user);
+      if (!this.isLobby && this._autoJoinLobby) {
+        this._lobby.addMember(user);
       }
       this._serverMessageMembers('roomMemberLeft', _.pick(user, 'id', 'username'));
+      user._serverMessage('leftRoom', _.pick(this, 'name'));
     },
 
     age: function() {
@@ -73,7 +77,6 @@ module.exports = (function() {
 
     _serverMessageMembers: function(name, arg) {
       _.forEach(this.members, function(member) {
-        console.log(member.id);
         member._serverMessage(name, arg);
       }.bind(this));
     }
