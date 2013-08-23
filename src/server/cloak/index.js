@@ -23,7 +23,7 @@ module.exports = (function() {
     port: 8090,
     logLevel: 1,
     gameLoopSpeed: 100,
-    defaultRoomSize: 5,
+    defaultRoomSize: null,
     autoCreateRooms: false,
     minRoomMembers: null,
     reconnectWait: 10000,
