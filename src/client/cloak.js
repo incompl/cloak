@@ -101,11 +101,19 @@
         });
 
         socket.on('cloak-roomMemberJoined', function(user) {
-          cloak._trigger('cloak-roomMemberJoined');
+          cloak._trigger('cloak-roomMemberJoined', user);
         });
 
         socket.on('cloak-roomMemberLeft', function(user) {
-          cloak._trigger('cloak-roomMemberLeft');
+          cloak._trigger('cloak-roomMemberLeft', user);
+        });
+
+        socket.on('cloak-joinedRoom', function(room) {
+          cloak._trigger('cloak-joinedRoom', room);
+        });
+
+        socket.on('cloak-leftRoom', function(room) {
+          cloak._trigger('cloak-leftRoom', room);
         });
 
         socket.on('cloak-beginResponse', function(data) {
@@ -180,6 +188,11 @@
       joinRoom: function(id, callback) {
         this._callback('cloak-joinRoomResponse', callback);
         socket.emit('cloak-joinRoom', {id: id});
+      },
+
+      leaveRoom: function(callback) {
+        this._callback('cloak-leaveRoomResponse', callback);
+        socket.emit('cloak-leaveRoom');
       },
 
       listUsers: function(callback) {

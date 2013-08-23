@@ -17,15 +17,17 @@ module.exports = (function() {
   var io;
   var gameLoopInterval;
   var lobby;
+  var roomNum = 0;
 
   var defaults = {
     port: 8090,
     logLevel: 1,
     gameLoopSpeed: 100,
     defaultRoomSize: 5,
-    autoJoinRoom: false,
     autoCreateRooms: false,
-    roomLife: 0,
+    minRoomMembers: null,
+    reconnectWait: 10000,
+    roomLife: null,
     autoJoinLobby: true
   };
 
@@ -62,6 +64,7 @@ module.exports = (function() {
 
       Room.prototype._lobby = lobby;
       Room.prototype._autoJoinLobby = config.autoJoinLobby;
+      Room.prototype._minRoomMembers = config.minRoomMembers;
 
       io.sockets.on('connection', function(socket) {
         console.log(cloak._host(socket) + ' connects');
@@ -129,7 +132,15 @@ module.exports = (function() {
           var user = cloak._getUserForSocket(socket);
           lobby.addMember(user);
           socket.emit('cloak-joinLobbyResponse', {
-            success: true,
+            success: true
+          });
+        });
+
+        socket.on('cloak-leaveRoom', function() {
+          var user = cloak._getUserForSocket(socket);
+          user.leaveRoom();
+          socket.emit('cloak-leaveRoomResponse', {
+            success: true
           });
         });
 
@@ -149,8 +160,11 @@ module.exports = (function() {
       });
 
       gameLoopInterval = setInterval(function() {
+        var room;
+
+        // Pulse all rooms
         _(rooms).forEach(function(room) {
-          if (config.roomLife !== 0 &&
+          if (config.roomLife !== null &&
               new Date().getTime() - room.created >= config.roomLife) {
             cloak.deleteRoom(room.id);
           }
@@ -158,49 +172,66 @@ module.exports = (function() {
             room.pulse();
           }
         });
+
+        // autoCreateRooms
+        if (config.autoCreateRooms &&
+            config.minRoomMembers !== null &&
+            lobby.members.length >= config.minRoomMembers) {
+          roomNum++;
+          room = cloak.createRoom('Room ' + roomNum);
+          _.range(config.minRoomMembers).forEach(function(i) {
+            room.addMember(lobby.members[0]);
+          });
+        }
+
+        // Prune rooms with member counts below minRoomMembers
+        if (config.minRoomMembers !== null) {
+          _(rooms).forEach(function(room) {
+            if (room.members.length < config.minRoomMembers) {
+              room.close();
+            }
+          });
+        }
+
       }, config.gameLoopSpeed);
 
     },
 
     _setupHandlers: function(socket) {
 
-      if (!config.autoJoinRoom) {
-
-        socket.on('cloak-listRooms', function(data) {
-          socket.emit('cloak-listRoomsResponse', {
-            rooms: cloak.listRooms()
-          });
+      socket.on('cloak-listRooms', function(data) {
+        socket.emit('cloak-listRoomsResponse', {
+          rooms: cloak.listRooms()
         });
+      });
 
-        socket.on('cloak-joinRoom', function(data) {
-          var uid = cloak._getUidForSocket(socket);
-          var room = rooms[data.id];
-          var success = false;
-          if (room && room.members.length < room.size) {
-            room.addMember(users[uid]);
-            success = true;
-          }
-          socket.emit('cloak-joinRoomResponse', {
-            success: success
-          });
+      socket.on('cloak-joinRoom', function(data) {
+        var uid = cloak._getUidForSocket(socket);
+        var room = rooms[data.id];
+        var success = false;
+        if (room && room.members.length < room.size) {
+          room.addMember(users[uid]);
+          success = true;
+        }
+        socket.emit('cloak-joinRoomResponse', {
+          success: success
         });
+      });
 
-        socket.on('cloak-createRoom', function(data) {
+      socket.on('cloak-createRoom', function(data) {
+        var user = cloak._getUserForSocket(socket);
+        var room = cloak.createRoom(data.name, data.size);
+        socket.emit('cloak-createRoomResponse', {
+          room: room
+        });
+      });
+
+      _(config.messages).each(function(handler, name) {
+        socket.on('message-' + name, function(arg) {
           var user = cloak._getUserForSocket(socket);
-          var room = cloak.createRoom(data.name, data.size);
-          socket.emit('cloak-createRoomResponse', {
-            room: room
-          });
+          handler(arg, user);
         });
-
-        _(config.messages).each(function(handler, name) {
-          socket.on('message-' + name, function(arg) {
-            var user = cloak._getUserForSocket(socket);
-            handler(arg, user);
-          });
-        });
-
-      }
+      });
 
     },
 

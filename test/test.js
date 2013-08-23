@@ -153,6 +153,64 @@ module.exports = {
     client1.run(this.host);
     client2.run(this.host);
 
+  },
+
+  autoCreateRooms: function(test) {
+
+    var server = this.server;
+    var client1 = createClient();
+    var client2 = createClient();
+
+    var steps = [
+      'joined Lobby',
+      'joined Lobby',
+      'joined Room 1',
+      'joined Room 1',
+      'leave room',
+      'joined Lobby',
+      'joined Lobby',
+    ];
+
+    test.expect(steps.length);
+
+    function step(actual) {
+      var expected = steps.shift();
+      test.equals(actual, expected);
+      if (steps.length === 0) {
+        test.done();
+      }
+    }
+
+    function joinRoomHandler(room) {
+      step('joined '+ room.name);
+      if (steps[0] === 'leave room') {
+        step('leave room');
+        client1.leaveRoom();
+      }
+    }
+
+    server.configure({
+      port: this.port,
+      autoCreateRooms: true,
+      minRoomMembers: 2
+    });
+
+    client1.configure({
+      serverEvents: {
+        joinedRoom: joinRoomHandler
+      }
+    });
+
+    client2.configure({
+      serverEvents: {
+        joinedRoom: joinRoomHandler
+      }
+    });
+
+    server.run();
+    client1.run(this.host);
+    client2.run(this.host);
+
   }
 
 };
