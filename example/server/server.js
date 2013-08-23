@@ -46,11 +46,12 @@ cloak.configure({
         black: [],
         draw: function(suit) {
           var index = Math.floor(Math.random()*this[suit].length);
-          return this[suit].splice(index,1)[0];
+          //return this[suit].splice(index,1)[0];
+          return this[suit][index];
         }
       };
 
-      var nums = ['&#x25b2;', '2', '3', '4', '5', '6', '7', '8', '9', '&#x25cf;', '&#x25cf;', '&#x25cf;', '&#x25cf;'];
+      var nums = ['7'];//['&#x25b2;', '2', '3', '4', '5', '6', '7', '8', '9', '&#x25cf;', '&#x25cf;', '&#x25cf;', '&#x25cf;'];
 
       _.each(nums, function(num) {
         this.deck.black.push({ suit: 'black', val: num });

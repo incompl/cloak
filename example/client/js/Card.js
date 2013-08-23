@@ -4,6 +4,7 @@
 Crafty.c('Card', {
   init: function() {
     this.group = game.newGroupId();
+    this.island = game.newIslandId();
     var draw = {
       val: game.drawCard.val,
       suit: game.drawCard.suit
@@ -45,8 +46,20 @@ Crafty.c('Card', {
     }.bind(this));
   },
 
+  evaluateIsland: function() {
+    var adjCards = this.getAdjacentCards();
+    _.each(adjCards, function(card, ind) {
+      if (card.island !== this.island) {
+        card.island = this.island;
+        card.updateText();
+        card.evaluateIsland();
+      }
+    }.bind(this));
+    this.updateText();
+  },
+
   updateText: function() {
-    this.text(this.val);// + '/' + this.group);
+    this.text(this.val);// + '/' + this.island);
   },
 
   getPoints: function() {

@@ -3,6 +3,7 @@
 window.game = (function() {
   return {
     _groupIdCounter: 0,
+    _islandIdCounter: 0,
     config: {},
 
     registerUsername: function() {
@@ -110,10 +111,16 @@ window.game = (function() {
         y: game.config.cardBuffer
       });
 
+      // set up groups
       game.groups = {};
       game.groups.sum = {};
       game.groups.count = {};
+
+      // store all the cards on the board here
       game.cards = [];
+
+      // set up islands
+      game.islands = {};
     },
 
     draw: function() {
@@ -128,13 +135,13 @@ window.game = (function() {
       game.groups.sum = {};
       game.groups.count = {};
       _.each(game.cards, function(card) {
-        if (game.groups.count.hasOwnProperty(card.group)) {
+        if (_.has(game.groups.count,card.group)) {
           game.groups.count[card.group] += 1;
         }
         else {
           game.groups.count[card.group] = 1;
         }
-        if (game.groups.sum.hasOwnProperty(card.group)) {
+        if (_.has(game.groups.sum,card.group)) {
           game.groups.sum[card.group] += card.getPoints();
         }
         else {
@@ -143,22 +150,58 @@ window.game = (function() {
       }.bind(this));
     },
 
+    newIslandId: function() {
+      return this._islandIdCounter++;
+    },
+
+    updateIslands: function() {
+      this._islandIdCounter = 0;
+      game.islands = {};
+      // first go through every card and update its island value
+      _.each(game.cards, function(card) {
+        card.island = game.newIslandId();
+        card.evaluateIsland();
+      }.bind(this));
+      // now that the board is updated we can evaluate island card counts
+      _.each(game.cards, function(card) {
+        if (_.has(game.islands, card.island)) {
+          game.islands[card.island] += 1;
+        }
+        else {
+          game.islands[card.island] = 1;
+        }
+      }.bind(this));
+      var largestIsland = _.max(_.pairs(game.islands), function(el) { return el[1]; })[0];
+      // tag every island that's not the largest as a group to remove
+      var groupsToRemove = _.chain(game.islands)
+                              .omit(largestIsland)
+                              .keys()
+                              .value();
+      game.removeById(groupsToRemove, 'island');
+    },
+
     removeAndScore: function() {
       var groupsToRemove = [];
       _.each(game.groups.sum, function(val, key) {
         if (val === 21) {
-          groupsToRemove.push(+key);
+          groupsToRemove.push(key);
         }
       });
+      game.removeById(groupsToRemove, 'group');
+      // Weirdly, this triggers "too soon" sometimes so I put in this timeout
+      setTimeout(game.refreshTargets, 0);
+      game.updateIslands();
+      game.refreshTargets();
+      game.updateGroups();
+    },
+
+    removeById: function(groupsToRemove, property) {
       _.each(game.cards, function(card) {
-        if (_.contains(groupsToRemove, card.group)) {
+        if (_.contains(groupsToRemove, card[property]+'')) {
           card.destroy();
           game.cards = _.reject(game.cards, function(thisCard) { return _.isEqual(thisCard, card); });
         }
       });
-      // Weirdly, this triggers "too soon" sometimes so I put in this timeout
-      setTimeout(game.refreshTargets, 0);
-      game.updateGroups();
     },
 
     refreshTargets: function() {

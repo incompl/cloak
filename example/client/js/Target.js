@@ -30,6 +30,7 @@ Crafty.c('Target', {
     card.getAdjacentCards();
     card.evaluateGroup();
     game.updateGroups();
+    card.evaluateIsland();
     game.removeAndScore();
     this.used = true;
     game.drawCard.setFresh(false);

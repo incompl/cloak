@@ -106,5 +106,5 @@ cloak.configure({
 
 });
 
-cloak.run('http://10.0.0.213:8090');
+cloak.run('http://localhost:8090');
 //game.begin();
