@@ -45,7 +45,7 @@ module.exports = (function() {
       if (this._roomEvents.newMember) {
         this._roomEvents.newMember.call(this, user);
       }
-      this._serverMessageMembers('roomMemberJoined', _.pick(user, 'id', 'username'));
+      this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'username'));
       user._serverMessage('joinedRoom', _.pick(this, 'name'));
     },
 
@@ -61,7 +61,7 @@ module.exports = (function() {
       if (!this.isLobby && this._autoJoinLobby) {
         this._lobby.addMember(user);
       }
-      this._serverMessageMembers('roomMemberLeft', _.pick(user, 'id', 'username'));
+      this._serverMessageMembers(this.isLobby ? 'lobbyMemberLeft' : 'roomMemberLeft', _.pick(user, 'id', 'username'));
       user._serverMessage('leftRoom', _.pick(this, 'name'));
     },
 

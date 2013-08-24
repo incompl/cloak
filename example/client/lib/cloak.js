@@ -108,6 +108,14 @@
           cloak._trigger('cloak-roomMemberLeft', user);
         });
 
+        socket.on('cloak-lobbyMemberJoined', function(user) {
+          cloak._trigger('cloak-lobbyMemberJoined', user);
+        });
+
+        socket.on('cloak-lobbyMemberLeft', function(user) {
+          cloak._trigger('cloak-lobbyMemberLeft', user);
+        });
+
         socket.on('cloak-joinedRoom', function(room) {
           cloak._trigger('cloak-joinedRoom', room);
         });

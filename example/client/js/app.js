@@ -83,18 +83,28 @@ cloak.configure({
       console.log('disconnect');
     },
 
-    'roomMemberJoined': function(user) {
-      console.log('room member joined', user);
+    'lobbyMemberJoined': function(user) {
+      console.log('lobby member joined', user);
       cloak.listUsers(function(users) {
         game.refreshLobby(users);
       });
     },
 
-    'roomMemberLeft': function(user) {
-      console.log('room member left', user);
+    'lobbyMemberLeft': function(user) {
+      console.log('lobby member left', user);
       cloak.listUsers(function(users) {
         game.refreshLobby(users);
       });
+    },
+
+    'roomMemberJoined': function(user) {
+      console.log('room member joined', user);
+    },
+
+    'roomMemberLeft': function(user) {
+      console.log('room member left', user);
+      // The other player dropped, so we need to stop the game and kick you to the lobby
+      game.end();
     },
 
     'begin': function() {

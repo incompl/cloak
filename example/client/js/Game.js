@@ -123,6 +123,14 @@ window.game = (function() {
       game.islands = {};
     },
 
+    end: function() {
+      Crafty.stop(true);
+      var gameUIElement = document.getElementById('game-ui');
+      var networkUIElement = document.getElementById('network-ui');
+      gameUIElement.style.display = 'none';
+      networkUIElement.style.display = 'block';
+    },
+
     score: {
       _score: 0,
       _el: document.getElementById('score'),
