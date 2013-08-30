@@ -244,6 +244,41 @@ module.exports = {
     server.run();
     client.run(this.host);
 
+  },
+
+  serverEvents: function(test) {
+
+    test.expect(6);
+
+    var server = this.server;
+    var client = createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        connecting: function() {
+          test.ok(true, 'connecting event happened');
+        },
+        connect: function() {
+          test.ok(true, 'connect event happened');
+        },
+        begin: function() {
+          test.ok(true, 'begin event happened');
+          client._disconnect();
+        },
+        resume: function() {
+          test.ok(true, 'resume happened');
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+
   }
 
 };

@@ -100,6 +100,14 @@
           }
         });
 
+        socket.on('connecting', function() {
+          cloak._trigger('cloak-connecting');
+        });
+
+        socket.on('reconnecting', function() {
+          cloak._trigger('cloak-reconnecting');
+        });
+
         socket.on('cloak-roomMemberJoined', function(user) {
           cloak._trigger('cloak-roomMemberJoined', user);
         });
