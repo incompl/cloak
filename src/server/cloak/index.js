@@ -263,6 +263,9 @@ module.exports = (function() {
     },
 
     createRoom: function(name, size) {
+      if (name === undefined) {
+        room = 'Nameless Room';
+      }
       var room = new Room(name, size || config.defaultRoomSize, events.room, false);
       rooms[room.id] = room;
       return room;
