@@ -203,6 +203,8 @@ module.exports = (function() {
 
       }, config.gameLoopSpeed);
 
+      console.log(('cloak running on port ' + config.port).info);
+
     },
 
     _setupHandlers: function(socket) {
