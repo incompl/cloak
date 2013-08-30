@@ -3,6 +3,7 @@
 var _ = require('underscore');
 var socketIO = require('socket.io');
 var uuid = require('node-uuid');
+var colors = require('colors');
 
 var User = require('./user.js');
 var Room = require('./room.js');
@@ -32,6 +33,12 @@ module.exports = (function() {
   };
 
   var config = _.extend({}, defaults);
+
+  colors.setTheme({
+    info: 'cyan',
+    warn: 'yellow',
+    error: 'red'
+  });
 
   var cloak = {
 
@@ -67,7 +74,7 @@ module.exports = (function() {
       Room.prototype._minRoomMembers = config.minRoomMembers;
 
       io.sockets.on('connection', function(socket) {
-        console.log(cloak._host(socket) + ' connects');
+        console.log((cloak._host(socket) + ' connects').info);
 
         socket.on('disconnect', function(data) {
           var uid = socketIdToUserId[socket.id];
@@ -76,8 +83,7 @@ module.exports = (function() {
             user.leaveRoom();
           }
           delete socketIdToUserId[socket.id];
-          delete users[uid];
-          console.log(cloak._host(socket) + ' disconnects');
+          console.log((cloak._host(socket) + ' disconnects').info);
         });
 
         socket.on('cloak-begin', function(data) {
@@ -86,7 +92,7 @@ module.exports = (function() {
           socketIdToUserId[socket.id] = user.id;
           cloak._setupHandlers(socket);
           socket.emit('cloak-beginResponse', {uid:user.id, config:config});
-          console.log(cloak._host(socket) + ' begins');
+          console.log((cloak._host(socket) + ' begins').info);
           if (config.autoJoinLobby) {
             lobby.addMember(user);
           }
@@ -103,11 +109,11 @@ module.exports = (function() {
               valid: true,
               config: config
             });
-            console.log(cloak._host(socket) + ' resumes');
+            console.log((cloak._host(socket) + ' resumes').info);
           }
           else {
             socket.emit('cloak-resumeResponse', {valid: false});
-            console.log(cloak._host(socket) + ' fails to resume');
+            console.log((cloak._host(socket) + ' fails to resume').info);
           }
         });
 

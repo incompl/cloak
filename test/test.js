@@ -40,8 +40,13 @@ module.exports = {
   tearDown: function(callback) {
     try {
       _(clients).forEach(function(client) {
-        console.log('ending client');
-        client.end();
+        if (client.connected()) {
+          console.log('ending client');
+          client.end();
+        }
+        else {
+          console.log('client already disconnected');
+        }
       });
       clients = null;
       console.log('stopping server');
@@ -210,6 +215,34 @@ module.exports = {
     server.run();
     client1.run(this.host);
     client2.run(this.host);
+
+  },
+
+  resume: function(test) {
+
+    test.expect(1);
+
+    var server = this.server;
+    var client = createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          client._disconnect();
+        },
+        resume: function() {
+          test.ok(true, 'resume happened');
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
 
   }
 
