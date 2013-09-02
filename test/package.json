@@ -1,8 +1,10 @@
 {
+  "name": "cloak-tests",
+  "version": "0.0.1",
   "devDependencies": {
     "connect": "~2.8.5",
     "socket.io-client": "~0.9.16",
-    "underscore": "~1.5.1",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "underscore": "~1.5.1"
   }
 }
