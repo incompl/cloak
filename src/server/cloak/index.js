@@ -272,8 +272,8 @@ module.exports = (function() {
       return room;
     },
 
-    deleteRoom: function(id) {
-      var room = rooms[id];
+    deleteRoom: function(room) {
+      var id = room.id;
       room.close();
       delete rooms[id];
     },
