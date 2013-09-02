@@ -30,7 +30,6 @@ module.exports = {
     try {
       this.port = 8091;
       this.host = 'http://localhost:' + this.port;
-      console.log('creating server');
       this.server = cloakServer;
       clients = [];
       callback();
