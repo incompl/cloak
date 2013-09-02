@@ -293,6 +293,91 @@ module.exports = {
     server.run();
     client.run(this.host);
 
+  },
+
+  // Test that users are pruned if reconnectWait is set
+  reconnectWait: function(test) {
+
+    test.expect(4);
+
+    var server = this.server;
+    var client = createClient();
+
+    server.configure({
+      port: this.port,
+      gameLoopSpeed: 10,
+      reconnectWait: 20
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          setTimeout(function() {
+            test.equals(server.userCount(), 1);
+            client.end();
+            test.equals(server.userCount(), 1);
+          }, 20);
+
+          setTimeout(function() {
+            test.equals(server.userCount(), 1);
+          }, 30);
+
+          setTimeout(function() {
+            test.equals(server.userCount(), 0);
+            test.done();
+          }, 50);
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+
+  },
+
+  // Test that users are pruned if reconnectWaitRoomless is set
+  reconnectWaitRoomless: function(test) {
+
+    test.expect(2);
+
+    var server = this.server;
+    var client = createClient();
+
+    server.configure({
+      port: this.port,
+      autoJoinLobby: false,
+      minRoomMembers: null,
+      gameLoopSpeed: 10,
+      reconnectWait: null,
+      reconnectWaitRoomless: 50
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var user = _(server._getUsers()).values()[0];
+          var room = server.createRoom();
+
+          user.enterRoom(room);
+          client.end();
+
+          setTimeout(function() {
+            test.equals(server.userCount(), 1);
+            user.leaveRoom();
+          }, 100);
+
+          setTimeout(function() {
+            test.equals(server.userCount(), 0);
+            test.done();
+          }, 120);
+
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+
   }
 
 };

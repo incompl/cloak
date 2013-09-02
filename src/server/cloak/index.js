@@ -80,9 +80,7 @@ module.exports = (function() {
         socket.on('disconnect', function(data) {
           var uid = socketIdToUserId[socket.id];
           var user = cloak._getUser(uid);
-          if (user) {
-            user.leaveRoom();
-          }
+          user.disconnectedSince = new Date().getTime();
           delete socketIdToUserId[socket.id];
           console.log((cloak._host(socket) + ' disconnects').info);
         });
@@ -105,6 +103,7 @@ module.exports = (function() {
           if (user !== undefined) {
             socketIdToUserId[socket.id] = uid;
             user.setSocket(socket);
+            delete user.disconnectedSince;
             cloak._setupHandlers(socket);
             socket.emit('cloak-resumeResponse', {
               valid: true,
@@ -202,6 +201,36 @@ module.exports = (function() {
           });
         }
 
+        // reconnectWait and reconnectWaitRoomless
+        // aka prune users that have been disconnected too long
+        if (config.reconnectWait !== null ||
+            config.reconnectWaitRoomless !== null) {
+          _(users).forEach(function(user) {
+
+            if (user.connected()) {
+              return;
+            }
+
+            var wait = null;
+            if (user.room === undefined) {
+              if (config.reconnectWaitRoomless) {
+                wait = config.reconnectWaitRoomless;
+              }
+              else {
+                wait = config.reconnectWait;
+              }
+            }
+            else {
+              wait = config.reconnectWait;
+            }
+
+            if (wait !== null &&
+                new Date().getTime() - user.disconnectedSince >= wait) {
+              cloak.deleteUser(user);
+            }
+          });
+        }
+
       }, config.gameLoopSpeed);
 
       console.log(('cloak running on port ' + config.port).info);
@@ -278,6 +307,11 @@ module.exports = (function() {
       delete rooms[id];
     },
 
+    deleteUser: function(user) {
+      user._socket.disconnect();
+      delete users[user.id];
+    },
+
     _getUidForSocket: function(socket) {
       return socketIdToUserId[socket.id];
     },
@@ -288,6 +322,14 @@ module.exports = (function() {
 
     _getUser: function(uid) {
       return users[uid];
+    },
+
+    userCount: function() {
+      return _(users).size();
+    },
+
+    _getUsers: function() {
+      return users;
     },
 
     messageAll: function(name, arg) {
