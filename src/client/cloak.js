@@ -1,3 +1,4 @@
+/* cloak client */
 /* global cloak:true,module,io:true,console,_:true */
 
 (function() {

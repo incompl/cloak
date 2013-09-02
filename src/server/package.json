@@ -1,4 +1,32 @@
 {
+  "name": "cloak",
+  "description": "A network layer for HTML5 games",
+  "version": "0.0.1",
+  "homepage": "https://github.com/bocoup/cloak",
+  "author": {
+    "name": "Greg and Darius at Bocoup",
+    "url": "http://bocoup.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bocoup/cloak.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bocoup/cloak/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/bocoup/cloak/blob/master/LICENSE"
+    }
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "keywords": [
+    "html5", "game", "games"
+  ],
   "dependencies": {
     "socket.io": "~0.9.16",
     "underscore": "~1.5.1",

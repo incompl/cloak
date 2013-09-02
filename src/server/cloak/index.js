@@ -1,3 +1,4 @@
+/* cloak server */
 /* jshint node:true */
 
 var _ = require('underscore');
