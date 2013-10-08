@@ -378,6 +378,29 @@ module.exports = {
     server.run();
     client.run(this.host);
 
+  },
+
+  //Test create and delete room functions.
+  createAndDeleteRooms: function(test) {
+    test.expect(3);
+
+    var server = this.server;
+    var client = createClient();
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var user = _(server._getUsers()).values()[0];
+          var room = server.createRoom('123');
+          test.ok(server.getRoom(room.id), 'room exists');
+          test.ok(room.name === '123', 'room name is correct');
+          server.deleteRoom(room);
+          test.equals(server.getRoom(room.id), false);
+          test.done();
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
   }
 
 };
