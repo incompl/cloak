@@ -300,8 +300,12 @@ module.exports = (function() {
 
     deleteRoom: function(room) {
       var id = room.id;
-      room.close();
+      rooms[id].close();
       delete rooms[id];
+    },
+
+    getRoom: function(id) {
+      return rooms[id] || false;
     },
 
     deleteUser: function(user) {
