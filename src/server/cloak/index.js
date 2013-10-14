@@ -293,18 +293,19 @@ module.exports = (function() {
     },
 
     createRoom: function(name, size) {
-      if (name === undefined) {
-        room = 'Nameless Room';
-      }
-      var room = new Room(name, size || config.defaultRoomSize, events.room, false);
+      var room = new Room(name || 'Nameless Room', size || config.defaultRoomSize, events.room, false);
       rooms[room.id] = room;
       return room;
     },
 
     deleteRoom: function(room) {
       var id = room.id;
-      room.close();
+      rooms[id].close();
       delete rooms[id];
+    },
+
+    getRoom: function(id) {
+      return rooms[id] || false;
     },
 
     deleteUser: function(user) {
