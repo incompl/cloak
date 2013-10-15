@@ -18,10 +18,10 @@
       socket.on(responseName, function(data) {
         if (callbacks[responseName] !== undefined) {
           _(callbacks[responseName]).forEach(function(callback) {
+            callbacks[responseName] = [];
             callback(data[dataProperty]);
           });
         }
-        callbacks[responseName] = [];
       });
     }
 

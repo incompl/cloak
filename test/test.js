@@ -380,7 +380,7 @@ module.exports = {
 
   },
 
-  //Test create and delete room functions.
+  // Test create and delete room functions.
   createAndDeleteRooms: function(test) {
     test.expect(3);
 
@@ -396,6 +396,33 @@ module.exports = {
           server.deleteRoom(room);
           test.equals(server.getRoom(room.id), false);
           test.done();
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
+  },
+
+  // Test the client-side listRooms function
+  listRooms: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = createClient();
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          client.listRooms(function(rooms) {
+            var length = rooms.length;
+            server.createRoom('123');
+            server.createRoom('456');
+            server.createRoom('789');
+            client.listRooms(function(rooms) {
+              test.equals(rooms.length, length + 3);
+              test.done();
+            });
+          });
+          
         }
       }
     });

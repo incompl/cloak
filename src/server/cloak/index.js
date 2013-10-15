@@ -241,7 +241,7 @@ module.exports = (function() {
 
       socket.on('cloak-listRooms', function(data) {
         socket.emit('cloak-listRoomsResponse', {
-          rooms: cloak.listRooms()
+          rooms: cloak._listRoomsForClient()
         });
       });
 
@@ -275,7 +275,7 @@ module.exports = (function() {
 
     },
 
-    listRooms: function() {
+    _listRoomsForClient: function() {
       return _(rooms).map(function(room, id) {
         return {
           id: id,
