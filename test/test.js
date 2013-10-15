@@ -439,6 +439,39 @@ module.exports = {
     });
     server.run();
     client.run(this.host);
+  },
+
+  // Test server exception handling
+  serverError: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = createClient();
+
+    server.configure({
+      port: this.port,
+      messages: {
+        error: function() {
+          this.foo.bar; // throw a dang error
+        },
+        afterError: function() {
+          // if we got here, the server didn't crash! yay!
+          test.ok(true);
+          test.done();
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          client.message('error');
+          client.message('afterError');
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
   }
 
 };

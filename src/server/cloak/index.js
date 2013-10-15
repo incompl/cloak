@@ -265,7 +265,12 @@ module.exports = (function() {
       _(config.messages).each(function(handler, name) {
         socket.on('message-' + name, function(arg) {
           var user = cloak._getUserForSocket(socket);
-          handler(arg, user);
+          try {
+            handler(arg, user);
+          }
+          catch (err) {
+            console.error(err);
+          }
         });
       });
 
