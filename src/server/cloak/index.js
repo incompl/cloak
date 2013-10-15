@@ -106,7 +106,7 @@ module.exports = (function() {
           var user = users[uid];
           if (user !== undefined) {
             socketIdToUserId[socket.id] = uid;
-            user.setSocket(socket);
+            user._socket = socket;
             delete user.disconnectedSince;
             cloak._setupHandlers(socket);
             socket.emit('cloak-resumeResponse', {

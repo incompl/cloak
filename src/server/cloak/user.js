@@ -21,10 +21,6 @@ module.exports = (function() {
       this._socket.emit('cloak-' + name, arg);
     },
 
-    setSocket: function(socketArg) {
-      this._socket = socketArg;
-    },
-
     leaveRoom: function() {
       if (this.room !== undefined) {
         this.room.removeMember(this);
