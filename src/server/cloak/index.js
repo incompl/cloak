@@ -106,7 +106,7 @@ module.exports = (function() {
           var user = users[uid];
           if (user !== undefined) {
             socketIdToUserId[socket.id] = uid;
-            user.setSocket(socket);
+            user._socket = socket;
             delete user.disconnectedSince;
             cloak._setupHandlers(socket);
             socket.emit('cloak-resumeResponse', {
@@ -200,7 +200,7 @@ module.exports = (function() {
         if (config.minRoomMembers !== null) {
           _(rooms).forEach(function(room) {
             if (room.members.length < config.minRoomMembers) {
-              room.close();
+              cloak.deleteRoom(room);
             }
           });
         }
@@ -251,11 +251,13 @@ module.exports = (function() {
 
       socket.on('cloak-joinRoom', function(data) {
         var uid = cloak._getUidForSocket(socket);
+        var user = users[uid];
         var room = rooms[data.id];
         var success = false;
-        if (room && room.members.length < room.size) {
-          room.addMember(users[uid]);
-          success = true;
+        if (room &&
+            !room._closing &&
+            room.members.length < room.size) {
+          success = room.addMember(user);
         }
         socket.emit('cloak-joinRoomResponse', {
           success: success
@@ -265,7 +267,12 @@ module.exports = (function() {
       _(config.messages).each(function(handler, name) {
         socket.on('message-' + name, function(arg) {
           var user = cloak._getUserForSocket(socket);
-          handler(arg, user);
+          try {
+            handler(arg, user);
+          }
+          catch (err) {
+            console.error(err);
+          }
         });
       });
 
@@ -289,16 +296,14 @@ module.exports = (function() {
     },
 
     createRoom: function(name, size) {
-      var roomName = name || 'Nameless Room';
-      var roomSize = size || config.defaultRoomSize;
-      var room = new Room(roomName, roomSize, events.room, false);
+      var room = new Room(name || 'Nameless Room', size || config.defaultRoomSize, events.room, false);
       rooms[room.id] = room;
       return room;
     },
 
     deleteRoom: function(room) {
       var id = room.id;
-      rooms[id].close();
+      rooms[id]._close();
       delete rooms[id];
     },
 
@@ -327,8 +332,8 @@ module.exports = (function() {
       return _(users).size();
     },
 
-    _getUsers: function() {
-      return users;
+    getUsers: function() {
+      return _.values(users);
     },
 
     messageAll: function(name, arg) {

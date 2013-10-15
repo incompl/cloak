@@ -14,13 +14,12 @@ module.exports = (function() {
     this.size = sizeArg;
     this.created = new Date().getTime();
     this.data = {};
-
     this._emitEvent('init', this);
   }
 
   Room.prototype = {
 
-    close: function() {
+    _close: function() {
       this._closing = true;
       this._emitEvent('close', this);
       _(this.members).forEach(function(user) {
@@ -32,13 +31,18 @@ module.exports = (function() {
       this._emitEvent('pulse', this);
     },
 
+    // return true if successful
     addMember: function(user) {
+      if (!this._shouldAllowUser(user)) {
+        return false;
+      }
       user.leaveRoom();
       this.members.push(user);
       user.room = this;
       this._emitEvent('newMember', this, user);
       this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'username'));
       user._serverMessage('joinedRoom', _.pick(this, 'name'));
+      return true;
     },
 
     removeMember: function(user) {
@@ -71,13 +75,22 @@ module.exports = (function() {
       }.bind(this));
     },
 
+    _shouldAllowUser: function(user) {
+      if (this._roomEvents.shouldAllowUser) {
+        return this._emitEvent('shouldAllowUser', this, user);
+      }
+      else {
+        return true;
+      }
+    },
+
     _emitEvent: function(event, context, arguments) {
       var roomEvent = this._roomEvents[event];
       if (arguments !== undefined && !Array.isArray(arguments)) {
         arguments = [arguments];
       }
       if (!!roomEvent) {
-        roomEvent.apply(context, arguments);
+        return roomEvent.apply(context, arguments);
       }
     }
 
