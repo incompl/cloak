@@ -1,3 +1,4 @@
+/* cloak client */
 /* global cloak:true,module,io:true,console,_:true */
 
 (function() {
@@ -17,10 +18,10 @@
       socket.on(responseName, function(data) {
         if (callbacks[responseName] !== undefined) {
           _(callbacks[responseName]).forEach(function(callback) {
+            callbacks[responseName] = [];
             callback(data[dataProperty]);
           });
         }
-        callbacks[responseName] = [];
       });
     }
 
@@ -100,6 +101,14 @@
           }
         });
 
+        socket.on('connecting', function() {
+          cloak._trigger('cloak-connecting');
+        });
+
+        socket.on('reconnecting', function() {
+          cloak._trigger('cloak-reconnecting');
+        });
+
         socket.on('cloak-roomMemberJoined', function(user) {
           cloak._trigger('cloak-roomMemberJoined', user);
         });
@@ -176,11 +185,6 @@
           callbacks[name] = [];
         }
         callbacks[name].push(callback);
-      },
-
-      createRoom: function(data, callback) {
-        this._callback('cloak-createRoomResponse', callback);
-        socket.emit('cloak-createRoom', data);
       },
 
       listRooms: function(callback) {
