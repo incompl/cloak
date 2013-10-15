@@ -356,7 +356,7 @@ module.exports = {
     client.configure({
       serverEvents: {
         begin: function() {
-          var user = _(server._getUsers()).values()[0];
+          var user = server.getUsers()[0];
           var room = server.createRoom();
 
           user.enterRoom(room);
@@ -395,7 +395,7 @@ module.exports = {
     client.configure({
       serverEvents: {
         begin: function() {
-          var user = _(server._getUsers()).values()[0];
+          var user = server.getUsers()[0];
           var room = server.createRoom('123');
           test.ok(server.getRoom(room.id), 'room exists');
           test.ok(room.name === '123', 'room name is correct');
@@ -452,7 +452,7 @@ module.exports = {
       port: this.port,
       messages: {
         error: function() {
-          this.foo.bar; // throw a dang error
+          this.foo.bar = true; // throw a dang error
         },
         afterError: function() {
           // if we got here, the server didn't crash! yay!
@@ -467,6 +467,38 @@ module.exports = {
         begin: function() {
           client.message('error');
           client.message('afterError');
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
+  },
+
+  shouldAllowUser: function(test) {
+    test.expect(2);
+
+    var server = this.server;
+    var client = createClient();
+
+    server.configure({
+      port: this.port,
+      messages: {},
+      room: {
+        shouldAllowUser: function(user) {
+          return this.name === 'Let me in!';
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var user = server.getUsers()[0];
+          var room1 = server.createRoom('Not allowed!');
+          var room2 = server.createRoom('Let me in!');
+          test.equals(room1.addMember(user), false);
+          test.equals(room2.addMember(user), true);
+          test.done();
         }
       }
     });

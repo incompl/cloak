@@ -38,7 +38,11 @@ module.exports = (function() {
       }
     },
 
+    // return true if successful
     addMember: function(user) {
+      if (!this._shouldAllowUser(user)) {
+        return false;
+      }
       user.leaveRoom();
       this.members.push(user);
       user.room = this;
@@ -47,6 +51,7 @@ module.exports = (function() {
       }
       this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'username'));
       user._serverMessage('joinedRoom', _.pick(this, 'name'));
+      return true;
     },
 
     removeMember: function(user) {
@@ -79,6 +84,15 @@ module.exports = (function() {
       _.forEach(this.members, function(member) {
         member._serverMessage(name, arg);
       }.bind(this));
+    },
+
+    _shouldAllowUser: function(user) {
+      if (this._roomEvents.shouldAllowUser) {
+        return this._roomEvents.shouldAllowUser.call(this, user);
+      }
+      else {
+        return true;
+      }
     }
 
   };

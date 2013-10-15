@@ -251,11 +251,13 @@ module.exports = (function() {
 
       socket.on('cloak-joinRoom', function(data) {
         var uid = cloak._getUidForSocket(socket);
+        var user = users[uid];
         var room = rooms[data.id];
         var success = false;
-        if (room && room.members.length < room.size) {
-          room.addMember(users[uid]);
-          success = true;
+        if (room &&
+            !room._closing &&
+            room.members.length < room.size) {
+          success = room.addMember(user);
         }
         socket.emit('cloak-joinRoomResponse', {
           success: success
@@ -330,8 +332,8 @@ module.exports = (function() {
       return _(users).size();
     },
 
-    _getUsers: function() {
-      return users;
+    getUsers: function() {
+      return _.values(users);
     },
 
     messageAll: function(name, arg) {
