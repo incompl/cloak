@@ -10,6 +10,13 @@ cloak.configure({
   autoJoinLobby: false,
 
   messages: {
+    createRoom: function(arg, user) {
+      var room = cloak.createRoom(arg.name, 2);
+      user.message('roomCreated', {
+        id: room.id
+      });
+    },
+
     requestCard: function(arg, user) {
       var card = user.room.deck.draw(user.team);
       user.room.lastCard = card;

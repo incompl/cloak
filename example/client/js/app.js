@@ -29,6 +29,14 @@ game.config.cardBuffer = game.config.cardWidth / 8;
 
 cloak.configure({
   messages: {
+    'roomCreated': function(room) {
+      cloak.joinRoom(room.id, function(success) {
+        console.log(success ? 'room join success' : 'room join failure');
+        if (success) {
+          game.begin();
+        }
+      });
+    },
     'card': function(card) {
       console.log('the card:', card);
       game.drawCard.val = card.val;

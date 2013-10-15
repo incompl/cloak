@@ -39,16 +39,8 @@ window.game = (function() {
         newRoomUIElement.innerHTML += '<p>Enter a valid username!</p>';
         return;
       }
-      cloak.createRoom({
-        name: newRoomElement.value,
-        size: 2
-      }, function(room) {
-        cloak.joinRoom(room.id, function(success) {
-          console.log(success ? 'room join success' : 'room join failure');
-          if (success) {
-            game.begin();
-          }
-        });
+      cloak.message('createRoom', {
+        name: newRoomElement.value
       });
     },
 

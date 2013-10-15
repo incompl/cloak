@@ -1,7 +1,7 @@
 {
   "name": "cloak",
   "description": "A network layer for HTML5 games",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/bocoup/cloak",
   "author": {
     "name": "Greg and Darius at Bocoup",
