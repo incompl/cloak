@@ -15,7 +15,6 @@ module.exports = (function() {
   var usernames = {};
   var rooms = {};
   var socketIdToUserId = {};
-  var events = {};
   var io;
   var gameLoopInterval;
   var lobby;
@@ -33,7 +32,8 @@ module.exports = (function() {
     autoJoinLobby: true
   };
 
-  var config = _.extend({}, defaults);
+  var config;
+  var events;
 
   colors.setTheme({
     info: 'cyan',
@@ -50,6 +50,10 @@ module.exports = (function() {
 
     // configure the server
     configure: function(configArg) {
+
+      config = _.extend({}, defaults);
+      events = {};
+
       _(configArg).forEach(function(val, key) {
         if (key === 'room' ||
             key === 'lobby') {
@@ -174,7 +178,7 @@ module.exports = (function() {
         _(rooms).forEach(function(room) {
           if (config.roomLife !== null &&
               new Date().getTime() - room.created >= config.roomLife) {
-            cloak.deleteRoom(room.id);
+            cloak.deleteRoom(room);
           }
           else {
             room.pulse();
@@ -332,7 +336,16 @@ module.exports = (function() {
     },
 
     stop: function(callback) {
+
+      // Stop the game loop
       clearInterval(gameLoopInterval);
+
+      // Delete all rooms
+      _(rooms).forEach(function(room) {
+        cloak.deleteRoom(room);
+      });
+
+      // Shut down socket server
       if (io) {
         try {
           io.server.close();

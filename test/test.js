@@ -31,6 +31,7 @@ module.exports = {
       this.port = 8091;
       this.host = 'http://localhost:' + this.port;
       this.server = cloakServer;
+      this.server.configure({}); // reset config
       clients = [];
       callback();
     }
@@ -386,6 +387,11 @@ module.exports = {
 
     var server = this.server;
     var client = createClient();
+
+    server.configure({
+      port: this.port
+    });
+
     client.configure({
       serverEvents: {
         begin: function() {
@@ -405,20 +411,25 @@ module.exports = {
 
   // Test the client-side listRooms function
   listRooms: function(test) {
-    test.expect(1);
+    test.expect(2);
 
     var server = this.server;
     var client = createClient();
+
+    server.configure({
+      port: this.port
+    });
+
     client.configure({
       serverEvents: {
         begin: function() {
           client.listRooms(function(rooms) {
-            var length = rooms.length;
+            test.equals(rooms.length, 0);
             server.createRoom('123');
             server.createRoom('456');
             server.createRoom('789');
             client.listRooms(function(rooms) {
-              test.equals(rooms.length, length + 3);
+              test.equals(rooms.length, 3);
               test.done();
             });
           });
