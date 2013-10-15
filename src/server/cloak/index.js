@@ -200,7 +200,7 @@ module.exports = (function() {
         if (config.minRoomMembers !== null) {
           _(rooms).forEach(function(room) {
             if (room.members.length < config.minRoomMembers) {
-              room.close();
+              room._close();
             }
           });
         }
@@ -301,7 +301,7 @@ module.exports = (function() {
 
     deleteRoom: function(room) {
       var id = room.id;
-      rooms[id].close();
+      rooms[id]._close();
       delete rooms[id];
     },
 

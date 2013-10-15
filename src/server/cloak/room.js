@@ -22,7 +22,7 @@ module.exports = (function() {
 
   Room.prototype = {
 
-    close: function() {
+    _close: function() {
       this._closing = true;
       if (this._roomEvents.close) {
         this._roomEvents.close.call(this);
