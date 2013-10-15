@@ -200,7 +200,7 @@ module.exports = (function() {
         if (config.minRoomMembers !== null) {
           _(rooms).forEach(function(room) {
             if (room.members.length < config.minRoomMembers) {
-              room._close();
+              cloak.deleteRoom(room);
             }
           });
         }
