@@ -296,7 +296,9 @@ module.exports = (function() {
     },
 
     createRoom: function(name, size) {
-      var room = new Room(name || 'Nameless Room', size || config.defaultRoomSize, events.room, false);
+      var roomName = name || 'Nameless Room';
+      var roomSize = size || config.defaultRoomSize;
+      var room = new Room(roomName, roomSize, events.room, false);
       rooms[room.id] = room;
       return room;
     },

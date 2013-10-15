@@ -21,10 +21,10 @@ module.exports = (function() {
 
     _close: function() {
       this._closing = true;
-      this._emitEvent('close', this);
       _(this.members).forEach(function(user) {
         user.leaveRoom();
       });
+      this._emitEvent('close', this);
     },
 
     pulse: function() {
@@ -51,10 +51,10 @@ module.exports = (function() {
       }
       this.members = _(this.members).without(user);
       delete user.room;
-      this._emitEvent('memberLeaves', this, user);
       if (!this.isLobby && this._autoJoinLobby) {
         this._lobby.addMember(user);
       }
+      this._emitEvent('memberLeaves', this, user);
       this._serverMessageMembers(this.isLobby ? 'lobbyMemberLeft' : 'roomMemberLeft', _.pick(user, 'id', 'username'));
       user._serverMessage('leftRoom', _.pick(this, 'name'));
     },
