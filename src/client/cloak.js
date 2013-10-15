@@ -187,11 +187,6 @@
         callbacks[name].push(callback);
       },
 
-      createRoom: function(data, callback) {
-        this._callback('cloak-createRoomResponse', callback);
-        socket.emit('cloak-createRoom', data);
-      },
-
       listRooms: function(callback) {
         this._callback('cloak-listRoomsResponse', callback);
         socket.emit('cloak-listRooms', {});

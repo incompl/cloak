@@ -258,14 +258,6 @@ module.exports = (function() {
         });
       });
 
-      socket.on('cloak-createRoom', function(data) {
-        var user = cloak._getUserForSocket(socket);
-        var room = cloak.createRoom(data.name, data.size);
-        socket.emit('cloak-createRoomResponse', {
-          room: room
-        });
-      });
-
       _(config.messages).each(function(handler, name) {
         socket.on('message-' + name, function(arg) {
           var user = cloak._getUserForSocket(socket);
