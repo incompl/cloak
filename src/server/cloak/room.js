@@ -15,36 +15,28 @@ module.exports = (function() {
     this.created = new Date().getTime();
     this.data = {};
 
-    if (this._roomEvents.init) {
-      this._roomEvents.init.call(this);
-    }
+    this._emitEvent('init', this);
   }
 
   Room.prototype = {
 
     close: function() {
       this._closing = true;
-      if (this._roomEvents.close) {
-        this._roomEvents.close.call(this);
-      }
+      this._emitEvent('close', this);
       _(this.members).forEach(function(user) {
         user.leaveRoom();
       });
     },
 
     pulse: function() {
-      if (this._roomEvents.pulse) {
-        this._roomEvents.pulse.call(this);
-      }
+      this._emitEvent('pulse', this);
     },
 
     addMember: function(user) {
       user.leaveRoom();
       this.members.push(user);
       user.room = this;
-      if (this._roomEvents.newMember) {
-        this._roomEvents.newMember.call(this, user);
-      }
+      this._emitEvent('newMember', this, user);
       this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'username'));
       user._serverMessage('joinedRoom', _.pick(this, 'name'));
     },
@@ -55,9 +47,7 @@ module.exports = (function() {
       }
       this.members = _(this.members).without(user);
       delete user.room;
-      if (this._roomEvents.memberLeaves) {
-        this._roomEvents.memberLeaves.call(this, user);
-      }
+      this._emitEvent('memberLeaves', this, user);
       if (!this.isLobby && this._autoJoinLobby) {
         this._lobby.addMember(user);
       }
@@ -79,6 +69,16 @@ module.exports = (function() {
       _.forEach(this.members, function(member) {
         member._serverMessage(name, arg);
       }.bind(this));
+    },
+
+    _emitEvent: function(event, context, arguments) {
+      var roomEvent = this._roomEvents[event];
+      if (arguments !== undefined && !Array.isArray(arguments)) {
+        arguments = [arguments];
+      }
+      if (!!roomEvent) {
+        roomEvent.apply(context, arguments);
+      }
     }
 
   };
