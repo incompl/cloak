@@ -8,6 +8,7 @@ var colors = require('colors');
 
 var User = require('./user.js');
 var Room = require('./room.js');
+var Timer = require('./timer.js');
 
 module.exports = (function() {
 
@@ -349,6 +350,11 @@ module.exports = (function() {
       // Stop the game loop
       clearInterval(gameLoopInterval);
 
+      // Delete all users
+      _(users).forEach(function(user) {
+        cloak.deleteUser(user);
+      });
+
       // Delete all rooms
       _(rooms).forEach(function(room) {
         cloak.deleteRoom(room);
@@ -369,6 +375,10 @@ module.exports = (function() {
       else {
         callback();
       }
+    },
+
+    createTimer: function(name, millis, descending) {
+      return new Timer(name, millis || 0, descending || false);
     }
 
   };

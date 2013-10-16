@@ -11,6 +11,7 @@
     var url;
     var events = {};
     var config = {};
+    var timerEvents = {};
     var serverConfig;
     var callbacks = {};
 
@@ -39,6 +40,9 @@
             _(val).forEach(function(eventHandler, eventName) {
               cloak._on('cloak-' + eventName, eventHandler);
             });
+          }
+          else if (key === 'timerEvents') {
+            timerEvents = val;
           }
           else {
             config[key] = val;
@@ -148,6 +152,23 @@
           else {
             cloak._trigger('cloak-error', 'Could not resume.');
             cloak.end();
+          }
+        });
+
+        socket.on('cloak-syncTimer', function(data) {
+          var handler = timerEvents[data.name];
+          if (handler !== undefined) {
+            var val = data.value;
+
+            // compensate for network latency
+            if (data.running && data.descending) {
+              val -= new Date().getTime() - data.sent;
+            }
+            else if (data.running) {
+              val += new Date().getTime() - data.sent;
+            }
+            
+            handler(val);
           }
         });
 

@@ -546,7 +546,7 @@ module.exports = {
           var room = server.createRoom('123');
           room._emitEvent('pulse', this);
           room._emitEvent('newMember', this);
-          room._emitEvent('memberLeaves'), this;
+          room._emitEvent('memberLeaves', this);
           room._emitEvent('close', this);
           room._emitEvent('shouldAllowUser', this);
           test.equals(eventCount, 6);
@@ -589,6 +589,39 @@ module.exports = {
     });
     server.run();
     client.run(this.host);
-  }
+  },
 
+  // Test basic timer functionality
+  timer: function(test) {
+    test.expect(4);
+
+    var server = this.server;
+    var client = createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      timerEvents: {
+        myTimer: function(millis) {
+          test.ok(millis > 90);
+          test.ok(millis < 110);
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+
+    var timer = server.createTimer('myTimer');
+    timer.start();
+    setTimeout(function() {
+      test.ok(timer.getValue() > 90);
+      test.ok(timer.getValue() < 110);
+      timer.sync(server.getUsers()[0]);
+    }, 100);
+
+  }
 };
