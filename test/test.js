@@ -504,6 +504,91 @@ module.exports = {
     });
     server.run();
     client.run(this.host);
+  },
+
+  // Test Room module emitEvent does emit event.
+  _emitEvent: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = createClient();
+    var eventCount = 0;
+    var incrementCount = function() {
+      eventCount += 1;
+    };
+    server.configure({
+      port: this.port,
+      room: {
+        init: function() {
+          incrementCount();
+        },
+        pulse: function() {
+          incrementCount();
+        },
+        newMember: function() {
+          incrementCount();
+        },
+        memberLeaves: function() {
+          incrementCount();
+        },
+        close: function() {
+          incrementCount();
+        },
+        shouldAllowUser: function() {
+          incrementCount();
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var room = server.createRoom('123');
+          room._emitEvent('pulse', this);
+          room._emitEvent('newMember', this);
+          room._emitEvent('memberLeaves'), this;
+          room._emitEvent('close', this);
+          room._emitEvent('shouldAllowUser', this);
+          test.equals(eventCount, 6);
+          test.done();
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
+  },
+
+  // Test Rooms module emitEvent passes correct context and args.
+  _emitEventContext: function(test) {
+    test.expect(3);
+
+    var server = this.server;
+    var client = createClient();
+    var stubContext = {
+      cloakIsCool: true
+    };
+    server.configure({
+      port: this.port,
+      room: {
+        pulse: function(arg1, arg2) {
+          test.equals(this, stubContext);
+          test.equals(arg1, 123);
+          test.equals(arg2, 321);
+          test.done();
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var room = server.createRoom('123');
+          room._emitEvent('pulse', stubContext, [123, 321]);
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
   }
 
 };

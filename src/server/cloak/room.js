@@ -14,28 +14,21 @@ module.exports = (function() {
     this.size = sizeArg;
     this.created = new Date().getTime();
     this.data = {};
-
-    if (this._roomEvents.init) {
-      this._roomEvents.init.call(this);
-    }
+    this._emitEvent('init', this);
   }
 
   Room.prototype = {
 
     _close: function() {
       this._closing = true;
-      if (this._roomEvents.close) {
-        this._roomEvents.close.call(this);
-      }
       _(this.members).forEach(function(user) {
         user.leaveRoom();
       });
+      this._emitEvent('close', this);
     },
 
     pulse: function() {
-      if (this._roomEvents.pulse) {
-        this._roomEvents.pulse.call(this);
-      }
+      this._emitEvent('pulse', this);
     },
 
     // return true if successful
@@ -46,9 +39,7 @@ module.exports = (function() {
       user.leaveRoom();
       this.members.push(user);
       user.room = this;
-      if (this._roomEvents.newMember) {
-        this._roomEvents.newMember.call(this, user);
-      }
+      this._emitEvent('newMember', this, user);
       this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'username'));
       user._serverMessage('joinedRoom', _.pick(this, 'name'));
       return true;
@@ -60,12 +51,10 @@ module.exports = (function() {
       }
       this.members = _(this.members).without(user);
       delete user.room;
-      if (this._roomEvents.memberLeaves) {
-        this._roomEvents.memberLeaves.call(this, user);
-      }
       if (!this.isLobby && this._autoJoinLobby) {
         this._lobby.addMember(user);
       }
+      this._emitEvent('memberLeaves', this, user);
       this._serverMessageMembers(this.isLobby ? 'lobbyMemberLeft' : 'roomMemberLeft', _.pick(user, 'id', 'username'));
       user._serverMessage('leftRoom', _.pick(this, 'name'));
     },
@@ -88,10 +77,20 @@ module.exports = (function() {
 
     _shouldAllowUser: function(user) {
       if (this._roomEvents.shouldAllowUser) {
-        return this._roomEvents.shouldAllowUser.call(this, user);
+        return this._emitEvent('shouldAllowUser', this, user);
       }
       else {
         return true;
+      }
+    },
+
+    _emitEvent: function(event, context, arguments) {
+      var roomEvent = this._roomEvents[event];
+      if (arguments !== undefined && !Array.isArray(arguments)) {
+        arguments = [arguments];
+      }
+      if (!!roomEvent) {
+        return roomEvent.apply(context, arguments);
       }
     }
 
