@@ -21,6 +21,7 @@ cloak.configure({
       var card = user.room.deck.draw(user.team);
       user.room.lastCard = card;
       user.message('card', card);
+      user.message('cardsLeft', user.room.deck[user.team].length);
     },
 
     turnDone: function(targetId, user) {
@@ -33,12 +34,19 @@ cloak.configure({
         return member.id === user.id;
       });
       otherPlayer[0].message('placedTarget', [targetId, user.room.lastCard]);
-      // let the users know what turn it is
-      user.room.messageMembers('turn', user.room.turn);
+      // if the deck is completely empty, that's the end of the game!
+      if (user.room.deck.black.length === 0 && user.room.deck.red.length === 0) {
+        user.room.messageMembers('gameOver', user.room.scores);
+      }
+      else {
+        // otherwise let the users know what turn it is
+        user.room.messageMembers('turn', user.room.turn);
+      }
     },
 
     score: function(score, user) {
       console.log('score',score);
+      user.room.scores[user.team] = score;
       // Score updated, let the other player know
       var otherPlayer = _.reject(user.room.members, function(member) {
         return member.id === user.id;
@@ -55,6 +63,11 @@ cloak.configure({
       this.teams = {
         red: '',
         black: ''
+      };
+
+      this.scores = {
+        red: 0,
+        black: 0
       };
 
       this.deck = {

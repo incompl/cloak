@@ -37,6 +37,11 @@ cloak.configure({
         }
       });
     },
+
+    'cardsLeft': function(cardsLeft) {
+      document.getElementById('cardsLeft').innerText = cardsLeft;
+    },
+
     'card': function(card) {
       console.log('the card:', card);
       game.drawCard.val = card.val;
@@ -53,6 +58,24 @@ cloak.configure({
       console.log('Turn: ' + game.turn);
       var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
       document.getElementById('turn').innerText = turnText;
+    },
+
+    'gameOver': function(scores) {
+      var myTeam = game.team;
+      var otherTeam = (myTeam === 'red') ? 'black' : 'red';
+      var msg = '';
+      var gameOverElement = document.getElementById('gameOver');
+      if (scores[myTeam] > scores[otherTeam]) {
+        msg = 'YOU WIN';
+      }
+      else if (scores[myTeam] < scores[otherTeam]) {
+        msg = 'YOU LOSE';
+      }
+      else {
+        msg = 'TIE GAME';
+      }
+      gameOverElement.innerText = msg;
+      gameOverElement.style.display = 'block';
     },
 
     'assignTeam': function(data) {
