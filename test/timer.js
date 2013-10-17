@@ -74,6 +74,24 @@ module.exports = _.extend(suite, {
       }, 100);
     }, 100);
 
+  },
+
+  // Test reset method
+  reset: function(test) {
+    test.expect(2);
+
+    var timer = this.server.createTimer('myTimer');
+    timer.start();
+    setTimeout(function() {
+      timer.reset();
+      timer.start();
+      setTimeout(function() {
+        test.ok(timer.getValue() > 90);
+        test.ok(timer.getValue() < 110);
+        test.done();
+      }, 100);
+    }, 100);
+
   }
 
 });
