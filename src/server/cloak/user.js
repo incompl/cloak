@@ -31,6 +31,10 @@ module.exports = (function() {
       room.addMember(this);
     },
 
+    getRoom: function() {
+      return this.room;
+    },
+
     connected: function() {
       return this.disconnectedSince === null;
     }
