@@ -249,8 +249,8 @@ module.exports = _.extend(suite, {
 
     server.configure({
       port: this.port,
-      gameLoopSpeed: 10,
-      reconnectWait: 20
+      gameLoopSpeed: 100,
+      reconnectWait: 200
     });
 
     client.configure({
@@ -260,16 +260,16 @@ module.exports = _.extend(suite, {
             test.equals(server.userCount(), 1);
             client.end();
             test.equals(server.userCount(), 1);
-          }, 20);
+          }, 200);
 
           setTimeout(function() {
             test.equals(server.userCount(), 1);
-          }, 30);
+          }, 300);
 
           setTimeout(function() {
             test.equals(server.userCount(), 0);
             test.done();
-          }, 50);
+          }, 500);
         }
       }
     });
