@@ -11,7 +11,7 @@ function Timer(name, millis, descending) {
 Timer.prototype = {
 
   start: function() {
-    this.start = new Date().getTime();
+    this.started = new Date().getTime();
     this.running = true;
   },
 
@@ -25,10 +25,10 @@ Timer.prototype = {
       return this.millis;
     }
     else if (this.descending) {
-      return this.millis - (new Date().getTime() - this.start);
+      return this.millis - (new Date().getTime() - this.started);
     }
     else {
-      return this.millis + (new Date().getTime() - this.start);
+      return this.millis + (new Date().getTime() - this.started);
     }
   },
 

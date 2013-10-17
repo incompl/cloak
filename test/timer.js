@@ -54,6 +54,26 @@ module.exports = _.extend(suite, {
       test.done();
     }, 100);
 
+  },
+
+  // Test stopping and starting a timer
+  stopStart: function(test) {
+    test.expect(2);
+
+    var timer = this.server.createTimer('myTimer');
+    timer.start();
+    setTimeout(function() {
+      timer.stop();
+      setTimeout(function() {
+        timer.start();
+        setTimeout(function() {
+          test.ok(timer.getValue() > 190);
+          test.ok(timer.getValue() < 210);
+          test.done();
+        }, 100);
+      }, 100);
+    }, 100);
+
   }
 
 });
