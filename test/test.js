@@ -1,69 +1,12 @@
 /* jshint node:true */
 
-// Nodeunit tests for Cloak client and server
+// Basic tests
 
-var connect = require('connect');
-var path = require('path');
 var _ = require('underscore');
-var io = require('socket.io-client');
 
-var cloakServer = require('../src/server/cloak');
-var createCloakClient = require('../src/client/cloak');
+var suite = Object.create(require('./lib/superSuite.js'));
 
-var clients;
-
-// Used in tests to create a new Cloak client. Using this
-// function instead of doing it manually means clients
-// will be properly cleaned up after tests are done.
-function createClient() {
-  var client = createCloakClient();
-  client._setLibs(_, io);
-  clients.push(client);
-  return client;
-}
-
-module.exports = {
-
-  // setUp is called before every test
-  // Pepare a server and an empty client list
-  setUp: function(callback) {
-    try {
-      this.port = 8091;
-      this.host = 'http://localhost:' + this.port;
-      this.server = cloakServer;
-      this.server.configure({}); // reset config
-      clients = [];
-      callback();
-    }
-    catch(e) {
-      console.error(e);
-    }
-  },
-
-  // tearDown is called after every test
-  // Shut down server and all clients
-  tearDown: function(callback) {
-    try {
-      _(clients).forEach(function(client) {
-        if (client.connected()) {
-          console.log('ending client');
-          client.end();
-        }
-        else {
-          console.log('client already disconnected');
-        }
-      });
-      clients = null;
-      console.log('stopping server');
-      this.server.stop(function() {
-        console.log('server stopped');
-        callback();
-      });
-    }
-    catch(e) {
-      console.error(e);
-    }
-  },
+module.exports = _.extend(suite, {
 
   // Test basic messaging, to and from client
   messageBasics: function(test) {
@@ -71,7 +14,7 @@ module.exports = {
     test.expect(2);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port,
@@ -109,8 +52,8 @@ module.exports = {
     test.expect(4);
 
     var server = this.server;
-    var client1 = createClient();
-    var client2 = createClient();
+    var client1 = suite.createClient();
+    var client2 = suite.createClient();
 
     var doneCount = 0;
 
@@ -173,8 +116,8 @@ module.exports = {
   autoCreateRooms: function(test) {
 
     var server = this.server;
-    var client1 = createClient();
-    var client2 = createClient();
+    var client1 = suite.createClient();
+    var client2 = suite.createClient();
 
     var steps = [
       'joined Lobby',
@@ -235,7 +178,7 @@ module.exports = {
     test.expect(1);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port
@@ -266,7 +209,7 @@ module.exports = {
     test.expect(6);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port
@@ -302,7 +245,7 @@ module.exports = {
     test.expect(4);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port,
@@ -342,7 +285,7 @@ module.exports = {
     test.expect(2);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port,
@@ -386,7 +329,7 @@ module.exports = {
     test.expect(3);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port
@@ -414,7 +357,7 @@ module.exports = {
     test.expect(2);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port
@@ -446,7 +389,7 @@ module.exports = {
     test.expect(1);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port,
@@ -478,7 +421,7 @@ module.exports = {
     test.expect(2);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
 
     server.configure({
       port: this.port,
@@ -511,7 +454,7 @@ module.exports = {
     test.expect(1);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
     var eventCount = 0;
     var incrementCount = function() {
       eventCount += 1;
@@ -563,7 +506,7 @@ module.exports = {
     test.expect(3);
 
     var server = this.server;
-    var client = createClient();
+    var client = suite.createClient();
     var stubContext = {
       cloakIsCool: true
     };
@@ -589,39 +532,6 @@ module.exports = {
     });
     server.run();
     client.run(this.host);
-  },
-
-  // Test basic timer functionality
-  timer: function(test) {
-    test.expect(4);
-
-    var server = this.server;
-    var client = createClient();
-
-    server.configure({
-      port: this.port
-    });
-
-    client.configure({
-      timerEvents: {
-        myTimer: function(millis) {
-          test.ok(millis > 90);
-          test.ok(millis < 110);
-          test.done();
-        }
-      }
-    });
-
-    server.run();
-    client.run(this.host);
-
-    var timer = server.createTimer('myTimer');
-    timer.start();
-    setTimeout(function() {
-      test.ok(timer.getValue() > 90);
-      test.ok(timer.getValue() < 110);
-      timer.sync(server.getUsers()[0]);
-    }, 100);
-
   }
-};
+  
+});

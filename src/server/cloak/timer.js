@@ -25,10 +25,10 @@ Timer.prototype = {
       return this.millis;
     }
     else if (this.descending) {
-      return this.millis - new Date().getTime() - this.start;
+      return this.millis - (new Date().getTime() - this.start);
     }
     else {
-      return this.millis + new Date().getTime() - this.start;
+      return this.millis + (new Date().getTime() - this.start);
     }
   },
 
