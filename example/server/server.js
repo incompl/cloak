@@ -63,7 +63,6 @@ cloak.configure({
         draw: function(suit) {
           var index = Math.floor(Math.random()*this[suit].length);
           return this[suit].splice(index,1)[0];
-          //return this[suit][index];
         }
       };
 

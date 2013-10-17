@@ -64,7 +64,7 @@ Crafty.c('Card', {
 
   getPoints: function() {
     var result = 0;
-    if (this.val === 'A') {
+    if (this.val === '&#x25b2;') {
       result = 11;
     }
     else if (this.val === '&#x25cf;') {

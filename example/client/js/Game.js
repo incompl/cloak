@@ -144,9 +144,17 @@ window.game = (function() {
       return this._groupIdCounter++;
     },
 
+    getGroupCards: function(group) {
+      _.filter(game.cards, function(card) {
+        return card.group === group;
+      });
+    },
+
     updateGroups: function() {
       game.groups.sum = {};
       game.groups.count = {};
+      var groupsWithAces = [];
+
       _.each(game.cards, function(card) {
         if (_.has(game.groups.count,card.group)) {
           game.groups.count[card.group] += 1;
@@ -159,6 +167,18 @@ window.game = (function() {
         }
         else {
           game.groups.sum[card.group] = card.getPoints();
+        }
+        // Keep note of groups that have aces in them
+        if (card.getPoints() === 11) {
+          groupsWithAces.push(card.group);
+        }
+      }.bind(this));
+      // Check to see if groups with aces are "bust", if so, revalue ace -> 1
+      // This works even if there are two aces in a group. If sum is
+      // over 31: 32 becomes 12, but if sum is 30 it only becomes 20
+      _.each(groupsWithAces, function(group) {
+        if (game.groups.sum[group] > 21) {
+          game.groups.sum[group] -= 10;
         }
       }.bind(this));
     },
