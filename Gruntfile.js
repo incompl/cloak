@@ -38,14 +38,28 @@ module.exports = function(grunt) {
         src: 'src/client/cloak.js',
         dest: 'dest/cloak-client.min.js'
       }
+    },
+
+    githubPages: {
+      target: {
+        options: {
+          // The default commit message for the gh-pages branch
+          commitMessage: 'publish gh pages site via grunt'
+        },
+        // The folder where your gh-pages repo is
+        src: 'site'
+      }
     }
 
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-github-pages');
 
-  // Default task(s).
+  // Build Cloak to publish on NPM
   grunt.registerTask('default', ['copy', 'uglify']);
+
+  grunt.registerTask('publish-site', ['githubPages:target']);
 
 };
