@@ -11,7 +11,7 @@ cloak.configure({
   port: serverPort,
   messages: {
     chat: function(msg, user) {
-      user.room.messageMembers('chat', msg);
+      user.getRoom().messageMembers('chat', msg);
     }
   }
 });
