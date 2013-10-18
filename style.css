@@ -1,0 +1,91 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  font-size: 1em;
+  background: #163F3A;
+}
+
+a:link, a:visited {
+  color: black;
+}
+a:hover {
+  color: #7E5D22;;
+}
+a:active {
+  color: white;
+  background: black;
+}
+
+img {
+  max-width: 100%;
+}
+
+header {
+  padding: 1em;
+  text-align: center;
+  background-image: url('art.jpg');
+  background-size: 100%;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 3em;
+  color: white;
+  font-weight: normal;
+  text-shadow: 3px  3px 3px rgba(50,50,50,.5),
+              -3px  3px 3px rgba(50,50,50,.5),
+               3px -3px 3px rgba(50,50,50,.5),
+              -3px -3px 3px rgba(50,50,50,.5);
+}
+
+header section {
+  margin: 250px 0 0 0;
+  padding: .5em;
+  background: rgba(32, 30, 29, 0.69);
+  color: white;
+}
+
+header section a:link, header section a:visited {
+ color: white;
+}
+
+#content {
+  background: white;
+  margin: 0 auto;
+  max-width: 600px;
+  border-color: #4D7E78;
+  border-style: none none solid;
+  border-width: 3px;
+}
+
+nav {
+  padding: .5em;
+  text-align: center;
+}
+
+nav a {
+  margin: 0 .5em 0 0;
+  white-space: nowrap;
+}
+
+section {
+  padding: 0 1em;
+}
+
+section h2 {
+  margin: .5em 0;
+}
+
+.gist {
+  font-size: 14px;
+}
+
+@media screen and (min-width:600px) {
+  body {
+    font-size: 1.2em;
+  }
+  #content {
+    border-style: none solid solid;
+  }
+}
