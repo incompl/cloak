@@ -1,7 +1,14 @@
 /* global require */
 
 var cloak = require('../../src/server/cloak');
+var rules = require('./shared/rules.js');
 var _ = require('underscore');
+var connect = require('connect');
+
+// Serve the rules file to the client
+connect()
+  .use(connect.static('shared/'))
+  .listen(3000);
 
 cloak.configure({
   // 3 hour room life

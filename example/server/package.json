@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "underscore": "~1.5.1"
+    "underscore": "~1.5.1",
+    "connect": "~2.9.1"
   }
 }
