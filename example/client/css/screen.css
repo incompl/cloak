@@ -1,3 +1,54 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: #ddd;
+}
+
+a:link, a:visited, a:active {
+  color: black;
+}
+
+a:hover {
+  background: #ccc;
+}
+
+input {
+  border: solid #555 1px;
+  font-size: 1em;
+}
+
+button {
+  margin: .5em 0 0 0;
+  border: solid #555 1px;
+  border-radius: 5px;
+  background-image: linear-gradient(to bottom, white, #98d095);
+  font-size: 1em;
+  padding: .3em .5em; 
+  cursor: pointer;
+}
+
+button:hover {
+  background: #98d095;
+}
+
+#grow21 {
+  margin: .25em 0 .6em;
+  font-size: 2em;
+}
+
+#network-ui {
+  max-width: 600px;
+  margin: 5em auto 0;
+  padding: 1em;
+  background: #ded;
+  border-radius: 5px;
+  box-shadow: -3px -3px 5px rgba(0,75,0,.25),
+              -3px  3px 5px rgba(0,75,0,.25),
+               3px -3px 5px rgba(0,75,0,.25),
+               3px  3px 5px rgba(0,75,0,.25);
+}
+
 #info {
   position: absolute;
   z-index: 1000;
@@ -38,10 +89,4 @@
 
 #new-room-ui {
   display: none;
-}
-
-body {
-  background-color: #ddd;
-  font-family: sans;
-  color: black;
 }
