@@ -177,6 +177,7 @@
         handleResponsesFor(socket, 'cloak-createRoomResponse', 'room');
         handleResponsesFor(socket, 'cloak-listUsersResponse', 'users');
         handleResponsesFor(socket, 'cloak-registerUsernameResponse', 'success');
+        handleResponsesFor(socket, 'cloak-getRoomMembersResponse', 'members');
 
         _(config.messages).forEach(function(handler, name) {
           socket.on('message-' + name, function(data) {
@@ -202,6 +203,9 @@
       },
 
       _callback: function(name, callback) {
+        if (callback === undefined) {
+          throw '`callback` is required for ' + name;
+        }
         if (callbacks[name] === undefined) {
           callbacks[name] = [];
         }
@@ -221,6 +225,11 @@
       joinRoom: function(id, callback) {
         this._callback('cloak-joinRoomResponse', callback);
         socket.emit('cloak-joinRoom', {id: id});
+      },
+
+      getRoomMembers: function(id, callback) {
+        this._callback('cloak-getRoomMembersResponse', callback);
+        socket.emit('cloak-getRoomMembers', {id: id});
       },
 
       leaveRoom: function(callback) {

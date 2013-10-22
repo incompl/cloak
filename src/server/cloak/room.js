@@ -63,6 +63,10 @@ module.exports = (function() {
       return new Date().getTime() - this.created;
     },
 
+    getMembers: function() {
+      return _.pluck(this.members, 'id');
+    },
+
     messageMembers: function(name, arg) {
       _.forEach(this.members, function(member) {
         member.message(name, arg);
