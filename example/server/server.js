@@ -36,22 +36,12 @@ cloak.configure({
       otherPlayer[0].message('placedTarget', [targetId, user.room.lastCard]);
       // if the deck is completely empty, that's the end of the game!
       if (user.room.deck.black.length === 0 && user.room.deck.red.length === 0) {
-        user.room.messageMembers('gameOver', user.room.scores);
+        user.room.messageMembers('gameOver');
       }
       else {
         // otherwise let the users know what turn it is
         user.room.messageMembers('turn', user.room.turn);
       }
-    },
-
-    score: function(score, user) {
-      console.log('score',score);
-      user.room.scores[user.team] = score;
-      // Score updated, let the other player know
-      var otherPlayer = _.reject(user.room.members, function(member) {
-        return member.id === user.id;
-      });
-      otherPlayer[0].message('theirScore', {score: score});
     }
   },
 
@@ -65,11 +55,6 @@ cloak.configure({
         black: ''
       };
 
-      this.scores = {
-        red: 0,
-        black: 0
-      };
-
       this.deck = {
         red: [],
         black: [],
@@ -79,7 +64,7 @@ cloak.configure({
         }
       };
 
-      var nums = ['&#x25b2;', '2', '3', '4', '5', '6', '7', '8', '9', '&#x25cf;', '&#x25cf;', '&#x25cf;', '&#x25cf;'];
+      var nums = ['7','7','7'];//'&#x25b2;', '2', '3', '4', '5', '6', '7', '8', '9', '&#x25cf;', '&#x25cf;', '&#x25cf;', '&#x25cf;'];
 
       _.each(nums, function(num) {
         this.deck.black.push({ suit: 'black', val: num });

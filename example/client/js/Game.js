@@ -5,6 +5,8 @@ window.game = (function() {
     _groupIdCounter: 0,
     _islandIdCounter: 0,
     config: {},
+    waitingForScore: false,
+    waitingForCard: false,
 
     registerUsername: function() {
       var loginUIElement = document.getElementById('login-ui');
@@ -124,15 +126,26 @@ window.game = (function() {
     },
 
     score: {
-      _score: 0,
-      _el: document.getElementById('score'),
-      get: function() {
-        return this._score;
+      _score: {
+        red: 0,
+        black: 0
       },
-      set: function(num) {
-        this._el.innerText = num;
-        this._score = num;
-        cloak.message('score', this._score);
+      _el: {
+        // Make two elements TODO
+        score: document.getElementById('score'),
+        theirScore: document.getElementById('theirScore')
+      },
+      get: function(suit) {
+        return this._score[suit];
+      },
+      set: function(suit, num) {
+        this._score[suit] = num;
+        if (suit === game.team) {
+          this._el.score.innerText = num;
+        }
+        else {
+          this._el.theirScore.innerText = num;
+        }
       }
     },
 
@@ -221,9 +234,7 @@ window.game = (function() {
         })[0].suit;
         if (val === 21) {
           groupsToRemove.push(key);
-          if (groupSuit === game.team) {
-            game.score.set(game.score.get() + 10);
-          }
+          game.score.set(groupSuit, game.score.get(groupSuit) + 10);
         }
       });
       game.removeById(groupsToRemove, 'group');

@@ -60,15 +60,13 @@ cloak.configure({
       document.getElementById('turn').innerText = turnText;
     },
 
-    'gameOver': function(scores) {
-      var myTeam = game.team;
-      var otherTeam = (myTeam === 'red') ? 'black' : 'red';
+    'gameOver': function() {
       var msg = '';
       var gameOverElement = document.getElementById('gameOver');
-      if (scores[myTeam] > scores[otherTeam]) {
+      if (game.score.get(game.team) > game.score.get(game.otherTeam)) {
         msg = 'YOU WIN';
       }
-      else if (scores[myTeam] < scores[otherTeam]) {
+      else if (game.score.get(game.team) < game.score.get(game.otherTeam)) {
         msg = 'YOU LOSE';
       }
       else {
@@ -81,6 +79,7 @@ cloak.configure({
     'assignTeam': function(data) {
       console.log('my team is', data.team);
       game.team = data.team;
+      game.otherTeam = (game.team === 'red') ? 'black' : 'red';
       game.turn = data.turn;
       var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
       document.getElementById('turn').innerText = turnText;
@@ -90,18 +89,13 @@ cloak.configure({
       //set the next card
       game.drawCard.val = data[1].val;
       game.drawCard.suit = data[1].suit;
-      // find the target and simulate a click on it
+      // find the target and place the drawn card on it
       var target = _.findWhere(game.targets, {0: data[0]});
       target.placeCard();
     },
 
     'beginGame': function() {
       game.begin();
-    },
-
-    'theirScore': function(data) {
-      var theirScoreEl = document.getElementById('theirScore');
-      theirScoreEl.innerText = data.score;
     }
   },
 
