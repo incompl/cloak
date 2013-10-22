@@ -562,6 +562,34 @@ module.exports = _.extend(suite, {
     });
     server.run();
     client.run(this.host);
+  },
+
+  getRoom: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port,
+      defaultRoomSize: 1
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var room = server.createRoom('123');
+          var user = server.getUsers()[0];
+          client.joinRoom(room.id, function(success) {
+            test.equals(user.getRoom(), room);
+            test.done();
+          });
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
   }
   
 });
