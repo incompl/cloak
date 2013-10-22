@@ -63,6 +63,11 @@ cloak.configure({
     'gameOver': function() {
       var msg = '';
       var gameOverElement = document.getElementById('gameOver');
+      var myOldScore = game.score.get(game.team);
+      var theirOldScore = game.score.get(game.otherTeam);
+      game.finalScore();
+      var myTiebreaker = game.score.get(game.team) - myOldScore;
+      var theirTiebreaker = game.score.get(game.otherTeam) - theirOldScore;
       if (game.score.get(game.team) > game.score.get(game.otherTeam)) {
         msg = 'YOU WIN';
       }
@@ -72,6 +77,16 @@ cloak.configure({
       else {
         msg = 'TIE GAME';
       }
+
+      // append tiebreaker text
+      if (myTiebreaker > 0 || theirTiebreaker > 0) {
+        msg +=  '\nTiebreaker!' +
+                '\nBase scores: ' + myOldScore +
+                '\nYour tiebreaker: ' + myTiebreaker +
+                '\nTheir tiebreaker: ' + theirTiebreaker;
+      }
+
+
       gameOverElement.innerText = msg;
       gameOverElement.style.display = 'block';
     },

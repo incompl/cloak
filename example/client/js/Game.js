@@ -245,6 +245,24 @@ window.game = (function() {
       game.updateGroups();
     },
 
+    finalScore: function() {
+      this.removeAndScore();
+      // If it's a tie game, run tiebreaker logic
+      if (game.score.get(game.team) === game.score.get(game.otherTeam)) {
+        _.each(game.groups.sum, function(val, key) {
+          var groupSuit = _.filter(game.cards, function(el) {
+            return el.group+'' === key;
+          })[0].suit;
+          if (val === 22 || val === 20) {
+            game.score.set(groupSuit, game.score.get(groupSuit) + 5);
+          }
+          if (val === 23 || val === 19) {
+            game.score.set(groupSuit, game.score.get(groupSuit) + 2);
+          }
+        });
+      }
+    },
+
     removeById: function(groupsToRemove, property) {
       _.each(game.cards, function(card) {
         if (_.contains(groupsToRemove, card[property]+'')) {
