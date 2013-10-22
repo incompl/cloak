@@ -33,6 +33,7 @@ cloak.configure({
       cloak.joinRoom(room.id, function(success) {
         console.log(success ? 'room join success' : 'room join failure');
         if (success) {
+          game.room.id = room.id;
           game.begin();
         }
       });
@@ -58,6 +59,7 @@ cloak.configure({
       console.log('Turn: ' + game.turn);
       var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
       document.getElementById('turn').innerText = turnText;
+      game.refreshWaiting();
     },
 
     'gameOver': function() {
@@ -110,6 +112,7 @@ cloak.configure({
     },
 
     'beginGame': function() {
+      // Show our "waiting for another player" dialog if 1 player here
       game.begin();
     }
   },
@@ -139,6 +142,7 @@ cloak.configure({
 
     'roomMemberJoined': function(user) {
       console.log('room member joined', user);
+      game.refreshWaiting();
     },
 
     'roomMemberLeft': function(user) {

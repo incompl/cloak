@@ -5,8 +5,7 @@ window.game = (function() {
     _groupIdCounter: 0,
     _islandIdCounter: 0,
     config: {},
-    waitingForScore: false,
-    waitingForCard: false,
+    room: {},
 
     registerUsername: function() {
       var loginUIElement = document.getElementById('login-ui');
@@ -75,10 +74,27 @@ window.game = (function() {
       });
     },
 
+    refreshWaiting: function() {
+      cloak.getRoomMembers(game.room.id, function(members) {
+        if (!members) {
+          return;
+        }
+        var waitingForPlayerElem = document.getElementById('waitingForPlayer');
+        if (members.length < 2) {
+          waitingForPlayerElem.style.display = 'block';
+        }
+        else {
+          waitingForPlayerElem.style.display = 'none';
+        }
+      });
+    },
+
     joinRoom: function(id) {
       cloak.joinRoom(id, function(success) {
         if (success) {
+          game.room.id = id;
           game.begin();
+          game.refreshWaiting();
         }
       });
     },
@@ -87,9 +103,11 @@ window.game = (function() {
       var gameElement = document.getElementById('game');
       var infoElement = document.getElementById('info');
       var networkUIElement = document.getElementById('network-ui');
+      var waitingForPlayerElem = document.getElementById('waitingForPlayer');
       gameElement.style.display = 'block';
       infoElement.style.display = 'block';
       networkUIElement.style.display = 'none';
+      waitingForPlayerElem.style.display = 'block';
       Crafty.init(game.config.gameWidth, game.config.gameHeight, gameElement);
 
       Crafty.background('#ddd');
