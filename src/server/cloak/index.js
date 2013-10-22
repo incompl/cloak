@@ -260,7 +260,7 @@ module.exports = (function() {
         var success = false;
         if (room &&
             !room._closing &&
-            room.members.length < room.size) {
+            (room.size === null || room.members.length < room.size)) {
           success = room.addMember(user);
         }
         socket.emit('cloak-joinRoomResponse', {
