@@ -449,6 +449,36 @@ module.exports = _.extend(suite, {
     client.run(this.host);
   },
 
+  // Test deleteUser in conjunction with connected client method.
+  deleteUser: function(test) {
+    test.expect(4);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          test.equals(server.getUsers().length, 1);
+          test.equals(client.connected(), true);
+          server.deleteUser(server.getUsers()[0]);
+          test.equals(server.getUsers().length, 0);
+          setTimeout(function() {
+            test.equals(client.connected(), false);
+            test.done();
+          }, 50)
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+  },
+
   // Test Room module emitEvent does emit event.
   _emitEvent: function(test) {
     test.expect(1);
