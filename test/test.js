@@ -590,6 +590,34 @@ module.exports = _.extend(suite, {
 
     server.run();
     client.run(this.host);
+  },
+
+  // https://github.com/bocoup/cloak/issues/25
+  joinRoomWithoutRoomSize: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var room = server.createRoom('123');
+          var user = server.getUsers()[0];
+          client.joinRoom(room.id, function(success) {
+            test.equals(user.getRoom(), room);
+            test.done();
+          });
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
   }
   
 });
