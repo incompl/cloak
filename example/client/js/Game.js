@@ -99,12 +99,33 @@ window.game = (function() {
       });
     },
 
+    returnToLobby: function() {
+      cloak.leaveRoom(function() {
+        Crafty.stop(true);
+        game.refreshLobby();
+        document.getElementById('game-ui').style.display = 'none';
+        document.getElementById('network-ui').style.display = 'block';
+      });
+    },
+
+    showGameOver: function(msg) {
+      var gameOverElement = document.getElementById('gameOver');
+      var gameOverMsgElement = document.getElementById('gameOverMsg');
+      gameOverMsgElement.innerText = msg;
+      gameOverElement.style.display = 'block';
+    },
+
     begin: function() {
+      var gameUIElement = document.getElementById('game-ui');
       var gameElement = document.getElementById('game');
+      gameElement.remove();
+      gameElement = gameUIElement.appendChild(document.createElement('div'));
+      gameElement.id = 'game';
       var infoElement = document.getElementById('info');
       var networkUIElement = document.getElementById('network-ui');
       var waitingForPlayerElem = document.getElementById('waitingForPlayer');
       gameElement.style.display = 'block';
+      gameUIElement.style.display = 'block';
       infoElement.style.display = 'block';
       networkUIElement.style.display = 'none';
       waitingForPlayerElem.style.display = 'block';
@@ -133,14 +154,6 @@ window.game = (function() {
 
       // set up islands
       game.islands = {};
-    },
-
-    end: function() {
-      Crafty.stop(true);
-      var gameUIElement = document.getElementById('game-ui');
-      var networkUIElement = document.getElementById('network-ui');
-      gameUIElement.style.display = 'none';
-      networkUIElement.style.display = 'block';
     },
 
     score: {

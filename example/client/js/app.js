@@ -64,7 +64,6 @@ cloak.configure({
 
     'gameOver': function() {
       var msg = '';
-      var gameOverElement = document.getElementById('gameOver');
       var myOldScore = game.score.get(game.team);
       var theirOldScore = game.score.get(game.otherTeam);
       game.finalScore();
@@ -87,10 +86,7 @@ cloak.configure({
                 '\nYour tiebreaker: ' + myTiebreaker +
                 '\nTheir tiebreaker: ' + theirTiebreaker;
       }
-
-
-      gameOverElement.innerText = msg;
-      gameOverElement.style.display = 'block';
+      game.showGameOver(msg);
     },
 
     'assignTeam': function(data) {
@@ -147,8 +143,8 @@ cloak.configure({
 
     'roomMemberLeft': function(user) {
       console.log('room member left', user);
-      // The other player dropped, so we need to stop the game and kick you to the lobby
-      game.end();
+      // The other player dropped, so we need to stop the game and show return to lobby prompt
+      game.showGameOver('The other player disconnected!');
     },
 
     'begin': function() {

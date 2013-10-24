@@ -101,6 +101,13 @@ cloak.configure({
       });
     },
 
+    memberLeaves: function(user) {
+      // if we have 0 people in the room, close the room
+      if (this.getMembers().length <= 0) {
+        cloak.deleteRoom(this);
+      }
+    },
+
     pulse: function() {
       // add timed turn stuff here
     },
