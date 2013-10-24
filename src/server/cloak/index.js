@@ -326,6 +326,7 @@ module.exports = (function() {
     },
 
     deleteUser: function(user) {
+      user.leaveRoom();
       user._socket.disconnect();
       delete users[user.id];
     },
