@@ -73,7 +73,7 @@ module.exports = (function() {
 
       io.set('log level', config.logLevel);
 
-      var lobby = new Room('Lobby', 0, events.lobby, true);
+      lobby = new Room('Lobby', 0, events.lobby, true);
 
       Room.prototype._lobby = lobby;
       Room.prototype._autoJoinLobby = config.autoJoinLobby;
@@ -312,6 +312,8 @@ module.exports = (function() {
       var roomSize = size || config.defaultRoomSize;
       var room = new Room(roomName, roomSize, events.room, false);
       rooms[room.id] = room;
+      // Message everyone in lobby
+      lobby._serverMessageMembers('roomCreated', cloak._listRoomsForClient()); 
       return room;
     },
 
@@ -319,6 +321,8 @@ module.exports = (function() {
       var id = room.id;
       rooms[id]._close();
       delete rooms[id];
+      // Message everyone in lobby
+      lobby._serverMessageMembers('roomDeleted', cloak._listRoomsForClient()); 
     },
 
     getRoom: function(id) {
