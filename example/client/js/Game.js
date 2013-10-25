@@ -105,18 +105,24 @@ window.game = (function() {
 
     returnToLobby: function() {
       cloak.leaveRoom(function() {
-        Crafty.stop(true);
+        game.end();
         game.refreshLobby();
         document.getElementById('game-ui').style.display = 'none';
         document.getElementById('network-ui').style.display = 'block';
       });
     },
 
+    // If passed "false", hides the gameOver dialog, otherwise displays string
     showGameOver: function(msg) {
       var gameOverElement = document.getElementById('gameOver');
       var gameOverMsgElement = document.getElementById('gameOverMsg');
-      gameOverMsgElement.innerText = msg;
-      gameOverElement.style.display = 'block';
+      if (msg === false)  {
+        gameOverElement.style.display = 'none';
+      }
+      else {
+        gameOverMsgElement.innerText = msg;
+        gameOverElement.style.display = 'block';
+      }
     },
 
     begin: function() {
@@ -160,6 +166,17 @@ window.game = (function() {
       game.islands = {};
     },
 
+    end: function() {
+      // Reset score
+      game.score.reset();
+      // Hide game over message
+      game.showGameOver(false);
+      // Remove every object in the game
+      Crafty('*').each(function() {
+        this.destroy();
+      });
+    },
+
     score: {
       _score: {
         red: 0,
@@ -181,6 +198,10 @@ window.game = (function() {
         else {
           this._el.theirScore.innerText = num;
         }
+      },
+      reset: function() {
+        this._score.red = 0;
+        this._score.black = 0;
       }
     },
 
