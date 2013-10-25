@@ -132,10 +132,12 @@ cloak.configure({
 
     'roomCreated': function(rooms) {
       console.log('created a room', rooms);
+      game.refreshLobby();
     },
 
     'roomDeleted': function(rooms) {
       console.log('deleted a room', rooms);
+      game.refreshLobby();
     },
 
     'roomMemberJoined': function(user) {
