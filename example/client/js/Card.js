@@ -9,11 +9,10 @@ Crafty.c('Card', {
       val: game.drawCard.val,
       suit: game.drawCard.suit
     };
-    var fontSize = ((this.w-35) > 20) ? (this.w-35) : 20;
     this.requires('Actor, Color, Text')
       .color(draw.suit)
       .textColor('#ffffff')
-      .textFont({ size: fontSize+'px', weight: 'bold', family: 'Sans' })
+      .textFont({ size: Math.max(this.w-35, 20)+'px', weight: 'bold', family: 'Sans' })
       .css('text-align', 'center');
     this.suit = draw.suit;
     this.val = draw.val;

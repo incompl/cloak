@@ -8,6 +8,7 @@ var clientHeight =  window.innerHeight;
 var gameOffsetTop = 0;
 var footerHeight = 0;
 var gameHeight = clientHeight - gameOffsetTop - footerHeight;
+var gameElement = document.getElementById('game');
 
 game.config.cardWidth = clientWidth / 16;
 game.config.cardHeight = Math.round(game.config.cardWidth * cardAspectRatio);
@@ -25,7 +26,6 @@ if (game.config.cardWidth > maxCardWidth) {
 game.config.gameWidth = game.config.cardWidth * 16;
 game.config.gameHeight = game.config.cardWidth * 15;
 game.config.cardBuffer = game.config.cardWidth / 8;
-
 
 cloak.configure({
   messages: {
@@ -99,17 +99,13 @@ cloak.configure({
     },
 
     'placedTarget': function(data) {
+      console.log('target data', data);
       //set the next card
       game.drawCard.val = data[1].val;
       game.drawCard.suit = data[1].suit;
       // find the target and place the drawn card on it
-      var target = _.findWhere(game.targets, {0: data[0]});
+      var target = _.findWhere(game.targets, {targetId: data[0]});
       target.placeCard();
-    },
-
-    'beginGame': function() {
-      // Show our "waiting for another player" dialog if 1 player here
-      game.begin();
     }
   },
 
@@ -145,6 +141,9 @@ cloak.configure({
       console.log('room member left', user);
       // The other player dropped, so we need to stop the game and show return to lobby prompt
       game.showGameOver('The other player disconnected!');
+      cloak.leaveRoom(function() {
+        console.log('Removing you from the room because the other player disconnected.');
+      });
     },
 
     'begin': function() {
@@ -160,5 +159,5 @@ cloak.configure({
 
 });
 
+Crafty.init(game.config.gameWidth, game.config.gameHeight, gameElement);
 cloak.run('http://localhost:8090');
-//game.begin();

@@ -4,6 +4,7 @@ window.game = (function() {
   return {
     _groupIdCounter: 0,
     _islandIdCounter: 0,
+    targetIdCounter: 0,
     config: {},
     room: {},
 
@@ -106,11 +107,12 @@ window.game = (function() {
     returnToLobby: function() {
       cloak.leaveRoom(function() {
         cloak.joinLobby(function() {
-          game.end();
-          game.refreshLobby();
-          document.getElementById('game-ui').style.display = 'none';
-          document.getElementById('network-ui').style.display = 'block';
         });
+        console.log('ending game');
+        game.end();
+        game.refreshLobby();
+        document.getElementById('game-ui').style.display = 'none';
+        document.getElementById('network-ui').style.display = 'block';
       });
     },
 
@@ -132,9 +134,6 @@ window.game = (function() {
     begin: function() {
       var gameUIElement = document.getElementById('game-ui');
       var gameElement = document.getElementById('game');
-      gameElement.remove();
-      gameElement = gameUIElement.appendChild(document.createElement('div'));
-      gameElement.id = 'game';
       var infoElement = document.getElementById('info');
       var networkUIElement = document.getElementById('network-ui');
       var waitingForPlayerElem = document.getElementById('waitingForPlayer');
@@ -143,11 +142,11 @@ window.game = (function() {
       infoElement.style.display = 'block';
       networkUIElement.style.display = 'none';
       waitingForPlayerElem.style.display = 'block';
-      Crafty.init(game.config.gameWidth, game.config.gameHeight, gameElement);
 
       Crafty.background('#ddd');
       
       // Place our home target
+      game.targetIdCounter = 0;
       game.targets = [];
       game.placeHomeTarget();
 
@@ -157,6 +156,15 @@ window.game = (function() {
         x: game.config.cardBuffer,
         y: game.config.cardBuffer
       });
+
+      Crafty.e('2D, DOM, Text').attr({
+        x: game.drawCard.x + game.drawCard.w + game.config.cardBuffer,
+        y: game.drawCard.y
+      })
+        .textFont({ size: Math.max(game.drawCard.h / 4, 14)+'px', weight: 'bold', family: 'Sans' })
+        .text('DRAW')
+        .textColor('black');
+      
 
       // set up groups
       game.groups = {};
@@ -204,8 +212,8 @@ window.game = (function() {
         }
       },
       reset: function() {
-        this._score.red = 0;
-        this._score.black = 0;
+        game.score.set('red', 0);
+        game.score.set('black', 0);
       }
     },
 

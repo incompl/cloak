@@ -8,20 +8,31 @@ Crafty.c('Target', {
       .bind('Click', function() {
         this.onClick();
       });
+    this.targetId = game.targetIdCounter;
+    game.targetIdCounter++;
     game.targets.push(this);
     this.used = false;
   },
 
   onClick: function() {
+    // See if there is a card on this target
+    var intersect = false;
+    for (var i=0; i<game.cards.length; i++) {
+      if (game.cards[i].intersect(this.x, this.y, this.w, this.h)) {
+        intersect = true;
+        break;
+      }
+    }
+
     // If this target already has a card on it, the draw card isn't fresh,
     // or it's not your turn don't place anything
-    if (this.used || !game.drawCard.fresh || game.turn !== game.team) {
+    if ( intersect || !game.drawCard.fresh || game.turn !== game.team ) {
       return;
     }
     this.placeCard();
 
     // Done with turn, let the server know where we clicked
-    cloak.message('turnDone', this[0]);
+    cloak.message('turnDone', this.targetId);
   },
 
   placeCard: function() {

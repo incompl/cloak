@@ -29,6 +29,7 @@ Crafty.c('CardDrawn', {
   },
 
   onClick: function() {
+    console.log('clicked!');
     // If this already has a fresh card on it, or it's not your turn, don't draw
     if (this.fresh || game.turn !== game.team) {
       return;
