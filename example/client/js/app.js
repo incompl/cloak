@@ -145,6 +145,7 @@ cloak.configure({
       console.log('room member left', user);
       // The other player dropped, so we need to stop the game and show return to lobby prompt
       game.showGameOver('The other player disconnected!');
+      game.end();
     },
 
     'begin': function() {
