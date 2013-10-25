@@ -130,6 +130,14 @@ cloak.configure({
       });
     },
 
+    'roomCreated': function(rooms) {
+      console.log('created a room', rooms);
+    },
+
+    'roomDeleted': function(rooms) {
+      console.log('deleted a room', rooms);
+    },
+
     'roomMemberJoined': function(user) {
       console.log('room member joined', user);
       game.refreshWaiting();
