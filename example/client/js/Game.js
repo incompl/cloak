@@ -15,7 +15,7 @@ window.game = (function() {
         loginUIElement.innerHTML += '<p>Enter a valid username!</p>';
         return;
       }
-      game.username = loginElement.value;
+      game.username = escape(loginElement.value);
       // Register our username with the server
       cloak.registerUsername(game.username, function(success) {
         console.log(success ? 'username registered' : 'username failed');
@@ -38,7 +38,7 @@ window.game = (function() {
         return;
       }
       cloak.message('createRoom', {
-        name: newRoomElement.value
+        name: escape(newRoomElement.value)
       });
     },
 
