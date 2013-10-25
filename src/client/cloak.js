@@ -177,6 +177,7 @@
         handleResponsesFor(socket, 'cloak-leaveRoomResponse', 'success');
         handleResponsesFor(socket, 'cloak-createRoomResponse', 'room');
         handleResponsesFor(socket, 'cloak-listUsersResponse', 'users');
+        handleResponsesFor(socket, 'cloak-joinLobbyResponse', 'success');
         handleResponsesFor(socket, 'cloak-registerUsernameResponse', 'success');
         handleResponsesFor(socket, 'cloak-getRoomMembersResponse', 'members');
 
