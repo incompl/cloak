@@ -16,3 +16,7 @@ Cloak is a network layer for HTML5 games using Node.js
 ## License
 
 [MIT](https://github.com/bocoup/cloak/blob/master/LICENSE)
+
+## Built at Bocoup!
+
+[Bocoup](http://bocoup.com/) is a software company in Boston that is dedicated to moving the Open Web forward.
