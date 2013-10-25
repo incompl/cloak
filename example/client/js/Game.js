@@ -131,6 +131,13 @@ window.game = (function() {
       }
     },
 
+    updateTurn: function() {
+      var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
+      var turnColor = (game.turn === game.team) ? '#C8FFCD' : '#DDD';
+      document.getElementById('turn').innerText = turnText;
+      document.getElementsByTagName('body')[0].style.background = turnColor;
+    },
+
     begin: function() {
       var gameUIElement = document.getElementById('game-ui');
       var gameElement = document.getElementById('game');
@@ -143,7 +150,7 @@ window.game = (function() {
       networkUIElement.style.display = 'none';
       waitingForPlayerElem.style.display = 'block';
 
-      Crafty.background('#ddd');
+      Crafty.background('rgba(0,0,0,0)');
       
       // Place our home target
       game.targetIdCounter = 0;

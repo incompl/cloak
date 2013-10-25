@@ -57,8 +57,7 @@ cloak.configure({
     'turn': function(msg) {
       game.turn = msg;
       console.log('Turn: ' + game.turn);
-      var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
-      document.getElementById('turn').innerText = turnText;
+      game.updateTurn();
       game.refreshWaiting();
     },
 
@@ -94,8 +93,7 @@ cloak.configure({
       game.team = data.team;
       game.otherTeam = (game.team === 'red') ? 'black' : 'red';
       game.turn = data.turn;
-      var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
-      document.getElementById('turn').innerText = turnText;
+      game.updateTurn();
     },
 
     'placedTarget': function(data) {
