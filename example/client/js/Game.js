@@ -23,11 +23,7 @@ window.game = (function() {
           // get the lobby
           cloak.joinLobby(function(success) {
             console.log('joined lobby');
-            // list out users in the room and add them to our lobby
-            cloak.listUsers(function(users) {
-              console.log('other users in room', users);
-              game.refreshLobby(users);
-            });
+            game.refreshLobby();
           });
         }
       });
@@ -52,22 +48,26 @@ window.game = (function() {
           newRoomUIElement = document.getElementById('new-room-ui'),
           roomsElement = document.getElementById('rooms'),
           roomListElement = document.getElementById('room-list');
-      lobbyElement.style.display = 'block';
-      lobbyListElement.style.display = 'block';
-      newRoomUIElement.style.display = 'block';
-      roomsElement.style.display = 'block';
-      roomListElement.style.display = 'block';
-      lobbyListElement.innerHTML = '<ul>';
-      _.chain(users)
-        .each(function(user) {
-          if (user.room.lobby) {
-            lobbyListElement.innerHTML += '<li>' + user.username + '</li>';
-          }
-          else {
-            lobbyListElement.innerHTML += '<li>' + user.username + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
-          }
-        });
-      lobbyListElement.innerHTML += '</ul>';
+
+      cloak.listUsers(function(users) {
+        console.log('other users in room', users);
+        lobbyElement.style.display = 'block';
+        lobbyListElement.style.display = 'block';
+        newRoomUIElement.style.display = 'block';
+        roomsElement.style.display = 'block';
+        roomListElement.style.display = 'block';
+        lobbyListElement.innerHTML = '<ul>';
+        _.chain(users)
+          .each(function(user) {
+            if (user.room.lobby) {
+              lobbyListElement.innerHTML += '<li>' + user.username + '</li>';
+            }
+            else {
+              lobbyListElement.innerHTML += '<li>' + user.username + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
+            }
+          });
+        lobbyListElement.innerHTML += '</ul>';
+      });
 
       cloak.listRooms(function(rooms) {
         roomListElement.innerHTML = '<ul>';
@@ -105,23 +105,27 @@ window.game = (function() {
 
     returnToLobby: function() {
       cloak.leaveRoom(function() {
-        game.end();
-        game.refreshLobby();
-        document.getElementById('game-ui').style.display = 'none';
-        document.getElementById('network-ui').style.display = 'block';
+        cloak.joinLobby(function() {
+          game.end();
+          game.refreshLobby();
+          document.getElementById('game-ui').style.display = 'none';
+          document.getElementById('network-ui').style.display = 'block';
+        });
       });
     },
 
     // If passed "false", hides the gameOver dialog, otherwise displays string
     showGameOver: function(msg) {
-      var gameOverElement = document.getElementById('gameOver');
-      var gameOverMsgElement = document.getElementById('gameOverMsg');
+      var gameOverElement = document.getElementById('gameOver'),
+          gameOverMsgElement = document.getElementById('gameOverMsg'),
+          waitingForPlayerElem = document.getElementById('waitingForPlayer');
       if (msg === false)  {
         gameOverElement.style.display = 'none';
       }
       else {
         gameOverMsgElement.innerText = msg;
         gameOverElement.style.display = 'block';
+        waitingForPlayerElem.style.display = 'none';
       }
     },
 
