@@ -15,7 +15,7 @@ window.game = (function() {
         loginUIElement.innerHTML += '<p>Enter a valid username!</p>';
         return;
       }
-      game.username = escape(loginElement.value);
+      game.username = loginElement.value;
       // Register our username with the server
       cloak.registerUsername(game.username, function(success) {
         console.log(success ? 'username registered' : 'username failed');
@@ -61,10 +61,10 @@ window.game = (function() {
         _.chain(users)
           .each(function(user) {
             if (user.room.lobby) {
-              lobbyListElement.innerHTML += '<li>' + user.username + '</li>';
+              lobbyListElement.innerHTML += '<li>' + escape(user.username) + '</li>';
             }
             else {
-              lobbyListElement.innerHTML += '<li>' + user.username + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
+              lobbyListElement.innerHTML += '<li>' + escape(user.username) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
             }
           });
         lobbyListElement.innerHTML += '</ul>';
@@ -73,7 +73,7 @@ window.game = (function() {
       cloak.listRooms(function(rooms) {
         roomListElement.innerHTML = '<ul>';
         _.each(rooms, function(room) {
-          roomListElement.innerHTML += '<li>' + room.name + ' (' + room.userCount + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].username + '</li></li>';
+          roomListElement.innerHTML += '<li>' + escape(room.name) + ' (' + room.userCount + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].username + '</li></li>';
         });
         roomListElement.innerHTML += '</ul>';
       });
