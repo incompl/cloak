@@ -31,17 +31,20 @@
         <p><a href="http://www.nealen.net/projects/grow21_rules.pdf">How to play (pdf)</a></p>
         <p>An example game for <a href="http://bocoup.github.io/cloak/">Cloak</a>.</p>
         <input id="login" type="text"></input><span>User name</span><br>
-        <button onclick="game.registerUsername()">Play</button>
+        <button onclick="game.registerUsername()">Log In</button>
       </section>
       <section id="lobby">
-        <h3>Lobby</h3>
-      </section>
-      <section id="new-room-ui">
-        <input id="new-room" type="text"></input><span>room name</span><br>
-        <button onclick="game.createRoom()">create new room</button>
+        <h3>Lobby Members</h3>
+        <div id = "lobby-list"></div>
       </section>
       <section id="rooms">
         <h3>Rooms</h3>
+        <button onclick="game.refreshLobby()">refresh</button>
+        <div id="new-room-ui">
+          <input id="new-room" type="text"></input><span>room name</span><br>
+          <button onclick="game.createRoom()">create new room</button>
+        </div>
+        <div id = "room-list"></div>
       </section>
     </section>
     <script src="lib/underscore-min.js"></script>

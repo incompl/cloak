@@ -47,30 +47,34 @@ window.game = (function() {
 
     refreshLobby: function(users) {
       console.log('refreshing lobby');
-      var lobbyElement = document.getElementById('lobby');
-      var newRoomUIElement = document.getElementById('new-room-ui');
-      var roomsElement = document.getElementById('rooms');
+      var lobbyElement = document.getElementById('lobby'),
+          lobbyListElement = document.getElementById('lobby-list'),
+          newRoomUIElement = document.getElementById('new-room-ui'),
+          roomsElement = document.getElementById('rooms'),
+          roomListElement = document.getElementById('room-list');
       lobbyElement.style.display = 'block';
+      lobbyListElement.style.display = 'block';
       newRoomUIElement.style.display = 'block';
       roomsElement.style.display = 'block';
-      lobbyElement.innerHTML = '<h3>Lobby</h3><ul>';
+      roomListElement.style.display = 'block';
+      lobbyListElement.innerHTML = '<ul>';
       _.chain(users)
         .each(function(user) {
           if (user.room.lobby) {
-            lobbyElement.innerHTML += '<li>' + user.username + '</li>';
+            lobbyListElement.innerHTML += '<li>' + user.username + '</li>';
           }
           else {
-            lobbyElement.innerHTML += '<li>' + user.username + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
+            lobbyListElement.innerHTML += '<li>' + user.username + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
           }
         });
-      lobbyElement.innerHTML += '</ul>';
+      lobbyListElement.innerHTML += '</ul>';
 
       cloak.listRooms(function(rooms) {
-        roomsElement.innerHTML = '<h3>Rooms</h3><ul>';
+        roomListElement.innerHTML = '<ul>';
         _.each(rooms, function(room) {
-          roomsElement.innerHTML += '<li>' + room.name + ' (' + room.userCount + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].username + '</li></li>';
+          roomListElement.innerHTML += '<li>' + room.name + ' (' + room.userCount + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].username + '</li></li>';
         });
-        roomsElement.innerHTML += '</ul>';
+        roomListElement.innerHTML += '</ul>';
       });
     },
 

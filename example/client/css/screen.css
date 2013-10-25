@@ -96,10 +96,18 @@ button:hover {
   display: none;
 }
 
+#rooms h3 {
+  display: inline-block;
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
 .indented {
   margin-left: 20px;
 }
 
 #new-room-ui {
+  float: right;
+  margin-top: 60px;
   display: none;
 }
