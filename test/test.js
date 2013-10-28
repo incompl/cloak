@@ -143,7 +143,7 @@ module.exports = _.extend(suite, {
       step('joined '+ room.name);
       if (steps[0] === 'leave room') {
         step('leave room');
-        client1.leaveRoom();
+        client1.leaveRoom(function(){});
       }
     }
 
