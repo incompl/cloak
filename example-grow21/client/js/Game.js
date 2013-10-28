@@ -1,142 +1,15 @@
-/* global Crafty,_,console,game,player,cloak,escape */
+/* global Crafty,_,console,game,player,cloak */
 
 window.game = (function() {
   return {
+
+    // ** GAME INIT **
+
     _groupIdCounter: 0,
     _islandIdCounter: 0,
     targetIdCounter: 0,
     config: {},
     room: {},
-
-    registerUsername: function() {
-      var loginUIElement = document.getElementById('login-ui');
-      var loginElement = document.getElementById('login');
-      if (loginElement.value.trim() === '') {
-        loginUIElement.innerHTML += '<p>Enter a valid username!</p>';
-        return;
-      }
-      game.username = loginElement.value;
-      // Register our username with the server
-      cloak.registerUsername(game.username, function(success) {
-        console.log(success ? 'username registered' : 'username failed');
-        // if we registered a username, try to join the lobby
-        if (success) {
-          // get the lobby
-          cloak.joinLobby(function(success) {
-            console.log('joined lobby');
-            game.refreshLobby();
-          });
-        }
-      });
-    },
-
-    createRoom: function() {
-      var newRoomElement = document.getElementById('new-room');
-      var newRoomUIElement = document.getElementById('new-room-ui');
-      if (newRoomElement.value.trim() === '') {
-        newRoomUIElement.innerHTML += '<p>Enter a valid username!</p>';
-        return;
-      }
-      cloak.message('createRoom', {
-        name: escape(newRoomElement.value)
-      });
-    },
-
-    refreshLobby: function(users) {
-      console.log('refreshing lobby');
-      var lobbyElement = document.getElementById('lobby'),
-          lobbyListElement = document.getElementById('lobby-list'),
-          newRoomUIElement = document.getElementById('new-room-ui'),
-          roomsElement = document.getElementById('rooms'),
-          roomListElement = document.getElementById('room-list');
-
-      cloak.listUsers(function(users) {
-        console.log('other users in room', users);
-        lobbyElement.style.display = 'block';
-        lobbyListElement.style.display = 'block';
-        newRoomUIElement.style.display = 'block';
-        roomsElement.style.display = 'block';
-        roomListElement.style.display = 'block';
-        lobbyListElement.innerHTML = '<ul>';
-        _.chain(users)
-          .each(function(user) {
-            if (user.room.lobby) {
-              lobbyListElement.innerHTML += '<li>' + escape(user.username) + '</li>';
-            }
-            else {
-              lobbyListElement.innerHTML += '<li>' + escape(user.username) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
-            }
-          });
-        lobbyListElement.innerHTML += '</ul>';
-      });
-
-      cloak.listRooms(function(rooms) {
-        roomListElement.innerHTML = '<ul>';
-        _.each(rooms, function(room) {
-          roomListElement.innerHTML += '<li>' + escape(room.name) + ' (' + room.userCount + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].username + '</li></li>';
-        });
-        roomListElement.innerHTML += '</ul>';
-      });
-    },
-
-    refreshWaiting: function() {
-      cloak.getRoomMembers(game.room.id, function(members) {
-        if (!members) {
-          return;
-        }
-        var waitingForPlayerElem = document.getElementById('waitingForPlayer');
-        if (members.length < 2) {
-          waitingForPlayerElem.style.display = 'block';
-        }
-        else {
-          waitingForPlayerElem.style.display = 'none';
-        }
-      });
-    },
-
-    joinRoom: function(id) {
-      cloak.joinRoom(id, function(success) {
-        if (success) {
-          game.room.id = id;
-          game.begin();
-          game.refreshWaiting();
-        }
-      });
-    },
-
-    returnToLobby: function() {
-      cloak.leaveRoom(function() {
-        cloak.joinLobby(function() {
-        });
-        console.log('ending game');
-        game.end();
-        game.refreshLobby();
-        document.getElementById('game-ui').style.display = 'none';
-        document.getElementById('network-ui').style.display = 'block';
-      });
-    },
-
-    // If passed "false", hides the gameOver dialog, otherwise displays string
-    showGameOver: function(msg) {
-      var gameOverElement = document.getElementById('gameOver'),
-          gameOverMsgElement = document.getElementById('gameOverMsg'),
-          waitingForPlayerElem = document.getElementById('waitingForPlayer');
-      if (msg === false)  {
-        gameOverElement.style.display = 'none';
-      }
-      else {
-        gameOverMsgElement.innerText = msg;
-        gameOverElement.style.display = 'block';
-        waitingForPlayerElem.style.display = 'none';
-      }
-    },
-
-    updateTurn: function() {
-      var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
-      var turnColor = (game.turn === game.team) ? '#C8FFCD' : '#DDD';
-      document.getElementById('turn').innerText = turnText;
-      document.getElementsByTagName('body')[0].style.background = turnColor;
-    },
 
     begin: function() {
       var gameUIElement = document.getElementById('game-ui');
@@ -171,7 +44,6 @@ window.game = (function() {
         .textFont({ size: Math.max(game.drawCard.h / 4, 14)+'px', weight: 'bold', family: 'Sans' })
         .text('DRAW')
         .textColor('black');
-      
 
       // set up groups
       game.groups = {};
@@ -185,48 +57,39 @@ window.game = (function() {
       game.islands = {};
     },
 
-    end: function() {
-      // Reset score
-      game.score.reset();
-      // Hide game over message
-      game.showGameOver(false);
-      // Remove every object in the game
-      Crafty('*').each(function() {
-        this.destroy();
+    placeHomeTarget: function() {
+      var home = Crafty.e('Target');
+      home.attr({
+        x: game.config.gameWidth/2 - home.w,
+        y: game.config.gameHeight/2 - home.h
       });
     },
 
-    score: {
-      _score: {
-        red: 0,
-        black: 0
-      },
-      _el: {
-        // Make two elements TODO
-        score: document.getElementById('score'),
-        theirScore: document.getElementById('theirScore')
-      },
-      get: function(suit) {
-        return this._score[suit];
-      },
-      set: function(suit, num) {
-        this._score[suit] = num;
-        if (suit === game.team) {
-          this._el.score.innerText = num;
-        }
-        else {
-          this._el.theirScore.innerText = num;
-        }
-      },
-      reset: function() {
-        game.score.set('red', 0);
-        game.score.set('black', 0);
+    // ** GENERAL GAME CODE **
+
+    updateTurn: function() {
+      var turnText = (game.turn === game.team) ? 'Your Turn' : 'Their Turn';
+      var turnColor = (game.turn === game.team) ? '#C8FFCD' : '#DDD';
+      document.getElementById('turn').innerText = turnText;
+      document.getElementsByTagName('body')[0].style.background = turnColor;
+    },
+
+   refreshTargets: function() {
+      Crafty('Target').each(function() {
+        this.refresh();
+      });
+      // if we have no targets at all left, place a target in the middle.
+      if (_.isEmpty(game.groups.sum)) {
+        setTimeout(game.placeHomeTarget(),0);
       }
     },
 
     draw: function() {
       cloak.message('requestCard');
     },
+
+    // ** GROUP TRACKING **
+    // Groups are individual single-color groups of cards.
 
     newGroupId: function() {
       return this._groupIdCounter++;
@@ -271,6 +134,21 @@ window.game = (function() {
       }.bind(this));
     },
 
+    removeGroupById: function(groupsToRemove, property) {
+      _.each(game.cards, function(card) {
+        if (_.contains(groupsToRemove, card[property]+'')) {
+          card.destroy();
+          game.cards = _.reject(game.cards, function(thisCard) { return _.isEqual(thisCard, card); });
+        }
+      });
+    },
+
+   // ** ISLAND TRACKING **
+    // Islands are physical groupings of groups. Usually there is only one
+    // island, but sometimes when cards are removed from play we have more than
+    // one. In these cases we identify the largest island by number of cards,
+    // and remove all other islands.
+
     newIslandId: function() {
       return this._islandIdCounter++;
     },
@@ -298,7 +176,37 @@ window.game = (function() {
                               .omit(largestIsland)
                               .keys()
                               .value();
-      game.removeById(groupsToRemove, 'island');
+      game.removeGroupById(groupsToRemove, 'island');
+    },
+
+  // ** SCORING **
+
+    score: {
+      _score: {
+        red: 0,
+        black: 0
+      },
+      _el: {
+        // Make two elements TODO
+        score: document.getElementById('score'),
+        theirScore: document.getElementById('theirScore')
+      },
+      get: function(suit) {
+        return this._score[suit];
+      },
+      set: function(suit, num) {
+        this._score[suit] = num;
+        if (suit === game.team) {
+          this._el.score.innerText = num;
+        }
+        else {
+          this._el.theirScore.innerText = num;
+        }
+      },
+      reset: function() {
+        game.score.set('red', 0);
+        game.score.set('black', 0);
+      }
     },
 
     removeAndScore: function() {
@@ -312,7 +220,7 @@ window.game = (function() {
           game.score.set(groupSuit, game.score.get(groupSuit) + 10);
         }
       });
-      game.removeById(groupsToRemove, 'group');
+      game.removeGroupById(groupsToRemove, 'group');
       // Weirdly, this triggers "too soon" sometimes so I put in this timeout
       setTimeout(game.refreshTargets, 0);
       game.updateIslands();
@@ -338,31 +246,45 @@ window.game = (function() {
       }
     },
 
-    removeById: function(groupsToRemove, property) {
-      _.each(game.cards, function(card) {
-        if (_.contains(groupsToRemove, card[property]+'')) {
-          card.destroy();
-          game.cards = _.reject(game.cards, function(thisCard) { return _.isEqual(thisCard, card); });
-        }
+    // ** END OF GAME CODE **
+
+    end: function() {
+      // Reset score
+      game.score.reset();
+      // Hide game over message
+      game.showGameOver(false);
+      // Remove every object in the game
+      Crafty('*').each(function() {
+        this.destroy();
       });
     },
 
-    refreshTargets: function() {
-      Crafty('Target').each(function() {
-        this.refresh();
+    returnToLobby: function() {
+      cloak.leaveRoom(function() {
+        cloak.joinLobby(function() {
+        });
+        console.log('ending game');
+        game.end();
+        game.refreshLobby();
+        document.getElementById('game-ui').style.display = 'none';
+        document.getElementById('network-ui').style.display = 'block';
       });
-      // if we have no targets at all left, place a target in the middle.
-      if (_.isEmpty(game.groups.sum)) {
-        setTimeout(game.placeHomeTarget(),0);
+    },
+
+    // If passed "false", hides the gameOver dialog, otherwise displays string
+    showGameOver: function(msg) {
+      var gameOverElement = document.getElementById('gameOver'),
+          gameOverMsgElement = document.getElementById('gameOverMsg'),
+          waitingForPlayerElem = document.getElementById('waitingForPlayer');
+      if (msg === false)  {
+        gameOverElement.style.display = 'none';
       }
-    },
-
-    placeHomeTarget: function() {
-      var home = Crafty.e('Target');
-      home.attr({
-        x: game.config.gameWidth/2 - home.w,
-        y: game.config.gameHeight/2 - home.h
-      });
+      else {
+        gameOverMsgElement.innerText = msg;
+        gameOverElement.style.display = 'block';
+        waitingForPlayerElem.style.display = 'none';
+      }
     }
+
   };
 })();
