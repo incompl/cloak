@@ -1,4 +1,4 @@
-/* global Crafty,_,console,game,player,cloak */
+/* global Crafty,_,console,game,player,cloak,escape */
 
 window.game = (function() {
   return {
