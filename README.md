@@ -20,4 +20,4 @@ Cloak is a network layer for HTML5 games using Node.js
 ## Built at Bocoup!
 
 [Bocoup](http://bocoup.com/) is a software company that is dedicated to moving the Open Web forward.
-We do all kinds of awesome stuff, including making HTML5 games.
+We do all kinds of awesome stuff, including making games.
