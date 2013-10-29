@@ -703,6 +703,42 @@ module.exports = _.extend(suite, {
       test.done();
     }, pruneEmptyRooms + 100);
 
+  },
+
+  notifyRoomChanges: function(test) {
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    test.expect(2);
+
+    var room;
+
+    server.configure({
+      port: this.port,
+      lobby: {
+        newMember: function(user) {
+          room = server.createRoom();
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        roomCreated: function() {
+          test.ok(true);
+          server.deleteRoom(room);
+        },
+        roomDeleted: function() {
+          test.ok(true);
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+
   }
   
 });
