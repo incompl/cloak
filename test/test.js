@@ -834,6 +834,61 @@ module.exports = _.extend(suite, {
 
     server.run();
     client.run(this.host);
+  },
+
+  // setting and getting room data.
+  settingRoomData: function(test) {
+    var that = this;
+    var server = this.server;
+    var client1 = suite.createClient();
+    var client2 = suite.createClient();
+    test.expect(1);
+
+    server.configure({
+      port: this.port,
+      autoCreateRooms: true,
+      minRoomMembers: 2,
+      messages: {
+        setData: function(data, user) {
+          var room = user.getRoom();
+          room.data = data;
+        },
+        getData: function(data, user) {
+          var room = user.getRoom();
+          user.message('data', room.data);
+        }
+      }
+    });
+
+    client1.configure({
+      serverEvents: {
+        joinedRoom: function() {
+          client1.message('setData', {
+            number: 42
+          });
+        }
+      }
+    });
+
+    client2.configure({
+      serverEvents: {
+        joinedRoom: function() {
+          client2.message('getData');
+        }
+      },
+      messages: {
+        data: function(data) {
+          test.equals(data.number, 42);
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client1.run(this.host);
+    setTimeout(function() {
+      client2.run(that.host);
+    }, 50);
   }
   
 });
