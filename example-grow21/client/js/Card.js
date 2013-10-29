@@ -20,6 +20,12 @@ Crafty.c('Card', {
     game.cards.push(this);
   },
 
+  remove: function() {
+    var card = this;
+    game.cards = _.reject(game.cards, function(thisCard) { return _.isEqual(thisCard, card); });
+    card.destroy();
+  },
+
   getAdjacentCards: function() {
     var results = [];
     _.each(game.cards, function(card, ind) {

@@ -18,7 +18,7 @@ Crafty.c('Target', {
     // See if there is a card on this target
     var intersect = false,
         // Make an invalid skeleton card
-        intersectingCard = {val: '-1', suit: 'none'};
+        intersectingCard = {val: '-1', suit: 'none', remove: function() {}};
 
     for (var i=0; i<game.cards.length; i++) {
       if (game.cards[i].intersect(this.x, this.y, this.w, this.h)) {
@@ -40,6 +40,11 @@ Crafty.c('Target', {
         drawVal = +game.drawCard.val;
     if ( intersect && (Math.abs(targetVal - drawVal) !== 1 || intersectingCard.suit !== game.team)) {
       return;
+    }
+    else {
+      // If there is a card we're overlapping here, we destroy it (otherwise it calls our
+      // noop function on the skeleton card)
+      intersectingCard.remove();
     }
 
     this.placeCard();

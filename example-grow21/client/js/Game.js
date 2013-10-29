@@ -137,8 +137,7 @@ window.game = (function() {
     removeGroupById: function(groupsToRemove, property) {
       _.each(game.cards, function(card) {
         if (_.contains(groupsToRemove, card[property]+'')) {
-          card.destroy();
-          game.cards = _.reject(game.cards, function(thisCard) { return _.isEqual(thisCard, card); });
+          card.remove();
         }
       });
     },
