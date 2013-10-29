@@ -3,6 +3,6 @@
   "dependencies": {
     "underscore": "~1.5.2",
     "connect": "~2.9.1",
-    "cloak": "0.0.3"
+    "cloak": "0.1.0"
   }
 }
