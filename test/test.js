@@ -475,7 +475,7 @@ module.exports = _.extend(suite, {
             test.equals(client.connected(), false);
             test.equals(room.getMembers().length, 0);
             test.done();
-          }, 50)
+          }, 50);
         }
       }
     });
