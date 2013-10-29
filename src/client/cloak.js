@@ -20,7 +20,9 @@
         if (callbacks[responseName] !== undefined) {
           _(callbacks[responseName]).forEach(function(callback) {
             callbacks[responseName] = [];
-            callback(data[dataProperty]);
+            if (typeof callback === 'function') {
+              callback(data[dataProperty]);
+            }
           });
         }
       });
@@ -213,9 +215,6 @@
       },
 
       _callback: function(name, callback) {
-        if (callback === undefined) {
-          throw '`callback` is required for ' + name;
-        }
         if (callbacks[name] === undefined) {
           callbacks[name] = [];
         }

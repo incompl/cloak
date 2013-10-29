@@ -1,13 +1,6 @@
 ## What is Cloak?
 
-Cloak is a network layer for HTML5 games using Node.js
-
-## Features
-
-* Simple and powerful websockets messaging using Socket.io
-* Automatic reconnection that remembers users and their state
-* A highly configurable room and lobby system
-* Timers that compensate for network latency
+[incompl.github.io/cloak/](http://incompl.github.io/cloak/)
 
 ## Documentation
 
@@ -20,4 +13,4 @@ Cloak is a network layer for HTML5 games using Node.js
 ## Built at Bocoup!
 
 [Bocoup](http://bocoup.com/) is a software company that is dedicated to moving the Open Web forward.
-We do all kinds of awesome stuff, including making HTML5 games.
+We do all kinds of awesome stuff, including making games.
