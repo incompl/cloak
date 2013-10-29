@@ -16,19 +16,32 @@ Crafty.c('Target', {
 
   onClick: function() {
     // See if there is a card on this target
-    var intersect = false;
+    var intersect = false,
+        // Make an invalid skeleton card
+        intersectingCard = {val: '-1', suit: 'none'};
+
     for (var i=0; i<game.cards.length; i++) {
       if (game.cards[i].intersect(this.x, this.y, this.w, this.h)) {
         intersect = true;
+        intersectingCard = game.cards[i];
         break;
       }
     }
 
-    // If this target already has a card on it, the draw card isn't fresh,
+    // If the draw card isn't fresh,
     // or it's not your turn don't place anything
-    if ( intersect || !game.drawCard.fresh || game.turn !== game.team ) {
+    if ( !game.drawCard.fresh || game.turn !== game.team ) {
       return;
     }
+    // If there is an intersecting card and it is not a single number value
+    // above or below our draw card or it is not our own color,
+    // then don't place anything
+    var targetVal = +intersectingCard.val || -1, // if not a numbered card, set to invalid value
+        drawVal = +game.drawCard.val;
+    if ( intersect && (Math.abs(targetVal - drawVal) !== 1 || intersectingCard.suit !== game.team)) {
+      return;
+    }
+
     this.placeCard();
 
     // Done with turn, let the server know where we clicked
