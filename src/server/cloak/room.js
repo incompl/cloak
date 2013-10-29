@@ -5,9 +5,10 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  function Room(nameArg, sizeArg, roomEventsArg, isLobby) {
+  function Room(nameArg, sizeArg, roomEventsArg, isLobby, minRoomMembers) {
     this._roomEvents = roomEventsArg || {};
     this.isLobby = isLobby;
+    this.minRoomMembers = minRoomMembers;
     this.id = uuid.v4();
     this.name = nameArg;
     this.members = [];
@@ -15,6 +16,7 @@ module.exports = (function() {
     this.created = new Date().getTime();
     this.data = {};
     this._emitEvent('init', this);
+    this._lastEmpty = new Date().getTime();
   }
 
   Room.prototype = {
@@ -39,6 +41,10 @@ module.exports = (function() {
       user.leaveRoom();
       this.members.push(user);
       user.room = this;
+      if (this.minRoomMembers !== null &&
+          this.members.length >= this.minRoomMembers) {
+        this._hasReachedMin = true;
+      }
       this._emitEvent('newMember', this, user);
       this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'username'));
       user._serverMessage('joinedRoom', _.pick(this, 'name'));
@@ -51,6 +57,9 @@ module.exports = (function() {
       }
       this.members = _(this.members).without(user);
       delete user.room;
+      if (this.members.length < 1) {
+        this._lastEmpty = new Date().getTime();
+      }
       if (!this.isLobby && this._autoJoinLobby) {
         this._lobby.addMember(user);
       }

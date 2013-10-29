@@ -29,6 +29,7 @@ module.exports = (function() {
     autoCreateRooms: false,
     minRoomMembers: null,
     reconnectWait: 10000,
+    pruneEmptyRooms: null,
     roomLife: null,
     autoJoinLobby: true,
     notifyRoomChanges: true
@@ -185,6 +186,11 @@ module.exports = (function() {
               new Date().getTime() - room.created >= config.roomLife) {
             cloak.deleteRoom(room);
           }
+          else if (config.pruneEmptyRooms &&
+                   room.members.length < 1 &&
+                   new Date().getTime() - room._lastEmpty >= config.pruneEmptyRooms) {
+            cloak.deleteRoom(room);
+          }
           else {
             room.pulse();
           }
@@ -204,7 +210,8 @@ module.exports = (function() {
         // Prune rooms with member counts below minRoomMembers
         if (config.minRoomMembers !== null) {
           _(rooms).forEach(function(room) {
-            if (room.members.length < config.minRoomMembers) {
+            if (room._hasReachedMin &&
+                room.members.length < config.minRoomMembers) {
               cloak.deleteRoom(room);
             }
           });
@@ -311,11 +318,11 @@ module.exports = (function() {
     createRoom: function(name, size) {
       var roomName = name || 'Nameless Room';
       var roomSize = size || config.defaultRoomSize;
-      var room = new Room(roomName, roomSize, events.room, false);
+      var room = new Room(roomName, roomSize, events.room, false, config.minRoomMembers);
       rooms[room.id] = room;
       if (config.notifyRoomChanges) {
         // Message everyone in lobby
-        lobby._serverMessageMembers('roomCreated', cloak._listRoomsForClient()); 
+        lobby._serverMessageMembers('roomCreated', cloak._listRoomsForClient());
       }
       return room;
     },
@@ -326,7 +333,7 @@ module.exports = (function() {
       delete rooms[id];
       if (config.notifyRoomChanges) {
         // Message everyone in lobby
-        lobby._serverMessageMembers('roomDeleted', cloak._listRoomsForClient()); 
+        lobby._serverMessageMembers('roomDeleted', cloak._listRoomsForClient());
       }
     },
 
