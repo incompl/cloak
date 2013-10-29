@@ -451,7 +451,7 @@ module.exports = _.extend(suite, {
 
   // Test deleteUser in conjunction with connected client method.
   deleteUser: function(test) {
-    test.expect(4);
+    test.expect(6);
 
     var server = this.server;
     var client = suite.createClient();
@@ -463,12 +463,17 @@ module.exports = _.extend(suite, {
     client.configure({
       serverEvents: {
         begin: function() {
+          var user = server.getUsers()[0];
+          var room = server.createRoom('123');
+          room.addMember(user);
           test.equals(server.getUsers().length, 1);
           test.equals(client.connected(), true);
-          server.deleteUser(server.getUsers()[0]);
+          test.equals(room.getMembers().length, 1);
+          server.deleteUser(user);
           test.equals(server.getUsers().length, 0);
           setTimeout(function() {
             test.equals(client.connected(), false);
+            test.equals(room.getMembers().length, 0);
             test.done();
           }, 50)
         }
