@@ -2,22 +2,22 @@
   "name": "cloak",
   "description": "A network layer for HTML5 games",
   "version": "0.1.0",
-  "homepage": "https://github.com/bocoup/cloak",
+  "homepage": "https://github.com/incompl/cloak",
   "author": {
     "name": "Greg and Darius at Bocoup",
     "url": "http://bocoup.com/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bocoup/cloak.git"
+    "url": "https://github.com/incompl/cloak.git"
   },
   "bugs": {
-    "url": "https://github.com/bocoup/cloak/issues"
+    "url": "https://github.com/incompl/cloak/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/bocoup/cloak/blob/master/LICENSE"
+      "url": "https://github.com/incompl/cloak/blob/master/LICENSE"
     }
   ],
   "main": "index.js",
