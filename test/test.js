@@ -791,6 +791,49 @@ module.exports = _.extend(suite, {
     setTimeout(function() {
       client2.run(that.host);
     }, 50);
+  },
+
+  // test lobby autojoin in conjunction with leave room.
+  autoJoinLobby: function(test) {
+    var server = this.server;
+    var done = false;
+    var client = suite.createClient();
+    test.expect(1);
+
+    server.configure({
+      port: this.port,
+      autoJoinLobby: true,
+      messages: {
+        test: function(msg, user) {
+          test.ok(user.getRoom().isLobby);
+          test.done();
+        }
+      },
+      lobby: {
+        newMember: function(user) {
+          if (!done) {
+            done = true;
+            var user = server.getUsers()[0];
+            room = server.createRoom();
+            room.addMember(user);
+            user.message('test', null);
+          }
+        }
+      }
+    });
+
+    client.configure({
+      messages: {
+        test: function() {
+          client.leaveRoom(function() {
+            client.message('test', null);
+          })
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
   }
   
 });
