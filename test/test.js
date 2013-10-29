@@ -623,6 +623,59 @@ module.exports = _.extend(suite, {
 
     server.run();
     client.run(this.host);
-  }
+  },
+
+  minRoomMembers: function(test) {
+
+    var server = this.server;
+    var client1 = suite.createClient();
+    var client2 = suite.createClient();
+
+    test.expect(4);
+
+    var gameLoopSpeed = 100;
+
+    var done = false;
+
+    server.configure({
+      port: this.port,
+      minRoomMembers: 2,
+      gameLoopSpeed: gameLoopSpeed,
+      lobby: {
+        newMember: function(user) {
+          if (this.getMembers().length > 1 && !done) {
+            done = true;
+            var room = server.createRoom();
+
+            server.getUsers().forEach(function(user) {
+              room.addMember(user);
+            });
+
+            server.getUsers().forEach(function(user) {
+              test.ok(!user.getRoom().isLobby);
+            });
+
+            room.removeMember(server.getUsers()[0]);
+
+            setTimeout(function() {
+              server.getUsers().forEach(function(user) {
+                test.ok(user.getRoom().isLobby);
+              });
+              test.done();
+            }, gameLoopSpeed);
+            
+          }
+        }
+      }
+    });
+
+    client1.configure({});
+    client2.configure({});
+
+    server.run();
+    client1.run(this.host);
+    client2.run(this.host);
+
+  },
   
 });
