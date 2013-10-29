@@ -677,5 +677,32 @@ module.exports = _.extend(suite, {
     client2.run(this.host);
 
   },
+
+  pruneEmptyRooms: function(test) {
+
+    var server = this.server;
+
+    test.expect(2);
+
+    var pruneEmptyRooms = 500;
+
+    server.configure({
+      port: this.port,
+      pruneEmptyRooms: pruneEmptyRooms
+    });
+
+    server.run();
+
+    var room = server.createRoom();
+    var id = room.id;
+
+    test.ok(server.getRoom(id));
+
+    setTimeout(function() {
+      test.ok(!server.getRoom(id));
+      test.done();
+    }, pruneEmptyRooms + 100);
+
+  }
   
 });
