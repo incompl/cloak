@@ -15,6 +15,32 @@ Crafty.c('Target', {
   },
 
   onClick: function() {
+    var intersectingCard = this.getIntersectingCard();
+
+    // If the draw card isn't fresh,
+    // or it's not your turn don't place anything
+    if ( !game.drawCard.fresh || game.turn !== game.team ) {
+      return;
+    }
+
+    if (intersectingCard) {
+      // If there is an intersecting card and it is not a single number value
+      // above or below our draw card or it is not our own color,
+      // then don't place anything
+      var targetVal = +intersectingCard.val || -1, // if not a numbered card, set to invalid value
+          drawVal = +game.drawCard.val;
+      if ( (Math.abs(targetVal - drawVal) !== 1 || intersectingCard.suit !== game.turn)) {
+        return;
+      }
+    }
+
+    this.placeCard();
+
+    // Done with turn, let the server know where we clicked
+    cloak.message('turnDone', this.targetId);
+  },
+
+  getIntersectingCard: function() {
     // See if there is a card on this target
     var intersect = false,
         // Make an invalid skeleton card
@@ -28,32 +54,21 @@ Crafty.c('Target', {
       }
     }
 
-    // If the draw card isn't fresh,
-    // or it's not your turn don't place anything
-    if ( !game.drawCard.fresh || game.turn !== game.team ) {
-      return;
-    }
-    // If there is an intersecting card and it is not a single number value
-    // above or below our draw card or it is not our own color,
-    // then don't place anything
-    var targetVal = +intersectingCard.val || -1, // if not a numbered card, set to invalid value
-        drawVal = +game.drawCard.val;
-    if ( intersect && (Math.abs(targetVal - drawVal) !== 1 || intersectingCard.suit !== game.team)) {
-      return;
+    // Return the intersecting card, or false if no intersecting card
+    if (intersect) {
+      return intersectingCard;
     }
     else {
-      // If there is a card we're overlapping here, we destroy it (otherwise it calls our
-      // noop function on the skeleton card)
-      intersectingCard.remove();
+      return false;
     }
-
-    this.placeCard();
-
-    // Done with turn, let the server know where we clicked
-    cloak.message('turnDone', this.targetId);
   },
 
   placeCard: function() {
+    // First remove whatever card is intersecting here, if any
+    var intersectingCard = this.getIntersectingCard();
+    if (intersectingCard) {
+      intersectingCard.remove();
+    }
     var card = Crafty.e('Card')
       .attr({ x: this.x, y: this.y });
     card.getAdjacentCards();
