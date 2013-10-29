@@ -739,6 +739,58 @@ module.exports = _.extend(suite, {
     server.run();
     client.run(this.host);
 
+  },
+
+  // test client roomMember function is equivalent to servers.
+  getRoomMembers: function(test) {
+    var that = this;
+    var done = false;
+    var server = this.server;
+    var client1 = suite.createClient();
+    var client2 = suite.createClient();
+    var room;
+    var members;
+    test.expect(1);
+
+    server.configure({
+      port: this.port,
+      lobby: {
+        newMember: function(user) {
+          room = room || server.createRoom();
+          room.addMember(user);
+        }
+      },
+      room: {
+        newMember: function(user) {
+          if (this.getMembers().length === 2 && !done) {
+            done = true;
+            members = this.getMembers()
+            server.getUsers()[0].message('test', null);
+          }
+        }
+      }
+    });
+
+    client1.configure({
+      messages: {
+        test: function() {
+          client1.getRoomMembers(room.id, function(users) {
+            test.ok(_.isEqual(users, members));
+            test.done();
+          })
+        }
+      }
+    });
+
+    client2.configure({});
+
+    server.run();
+
+    client1.run(this.host);
+    // force client2 to be second in userlist.
+    setTimeout(function() {
+      client2.run(that.host);
+    }, 50);
   }
   
 });
