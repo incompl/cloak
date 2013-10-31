@@ -188,6 +188,7 @@ module.exports = _.extend(suite, {
       serverEvents: {
         begin: function() {
           client._disconnect();
+          client._connect();
         },
         resume: function() {
           test.ok(true, 'resume happened');
@@ -206,7 +207,7 @@ module.exports = _.extend(suite, {
   // to test those ones.
   serverEvents: function(test) {
 
-    test.expect(6);
+    test.expect(7);
 
     var server = this.server;
     var client = suite.createClient();
@@ -220,15 +221,20 @@ module.exports = _.extend(suite, {
         connecting: function() {
           test.ok(true, 'connecting event happened');
         },
-        connect: function() {
-          test.ok(true, 'connect event happened');
-        },
         begin: function() {
           test.ok(true, 'begin event happened');
           client._disconnect();
         },
+        disconnect: function() {
+          test.ok(true, 'disconnect event happened');
+          client._connect();
+        },
         resume: function() {
-          test.ok(true, 'resume happened');
+          test.ok(true, 'resume event happened');
+          client.end();
+        },
+        end: function() {
+          test.ok(true, 'end event happened');
           test.done();
         }
       }
@@ -236,6 +242,25 @@ module.exports = _.extend(suite, {
 
     server.run();
     client.run(this.host);
+
+  },
+
+  connectionError: function(test) {
+
+    test.expect(1);
+
+    var client = suite.createClient();
+
+    client.configure({
+      serverEvents: {
+        error: function(arg) {
+          test.ok(arg.match('ECONNREFUSED'));
+          test.done();
+        }
+      }
+    });
+
+    client.run(this.host + '123');
 
   },
 

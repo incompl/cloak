@@ -6,7 +6,6 @@
   var createCloak = function() {
 
     var uid;
-    var done = true;
     var socket;
     var url;
     var events = {};
@@ -91,7 +90,6 @@
         });
 
         socket.on('connect', function() {
-          cloak._trigger('cloak-connect');
           if (uid === undefined) {
             socket.emit('cloak-begin', {});
           }
@@ -102,17 +100,10 @@
 
         socket.on('disconnect', function() {
           cloak._trigger('cloak-disconnect');
-          if (!done) {
-            socket.socket.connect();
-          }
         });
 
         socket.on('connecting', function() {
           cloak._trigger('cloak-connecting');
-        });
-
-        socket.on('reconnecting', function() {
-          cloak._trigger('cloak-reconnecting');
         });
 
         socket.on('cloak-roomMemberJoined', function(user) {
@@ -150,7 +141,6 @@
         socket.on('cloak-beginResponse', function(data) {
           uid = data.uid;
           serverConfig = data.config;
-          done = false;
           cloak._trigger('cloak-begin');
         });
 
@@ -201,13 +191,16 @@
       },
 
       end: function() {
-        done = true;
         this._disconnect();
         cloak._trigger('cloak-end');
       },
 
       _disconnect: function() {
         socket.disconnect();
+      },
+
+      _connect: function() {
+        socket.socket.connect();
       },
 
       connected: function() {
