@@ -260,9 +260,8 @@ module.exports = (function() {
         var user = users[uid];
         var room = rooms[data.id];
         var success = false;
-        if (room &&
-            !room._closing &&
-            (room.size === null || room.members.length < room.size)) {
+        var roomAvailable = !room._closing && (room.size === null || room.members.length < room.size);
+        if (room && roomAvailable) {
           success = room.addMember(user);
         }
         socket.emit('cloak-joinRoomResponse', {
