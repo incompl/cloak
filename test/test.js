@@ -730,6 +730,45 @@ module.exports = _.extend(suite, {
 
   },
 
+  // unit test for server messageAll.
+  messageAll: function(test) {
+    var server = this.server;
+    var client1 = suite.createClient();
+    var client2 = suite.createClient();
+    var messages = 2;
+
+    server.configure({
+      port: this.port,
+      autoJoinLobby: true,
+    });
+
+    var helloHandler = function(data) {
+      if (data === 'world') {
+        --messages || test.done();
+      }
+    };
+
+    client1.configure({
+      messages: {
+        hello: helloHandler
+      }
+    });
+
+    client2.configure({
+      messages: {
+        hello: helloHandler
+      }
+    });
+
+    server.run();
+    client1.run(this.host);
+    client2.run(this.host);
+
+    setTimeout(function() {
+      server.messageAll('hello', 'world');
+    }, 50);
+  },
+
   notifyRoomChanges: function(test) {
 
     var server = this.server;
