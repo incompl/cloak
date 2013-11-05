@@ -228,13 +228,8 @@ module.exports = (function() {
             }
 
             var wait = null;
-            if (user.room === undefined) {
-              if (config.reconnectWaitRoomless) {
+            if (user.room === undefined && config.reconnectWaitRoomless) {
                 wait = config.reconnectWaitRoomless;
-              }
-              else {
-                wait = config.reconnectWait;
-              }
             }
             else {
               wait = config.reconnectWait;
