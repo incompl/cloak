@@ -179,7 +179,7 @@ module.exports = (function() {
 
       gameLoopInterval = setInterval(function() {
         var room;
-        
+
         // Pulse all rooms
         _(rooms).forEach(function(room) {
           var oldEnoughToPrune = room.members.length < 1 && new Date().getTime() - room._lastEmpty >= config.pruneEmptyRooms;
