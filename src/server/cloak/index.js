@@ -182,13 +182,13 @@ module.exports = (function() {
 
         // Pulse all rooms
         _(rooms).forEach(function(room) {
-          if (config.roomLife !== null &&
-              new Date().getTime() - room.created >= config.roomLife) {
+          var oldEnoughToPrune = room.members.length < 1 && new Date().getTime() - room._lastEmpty >= config.pruneEmptyRooms;
+          var roomExpired = config.roomLife !== null && new Date().getTime() - room.created >= config.roomLife;
+
+          if (roomExpired) {
             cloak.deleteRoom(room);
           }
-          else if (config.pruneEmptyRooms &&
-                   room.members.length < 1 &&
-                   new Date().getTime() - room._lastEmpty >= config.pruneEmptyRooms) {
+          else if (config.pruneEmptyRooms && oldEnoughToPrune) {
             cloak.deleteRoom(room);
           }
           else {
@@ -196,10 +196,10 @@ module.exports = (function() {
           }
         });
 
+        var membersAvailable = config.minRoomMembers !== null && lobby.members.length >= config.minRoomMembers;
+
         // autoCreateRooms
-        if (config.autoCreateRooms &&
-            config.minRoomMembers !== null &&
-            lobby.members.length >= config.minRoomMembers) {
+        if (config.autoCreateRooms && membersAvailable) {
           roomNum++;
           room = cloak.createRoom('Room ' + roomNum);
           _.range(config.minRoomMembers).forEach(function(i) {
@@ -210,8 +210,7 @@ module.exports = (function() {
         // Prune rooms with member counts below minRoomMembers
         if (config.minRoomMembers !== null) {
           _(rooms).forEach(function(room) {
-            if (room._hasReachedMin &&
-                room.members.length < config.minRoomMembers) {
+            if (room._hasReachedMin && room.members.length < config.minRoomMembers) {
               cloak.deleteRoom(room);
             }
           });
@@ -219,8 +218,7 @@ module.exports = (function() {
 
         // reconnectWait and reconnectWaitRoomless
         // aka prune users that have been disconnected too long
-        if (config.reconnectWait !== null ||
-            config.reconnectWaitRoomless !== null) {
+        if (config.reconnectWait !== null || config.reconnectWaitRoomless !== null) {
           _(users).forEach(function(user) {
 
             if (user.connected()) {
@@ -235,8 +233,9 @@ module.exports = (function() {
               wait = config.reconnectWait;
             }
 
-            if (wait !== null &&
-                new Date().getTime() - user.disconnectedSince >= wait) {
+            var userExpired = new Date().getTime() - user.disconnectedSince >= wait;
+
+            if (wait !== null && userExpired) {
               cloak.deleteUser(user);
             }
           });
@@ -261,9 +260,8 @@ module.exports = (function() {
         var user = users[uid];
         var room = rooms[data.id];
         var success = false;
-        if (room &&
-            !room._closing &&
-            (room.size === null || room.members.length < room.size)) {
+        var roomAvailable = !room._closing && (room.size === null || room.members.length < room.size);
+        if (room && roomAvailable) {
           success = room.addMember(user);
         }
         socket.emit('cloak-joinRoomResponse', {
@@ -327,7 +325,6 @@ module.exports = (function() {
       rooms[id]._close();
       delete rooms[id];
       if (config.notifyRoomChanges) {
-        // Message everyone in lobby
         lobby._serverMessageMembers('roomDeleted', cloak._listRoomsForClient());
       }
     },
