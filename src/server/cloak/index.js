@@ -325,7 +325,6 @@ module.exports = (function() {
       rooms[id]._close();
       delete rooms[id];
       if (config.notifyRoomChanges) {
-        // Message everyone in lobby
         lobby._serverMessageMembers('roomDeleted', cloak._listRoomsForClient());
       }
     },
