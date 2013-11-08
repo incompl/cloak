@@ -250,7 +250,12 @@
       },
 
       message: function(name, arg) {
-        socket.emit('message-' + name, arg);
+        if (this.connected()) {
+          socket.emit('message-' + name, arg);
+        }
+        else {
+          throw 'Not connected.';
+        }
       }
 
     };
