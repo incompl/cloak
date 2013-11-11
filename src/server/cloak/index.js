@@ -71,7 +71,17 @@ module.exports = (function() {
     // run the server
     run: function() {
 
-      io = socketIO.listen(config.port);
+      if (this.port !== undefined && typeof this.port !== 'number') {
+        throw 'Port must be a number. Trying to use express? ' +
+              'Pass the server into express instead of port.';
+      }
+
+      io = socketIO.listen(config.express || config.port);
+
+      // We won't want to try to serialize this later
+      if (config.express) {
+        delete config.express;
+      }
 
       io.set('log level', config.logLevel);
 
