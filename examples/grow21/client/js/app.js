@@ -29,14 +29,19 @@ game.config.cardBuffer = game.config.cardWidth / 8;
 
 cloak.configure({
   messages: {
-    'roomCreated': function(room) {
-      cloak.joinRoom(room.id, function(success) {
-        console.log(success ? 'room join success' : 'room join failure');
-        if (success) {
-          game.room.id = room.id;
-          game.begin();
-        }
+    'listRooms': function(rooms) {
+      _(rooms).each(function(room) {
+        console.log(room);
+        console.log(room.name + ' (' + room.userCount + '/' + room.size + ')');
       });
+    },
+
+    'roomCreated': function(result) {
+      console.log(result.success ? 'room join success' : 'room join failure');
+      if (result.success) {
+        game.room.id = result.roomId;
+        game.begin();
+      }
     },
 
     'cardsLeft': function(cardsLeft) {
@@ -156,12 +161,7 @@ cloak.configure({
 
     'begin': function() {
       console.log('begin');
-      cloak.listRooms(function(rooms) {
-        _(rooms).each(function(room) {
-          console.log(room);
-          console.log(room.name + ' (' + room.userCount + '/' + room.size + ')');
-        });
-      });
+      cloak.message('listRooms');
     }
   }
 

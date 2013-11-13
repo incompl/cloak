@@ -167,7 +167,7 @@
             else if (data.running) {
               val += new Date().getTime() - data.sent;
             }
-            
+
             handler(val);
           }
         });
@@ -214,19 +214,9 @@
         callbacks[name].push(callback);
       },
 
-      listRooms: function(callback) {
-        this._callback('cloak-listRoomsResponse', callback);
-        socket.emit('cloak-listRooms', {});
-      },
-
       joinLobby: function(callback) {
         this._callback('cloak-joinLobbyResponse', callback);
         socket.emit('cloak-joinLobby', {});
-      },
-
-      joinRoom: function(id, callback) {
-        this._callback('cloak-joinRoomResponse', callback);
-        socket.emit('cloak-joinRoom', {id: id});
       },
 
       getRoomMembers: function(id, callback) {

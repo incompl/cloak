@@ -377,7 +377,7 @@ module.exports = _.extend(suite, {
     client.run(this.host);
   },
 
-  // Test the client-side listRooms function
+  // Test the server-side listRooms function
   listRooms: function(test) {
     test.expect(2);
 
@@ -391,17 +391,14 @@ module.exports = _.extend(suite, {
     client.configure({
       serverEvents: {
         begin: function() {
-          client.listRooms(function(rooms) {
-            test.equals(rooms.length, 0);
-            server.createRoom('123');
-            server.createRoom('456');
-            server.createRoom('789');
-            client.listRooms(function(rooms) {
-              test.equals(rooms.length, 3);
-              test.done();
-            });
-          });
-          
+          var rooms = server.listRooms();
+          test.equals(rooms.length, 0);
+          server.createRoom('123');
+          server.createRoom('456');
+          server.createRoom('789');
+          rooms = server.listRooms();
+          test.equals(rooms.length, 3);
+          test.done();
         }
       }
     });
@@ -610,10 +607,9 @@ module.exports = _.extend(suite, {
         begin: function() {
           var room = server.createRoom('123');
           var user = server.getUsers()[0];
-          client.joinRoom(room.id, function(success) {
-            test.equals(user.getRoom(), room);
-            test.done();
-          });
+          server.joinRoom(user, room);
+          test.equals(user.getRoom(), room);
+          test.done();
         }
       }
     });
@@ -638,10 +634,9 @@ module.exports = _.extend(suite, {
         begin: function() {
           var room = server.createRoom('123');
           var user = server.getUsers()[0];
-          client.joinRoom(room.id, function(success) {
-            test.equals(user.getRoom(), room);
-            test.done();
-          });
+          server.joinRoom(user, room);
+          test.equals(user.getRoom(), room);
+          test.done();
         }
       }
     });
@@ -688,7 +683,7 @@ module.exports = _.extend(suite, {
               });
               test.done();
             }, gameLoopSpeed);
-            
+
           }
         }
       }
@@ -954,5 +949,5 @@ module.exports = _.extend(suite, {
       client2.run(that.host);
     }, 50);
   }
-  
+
 });

@@ -63,13 +63,7 @@ _.extend(game, {
       lobbyListElement.innerHTML += '</ul>';
     });
 
-    cloak.listRooms(function(rooms) {
-      roomListElement.innerHTML = '<ul>';
-      _.each(rooms, function(room) {
-        roomListElement.innerHTML += '<li>' + escape(room.name) + ' (' + room.userCount + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].username + '</li></li>';
-      });
-      roomListElement.innerHTML += '</ul>';
-    });
+    cloak.message('listRooms');
   },
 
   refreshWaiting: function() {

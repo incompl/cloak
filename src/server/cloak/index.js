@@ -263,26 +263,6 @@ module.exports = (function() {
 
     _setupHandlers: function(socket) {
 
-      socket.on('cloak-listRooms', function(data) {
-        socket.emit('cloak-listRoomsResponse', {
-          rooms: cloak._listRoomsForClient()
-        });
-      });
-
-      socket.on('cloak-joinRoom', function(data) {
-        var uid = cloak._getUidForSocket(socket);
-        var user = users[uid];
-        var room = rooms[data.id];
-        var success = false;
-        var roomAvailable = !room._closing && (room.size === null || room.members.length < room.size);
-        if (room && roomAvailable) {
-          success = room.addMember(user);
-        }
-        socket.emit('cloak-joinRoomResponse', {
-          success: success
-        });
-      });
-
       socket.on('cloak-getRoomMembers', function(data) {
         var room = rooms[data.id];
         var response = room ? room.getMembers() : null;
@@ -305,7 +285,7 @@ module.exports = (function() {
 
     },
 
-    _listRoomsForClient: function() {
+    listRooms: function() {
       return _(rooms).map(function(room, id) {
         return {
           id: id,
@@ -329,7 +309,7 @@ module.exports = (function() {
       rooms[room.id] = room;
       if (config.notifyRoomChanges) {
         // Message everyone in lobby
-        lobby._serverMessageMembers('roomCreated', cloak._listRoomsForClient());
+        lobby._serverMessageMembers('roomCreated', cloak.listRooms());
       }
       return room;
     },
@@ -339,12 +319,21 @@ module.exports = (function() {
       rooms[id]._close();
       delete rooms[id];
       if (config.notifyRoomChanges) {
-        lobby._serverMessageMembers('roomDeleted', cloak._listRoomsForClient());
+        lobby._serverMessageMembers('roomDeleted', cloak.listRooms());
       }
     },
 
     getRoom: function(id) {
       return rooms[id] || false;
+    },
+
+    joinRoom: function(user, room) {
+      var success = false;
+      var roomAvailable = !room._closing && (room.size === null || room.members.length < room.size);
+      if (room && roomAvailable) {
+        success = room.addMember(user);
+      }
+      return success;
     },
 
     deleteUser: function(user) {

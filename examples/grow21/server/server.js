@@ -1,6 +1,6 @@
-/* global require */
+/* global require,console */
 
-var cloak = require('../../src/server/cloak');
+var cloak = require('../../../src/server/cloak');
 var _ = require('underscore');
 
 cloak.configure({
@@ -13,10 +13,16 @@ cloak.configure({
   reconnectWait: 3000,
 
   messages: {
+    listRooms: function(arg, user) {
+      user.message('listRooms', cloak.listRooms());
+    },
+
     createRoom: function(arg, user) {
       var room = cloak.createRoom(arg.name, 2);
+      var success = cloak.joinRoom(user, room);
       user.message('roomCreated', {
-        id: room.id
+        success: success,
+        roomId: room.id
       });
     },
 
@@ -81,7 +87,6 @@ cloak.configure({
     },
 
     newMember: function(user) {
-      //console.log(cloak.listRooms());
       if (this.teams.red === '') {
         this.teams.red = user.id;
         user.team = 'red';
