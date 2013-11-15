@@ -1,4 +1,4 @@
-/* global require,console */
+/* global require,console,escape */
 
 var cloak = require('../../../src/server/cloak');
 var _ = require('underscore');
@@ -13,8 +13,71 @@ cloak.configure({
   reconnectWait: 3000,
 
   messages: {
+    registerUsername: function(arg, user) {
+      var users = cloak.getUsers();
+      var username = arg.username;
+      var usernames = _.pluck(users, 'username');
+      var success = false;
+      if (_.indexOf(usernames, username) === -1) {
+        success = true;
+        user.username = username;
+      }
+      user.message('registerUsernameResponse', success);
+    },
+
+    joinLobby: function(arg, user) {
+      cloak.getLobby().addMember(user);
+      user.message('joinLobbyResponse');
+    },
+
+    joinRoom: function(id, user) {
+      cloak.joinRoom(user, cloak.getRoom(id));
+      user.message('joinRoomResponse', {
+        id: id,
+        success: true
+      });
+    },
+
     listRooms: function(arg, user) {
       user.message('listRooms', cloak.listRooms());
+    },
+
+    listUsers: function(arg, user) {
+      user.message('refreshLobby', cloak.listRoommates(user));
+    },
+
+    refreshWaiting: function(arg, user) {
+      user.message('refreshWaitingResponse', user.room.getMembers());
+    },
+
+    leaveRoom: function(arg, user) {
+      user.leaveRoom();
+    },
+
+    listUsersResponse: function(arg, users) {
+      console.log('other users in room', users);
+      var lobbyElement = document.getElementById('lobby'),
+        lobbyListElement = document.getElementById('lobby-list'),
+        newRoomUIElement = document.getElementById('new-room-ui'),
+        roomsElement = document.getElementById('rooms'),
+        roomListElement = document.getElementById('room-list');
+
+      lobbyElement.style.display = 'block';
+      lobbyListElement.style.display = 'block';
+      newRoomUIElement.style.display = 'block';
+      roomsElement.style.display = 'block';
+      roomListElement.style.display = 'block';
+      lobbyListElement.innerHTML = '<ul>';
+      _.chain(users)
+        .each(function(user) {
+          if (user.room.lobby) {
+            lobbyListElement.innerHTML += '<li>' + escape(user.username) + '</li>';
+          }
+          else {
+            lobbyListElement.innerHTML += '<li>' + escape(user.username) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
+          }
+        });
+      lobbyListElement.innerHTML += '</ul>';
     },
 
     createRoom: function(arg, user) {

@@ -14,19 +14,6 @@
     var serverConfig;
     var callbacks = {};
 
-    function handleResponsesFor(socket, responseName, dataProperty) {
-      socket.on(responseName, function(data) {
-        if (callbacks[responseName] !== undefined) {
-          _(callbacks[responseName]).forEach(function(callback) {
-            callbacks[responseName] = [];
-            if (typeof callback === 'function') {
-              callback(data[dataProperty]);
-            }
-          });
-        }
-      });
-    }
-
     var cloak = {
 
       _setLibs: function(a, b) {
@@ -172,15 +159,6 @@
           }
         });
 
-        handleResponsesFor(socket, 'cloak-listRoomsResponse', 'rooms');
-        handleResponsesFor(socket, 'cloak-joinRoomResponse', 'success');
-        handleResponsesFor(socket, 'cloak-leaveRoomResponse', 'success');
-        handleResponsesFor(socket, 'cloak-createRoomResponse', 'room');
-        handleResponsesFor(socket, 'cloak-listUsersResponse', 'users');
-        handleResponsesFor(socket, 'cloak-joinLobbyResponse', 'success');
-        handleResponsesFor(socket, 'cloak-registerUsernameResponse', 'success');
-        handleResponsesFor(socket, 'cloak-getRoomMembersResponse', 'members');
-
         _(config.messages).forEach(function(handler, name) {
           socket.on('message-' + name, function(data) {
             cloak._trigger('message-' + name, data);
@@ -212,31 +190,6 @@
           callbacks[name] = [];
         }
         callbacks[name].push(callback);
-      },
-
-      joinLobby: function(callback) {
-        this._callback('cloak-joinLobbyResponse', callback);
-        socket.emit('cloak-joinLobby', {});
-      },
-
-      getRoomMembers: function(id, callback) {
-        this._callback('cloak-getRoomMembersResponse', callback);
-        socket.emit('cloak-getRoomMembers', {id: id});
-      },
-
-      leaveRoom: function(callback) {
-        this._callback('cloak-leaveRoomResponse', callback);
-        socket.emit('cloak-leaveRoom');
-      },
-
-      listUsers: function(callback) {
-        this._callback('cloak-listUsersResponse', callback);
-        socket.emit('cloak-listUsers', {});
-      },
-
-      registerUsername: function(username, callback) {
-        this._callback('cloak-registerUsernameResponse', callback);
-        socket.emit('cloak-registerUsername', {username: username});
       },
 
       message: function(name, arg) {
