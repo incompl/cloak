@@ -2,6 +2,8 @@
 
 [incompl.github.io/cloak/](http://incompl.github.io/cloak/)
 
+[![NPM](https://nodei.co/npm/cloak.png)](https://nodei.co/npm/cloak/)
+
 ## Documentation
 
 [Documentation on the Github Wiki](https://github.com/bocoup/cloak/wiki)
