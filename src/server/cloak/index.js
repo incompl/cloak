@@ -350,9 +350,6 @@ module.exports = (function() {
       // Shut down socket server
       if (io) {
         try {
-          io.server.on('close', function() {
-            //callback();
-          });
           io.server.close();
           callback();
         }
