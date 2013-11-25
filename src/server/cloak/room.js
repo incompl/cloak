@@ -97,14 +97,25 @@ module.exports = (function() {
       }
     },
 
-    _emitEvent: function(event, context, arguments) {
+    _emitEvent: function(event, context, args) {
       var roomEvent = this._roomEvents[event];
-      if (arguments !== undefined && !Array.isArray(arguments)) {
-        arguments = [arguments];
+      if (args !== undefined && !Array.isArray(args)) {
+        args = [args];
       }
       if (!!roomEvent) {
-        return roomEvent.apply(context, arguments);
+        return roomEvent.apply(context, args);
       }
+    },
+
+    _roomData: function() {
+      return {
+        id: this.id,
+        name: this.name,
+        users: _.map(this.members, function(user) {
+          return user._userData();
+        }),
+        size: this.size
+      };
     }
 
   };

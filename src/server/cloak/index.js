@@ -229,37 +229,8 @@ module.exports = (function() {
 
     },
 
-    listRoommates: function(user) {
-      return _.map(user.room.members, function(member) {
-        return {
-          id: member.id,
-          username: member.username,
-          room: {
-            id: member.room.id,
-            name: member.room.name,
-            size: member.room.size,
-            userCount: member.room.members.length,
-            lobby: (member.room.id === lobby.id)
-          }
-        };
-      });
-    },
-
     listRooms: function() {
-      return _(rooms).map(function(room, id) {
-        return {
-          id: id,
-          name: room.name,
-          userCount: room.members.length,
-          users: _.map(room.members, function(member) {
-            return {
-              id: member.id,
-              username: member.username
-            };
-          }),
-          size: room.size
-        };
-      });
+      return _(rooms).invoke('_roomData');
     },
 
     createRoom: function(name, size) {
@@ -289,15 +260,6 @@ module.exports = (function() {
 
     getLobby: function() {
       return lobby;
-    },
-
-    joinRoom: function(user, room) {
-      var success = false;
-      var roomAvailable = !room._closing && (room.size === null || room.members.length < room.size);
-      if (room && roomAvailable) {
-        success = room.addMember(user);
-      }
-      return success;
     },
 
     deleteUser: function(user) {

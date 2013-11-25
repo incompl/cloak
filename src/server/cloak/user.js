@@ -8,7 +8,7 @@ module.exports = (function() {
   function User(socketArg) {
     this.id = uuid.v4();
     this._socket = socketArg;
-    this.username = '';
+    this.name = 'Nameless Room';
   }
 
   User.prototype = {
@@ -37,6 +37,13 @@ module.exports = (function() {
 
     connected: function() {
       return this.disconnectedSince === null;
+    },
+
+    _userData: function() {
+      return {
+        id: this.id,
+        name: this.name
+      };
     }
 
   };

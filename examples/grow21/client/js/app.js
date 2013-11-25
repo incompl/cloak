@@ -60,10 +60,10 @@ cloak.configure({
       _.chain(users)
         .each(function(user) {
           if (user.room.lobby) {
-            lobbyListElement.innerHTML += '<li>' + escape(user.username) + '</li>';
+            lobbyListElement.innerHTML += '<li>' + escape(user.name) + '</li>';
           }
           else {
-            lobbyListElement.innerHTML += '<li>' + escape(user.username) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
+            lobbyListElement.innerHTML += '<li>' + escape(user.name) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
           }
         });
       lobbyListElement.innerHTML += '</ul>';
@@ -73,7 +73,7 @@ cloak.configure({
       var roomListElement = document.getElementById('room-list');
       roomListElement.innerHTML = '<ul>';
         _.each(rooms, function(room) {
-          roomListElement.innerHTML += '<li>' + escape(room.name) + ' (' + room.userCount + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].username + '</li></li>';
+          roomListElement.innerHTML += '<li>' + escape(room.name) + ' (' + room.users.length + '/' + room.size + ') <a href="#" onclick="game.joinRoom(\'' + room.id  + '\')">join</a><li class="indented">' + room.users[0].name + '</li></li>';
         });
       roomListElement.innerHTML += '</ul>';
     },

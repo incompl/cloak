@@ -20,7 +20,7 @@ cloak.configure({
       var success = false;
       if (_.indexOf(usernames, username) === -1) {
         success = true;
-        user.username = username;
+        user.name = username;
       }
       user.message('registerUsernameResponse', success);
     },
@@ -31,7 +31,7 @@ cloak.configure({
     },
 
     joinRoom: function(id, user) {
-      cloak.joinRoom(user, cloak.getRoom(id));
+      cloak.getRoom(id).addMember(user);
       user.message('joinRoomResponse', {
         id: id,
         success: true
@@ -43,7 +43,7 @@ cloak.configure({
     },
 
     listUsers: function(arg, user) {
-      user.message('refreshLobby', cloak.listRoommates(user));
+      user.message('refreshLobby', user.room.getMembers());
     },
 
     refreshWaiting: function(arg, user) {
@@ -71,10 +71,10 @@ cloak.configure({
       _.chain(users)
         .each(function(user) {
           if (user.room.lobby) {
-            lobbyListElement.innerHTML += '<li>' + escape(user.username) + '</li>';
+            lobbyListElement.innerHTML += '<li>' + escape(user.name) + '</li>';
           }
           else {
-            lobbyListElement.innerHTML += '<li>' + escape(user.username) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
+            lobbyListElement.innerHTML += '<li>' + escape(user.name) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
           }
         });
       lobbyListElement.innerHTML += '</ul>';
@@ -82,7 +82,7 @@ cloak.configure({
 
     createRoom: function(arg, user) {
       var room = cloak.createRoom(arg.name, 2);
-      var success = cloak.joinRoom(user, room);
+      var success = room.addMember(user);
       user.message('roomCreated', {
         success: success,
         roomId: room.id

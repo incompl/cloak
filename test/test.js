@@ -369,9 +369,9 @@ module.exports = _.extend(suite, {
       serverEvents: {
         begin: function() {
           var user = server.getUsers()[0];
-          var room = server.createRoom('123');
+          var room = server.createRoom('My Cool Game');
           test.ok(server.getRoom(room.id), 'room exists');
-          test.ok(room.name === '123', 'room name is correct');
+          test.ok(room.name === 'My Cool Game', 'room name is correct');
           server.deleteRoom(room);
           test.equals(server.getRoom(room.id), false);
           test.done();
@@ -384,7 +384,7 @@ module.exports = _.extend(suite, {
 
   // Test the server-side listRooms function
   listRooms: function(test) {
-    test.expect(2);
+    test.expect(5);
 
     var server = this.server;
     var client = suite.createClient();
@@ -403,6 +403,9 @@ module.exports = _.extend(suite, {
           server.createRoom('789');
           rooms = server.listRooms();
           test.equals(rooms.length, 3);
+          test.equals(rooms[0].name, '123');
+          test.equals(rooms[1].name, '456');
+          test.equals(rooms[2].name, '789');
           test.done();
         }
       }
@@ -612,8 +615,33 @@ module.exports = _.extend(suite, {
         begin: function() {
           var room = server.createRoom('123');
           var user = server.getUsers()[0];
-          server.joinRoom(user, room);
+          room.addMember(user);
           test.equals(user.getRoom(), room);
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+  },
+
+  getLobby: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var lobby = server.getLobby();
+          var user = server.getUsers()[0];
+          test.equals(user.getRoom(), lobby);
           test.done();
         }
       }
@@ -639,7 +667,7 @@ module.exports = _.extend(suite, {
         begin: function() {
           var room = server.createRoom('123');
           var user = server.getUsers()[0];
-          server.joinRoom(user, room);
+          room.addMember(user);
           test.equals(user.getRoom(), room);
           test.done();
         }
