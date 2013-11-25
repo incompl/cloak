@@ -143,14 +143,19 @@ module.exports = _.extend(suite, {
       step('joined '+ room.name);
       if (steps[0] === 'leave room') {
         step('leave room');
-        client1.leaveRoom();
+        client1.message('leaveRoom');
       }
     }
 
     server.configure({
       port: this.port,
       autoCreateRooms: true,
-      minRoomMembers: 2
+      minRoomMembers: 2,
+      messages: {
+        'leaveRoom': function(arg, user) {
+          user.leaveRoom();
+        }
+      }
     });
 
     client1.configure({
@@ -377,7 +382,7 @@ module.exports = _.extend(suite, {
     client.run(this.host);
   },
 
-  // Test the client-side listRooms function
+  // Test the server-side listRooms function
   listRooms: function(test) {
     test.expect(2);
 
@@ -391,17 +396,14 @@ module.exports = _.extend(suite, {
     client.configure({
       serverEvents: {
         begin: function() {
-          client.listRooms(function(rooms) {
-            test.equals(rooms.length, 0);
-            server.createRoom('123');
-            server.createRoom('456');
-            server.createRoom('789');
-            client.listRooms(function(rooms) {
-              test.equals(rooms.length, 3);
-              test.done();
-            });
-          });
-          
+          var rooms = server.listRooms();
+          test.equals(rooms.length, 0);
+          server.createRoom('123');
+          server.createRoom('456');
+          server.createRoom('789');
+          rooms = server.listRooms();
+          test.equals(rooms.length, 3);
+          test.done();
         }
       }
     });
@@ -610,10 +612,9 @@ module.exports = _.extend(suite, {
         begin: function() {
           var room = server.createRoom('123');
           var user = server.getUsers()[0];
-          client.joinRoom(room.id, function(success) {
-            test.equals(user.getRoom(), room);
-            test.done();
-          });
+          server.joinRoom(user, room);
+          test.equals(user.getRoom(), room);
+          test.done();
         }
       }
     });
@@ -638,10 +639,9 @@ module.exports = _.extend(suite, {
         begin: function() {
           var room = server.createRoom('123');
           var user = server.getUsers()[0];
-          client.joinRoom(room.id, function(success) {
-            test.equals(user.getRoom(), room);
-            test.done();
-          });
+          server.joinRoom(user, room);
+          test.equals(user.getRoom(), room);
+          test.done();
         }
       }
     });
@@ -688,7 +688,7 @@ module.exports = _.extend(suite, {
               });
               test.done();
             }, gameLoopSpeed);
-            
+
           }
         }
       }
@@ -744,7 +744,10 @@ module.exports = _.extend(suite, {
 
     var helloHandler = function(data) {
       if (data === 'world') {
-        --messages || test.done();
+        messages--;
+        if (messages === 0) {
+          test.done();
+        }
       }
     };
 
@@ -805,63 +808,12 @@ module.exports = _.extend(suite, {
 
   },
 
-  // test client roomMember function is equivalent to servers.
-  getRoomMembers: function(test) {
-    var that = this;
-    var done = false;
-    var server = this.server;
-    var client1 = suite.createClient();
-    var client2 = suite.createClient();
-    var room;
-    var members;
-    test.expect(1);
-
-    server.configure({
-      port: this.port,
-      lobby: {
-        newMember: function(user) {
-          room = room || server.createRoom();
-          room.addMember(user);
-        }
-      },
-      room: {
-        newMember: function(user) {
-          if (this.getMembers().length === 2 && !done) {
-            done = true;
-            members = this.getMembers()
-            server.getUsers()[0].message('test', null);
-          }
-        }
-      }
-    });
-
-    client1.configure({
-      messages: {
-        test: function() {
-          client1.getRoomMembers(room.id, function(users) {
-            test.ok(_.isEqual(users, members));
-            test.done();
-          })
-        }
-      }
-    });
-
-    client2.configure({});
-
-    server.run();
-
-    client1.run(this.host);
-    // force client2 to be second in userlist.
-    setTimeout(function() {
-      client2.run(that.host);
-    }, 50);
-  },
-
   // test lobby autojoin in conjunction with leave room.
   autoJoinLobby: function(test) {
     var server = this.server;
     var done = false;
     var client = suite.createClient();
+    var serverUser;
     test.expect(1);
 
     server.configure({
@@ -875,9 +827,10 @@ module.exports = _.extend(suite, {
       },
       lobby: {
         newMember: function(user) {
+          var room;
           if (!done) {
             done = true;
-            var user = server.getUsers()[0];
+            serverUser = user;
             room = server.createRoom();
             room.addMember(user);
             user.message('test', null);
@@ -889,9 +842,8 @@ module.exports = _.extend(suite, {
     client.configure({
       messages: {
         test: function() {
-          client.leaveRoom(function() {
-            client.message('test', null);
-          })
+          serverUser.leaveRoom();
+          client.message('test', null);
         }
       }
     });
@@ -954,5 +906,5 @@ module.exports = _.extend(suite, {
       client2.run(that.host);
     }, 50);
   }
-  
+
 });

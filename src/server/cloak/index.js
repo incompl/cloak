@@ -141,54 +141,6 @@ module.exports = (function() {
           }
         });
 
-        socket.on('cloak-listUsers', function(data) {
-          var user = cloak._getUserForSocket(socket);
-          socket.emit('cloak-listUsersResponse', {
-            users: _.map(user.room.members, function(member) {
-              return {
-                id: member.id,
-                username: member.username,
-                room: {
-                  id: member.room.id,
-                  name: member.room.name,
-                  size: member.room.size,
-                  userCount: member.room.members.length,
-                  lobby: (member.room.id === lobby.id)
-                }
-              };
-            })
-          });
-        });
-
-        socket.on('cloak-joinLobby', function() {
-          var user = cloak._getUserForSocket(socket);
-          lobby.addMember(user);
-          socket.emit('cloak-joinLobbyResponse', {
-            success: true
-          });
-        });
-
-        socket.on('cloak-leaveRoom', function() {
-          var user = cloak._getUserForSocket(socket);
-          user.leaveRoom();
-          socket.emit('cloak-leaveRoomResponse', {
-            success: true
-          });
-        });
-
-        socket.on('cloak-registerUsername', function(data) {
-          var uid = cloak._getUidForSocket(socket);
-          var username = data.username;
-          var usernames = _.pluck(users, 'username');
-          var success = false;
-          if (_.indexOf(usernames, username) === -1) {
-            success = true;
-            users[uid].username = username;
-          }
-          socket.emit('cloak-registerUsernameResponse', {
-            success: success
-          });
-        });
       });
 
       gameLoopInterval = setInterval(function() {
@@ -263,34 +215,6 @@ module.exports = (function() {
 
     _setupHandlers: function(socket) {
 
-      socket.on('cloak-listRooms', function(data) {
-        socket.emit('cloak-listRoomsResponse', {
-          rooms: cloak._listRoomsForClient()
-        });
-      });
-
-      socket.on('cloak-joinRoom', function(data) {
-        var uid = cloak._getUidForSocket(socket);
-        var user = users[uid];
-        var room = rooms[data.id];
-        var success = false;
-        var roomAvailable = !room._closing && (room.size === null || room.members.length < room.size);
-        if (room && roomAvailable) {
-          success = room.addMember(user);
-        }
-        socket.emit('cloak-joinRoomResponse', {
-          success: success
-        });
-      });
-
-      socket.on('cloak-getRoomMembers', function(data) {
-        var room = rooms[data.id];
-        var response = room ? room.getMembers() : null;
-        socket.emit('cloak-getRoomMembersResponse', {
-          members: response
-        });
-      });
-
       _(config.messages).each(function(handler, name) {
         socket.on('message-' + name, function(arg) {
           var user = cloak._getUserForSocket(socket);
@@ -305,7 +229,23 @@ module.exports = (function() {
 
     },
 
-    _listRoomsForClient: function() {
+    listRoommates: function(user) {
+      return _.map(user.room.members, function(member) {
+        return {
+          id: member.id,
+          username: member.username,
+          room: {
+            id: member.room.id,
+            name: member.room.name,
+            size: member.room.size,
+            userCount: member.room.members.length,
+            lobby: (member.room.id === lobby.id)
+          }
+        };
+      });
+    },
+
+    listRooms: function() {
       return _(rooms).map(function(room, id) {
         return {
           id: id,
@@ -329,7 +269,7 @@ module.exports = (function() {
       rooms[room.id] = room;
       if (config.notifyRoomChanges) {
         // Message everyone in lobby
-        lobby._serverMessageMembers('roomCreated', cloak._listRoomsForClient());
+        lobby._serverMessageMembers('roomCreated', cloak.listRooms());
       }
       return room;
     },
@@ -339,12 +279,25 @@ module.exports = (function() {
       rooms[id]._close();
       delete rooms[id];
       if (config.notifyRoomChanges) {
-        lobby._serverMessageMembers('roomDeleted', cloak._listRoomsForClient());
+        lobby._serverMessageMembers('roomDeleted', cloak.listRooms());
       }
     },
 
     getRoom: function(id) {
       return rooms[id] || false;
+    },
+
+    getLobby: function() {
+      return lobby;
+    },
+
+    joinRoom: function(user, room) {
+      var success = false;
+      var roomAvailable = !room._closing && (room.size === null || room.members.length < room.size);
+      if (room && roomAvailable) {
+        success = room.addMember(user);
+      }
+      return success;
     },
 
     deleteUser: function(user) {
@@ -397,10 +350,11 @@ module.exports = (function() {
       // Shut down socket server
       if (io) {
         try {
-          io.server.close();
           io.server.on('close', function() {
-            callback();
+            //callback();
           });
+          io.server.close();
+          callback();
         }
         catch(e) {
           callback();

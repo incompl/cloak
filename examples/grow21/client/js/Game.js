@@ -24,7 +24,7 @@ window.game = (function() {
       waitingForPlayerElem.style.display = 'block';
 
       Crafty.background('rgba(0,0,0,0)');
-      
+
       // Place our home target
       game.targetIdCounter = 0;
       game.targets = [];
@@ -259,15 +259,12 @@ window.game = (function() {
     },
 
     returnToLobby: function() {
-      cloak.leaveRoom(function() {
-        cloak.joinLobby(function() {
-        });
-        console.log('ending game');
-        game.end();
-        game.refreshLobby();
-        document.getElementById('game-ui').style.display = 'none';
-        document.getElementById('network-ui').style.display = 'block';
-      });
+      cloak.message('leaveRoom');
+      console.log('ending game');
+      game.end();
+      game.refreshLobby();
+      document.getElementById('game-ui').style.display = 'none';
+      document.getElementById('network-ui').style.display = 'block';
     },
 
     // If passed "false", hides the gameOver dialog, otherwise displays string
