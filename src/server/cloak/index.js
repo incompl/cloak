@@ -71,10 +71,6 @@ module.exports = (function() {
     // run the server
     run: function() {
 
-      if (config.uncaughtException) {
-        process.on('uncaughtException', config.uncaughtException);
-      }
-
       if (this.port !== undefined && typeof this.port !== 'number') {
         throw 'Port must be a number. Trying to use express? ' +
               'Pass the server into express instead of port.';
