@@ -279,7 +279,7 @@ module.exports = _.extend(suite, {
 
     server.configure({
       port: this.port,
-      gameLoopSpeed: 100,
+      gameLoopSpeed: 50,
       reconnectWait: 200
     });
 

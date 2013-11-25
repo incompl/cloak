@@ -10,10 +10,6 @@ var User = require('./user.js');
 var Room = require('./room.js');
 var Timer = require('./timer.js');
 
-process.on('uncaughtException', function(err) {
-  console.log(err);
-});
-
 module.exports = (function() {
 
   var users = {};
@@ -74,6 +70,10 @@ module.exports = (function() {
 
     // run the server
     run: function() {
+
+      if (config.uncaughtException) {
+        process.on('uncaughtException', config.uncaughtException);
+      }
 
       if (this.port !== undefined && typeof this.port !== 'number') {
         throw 'Port must be a number. Trying to use express? ' +
