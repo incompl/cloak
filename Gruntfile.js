@@ -40,6 +40,16 @@ module.exports = function(grunt) {
       }
     },
 
+    nodeunit: {
+      all: ['test/*.js']
+    },
+
+    jshint: {
+      all: ['Gruntfile.js',
+            'src/client/cloak.js',
+            'src/server/cloak/*.js']
+    },
+
     githubPages: {
       target: {
         options: {
@@ -56,10 +66,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-github-pages');
+  grunt.loadNpmTasks('grunt-contrib-nodeunit');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  // Build Cloak to publish on NPM
-  grunt.registerTask('default', ['copy', 'uglify']);
 
+  grunt.registerTask('test', ['jshint', 'nodeunit']);
+  grunt.registerTask('build-npm', ['jshint', 'copy', 'uglify']);
   grunt.registerTask('publish-site', ['githubPages:target']);
 
 };
