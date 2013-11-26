@@ -236,7 +236,7 @@ module.exports = _.extend(suite, {
         },
         resume: function() {
           test.ok(true, 'resume event happened');
-          client.end();
+          client.stop();
         },
         end: function() {
           test.ok(true, 'end event happened');
@@ -288,7 +288,7 @@ module.exports = _.extend(suite, {
         begin: function() {
           setTimeout(function() {
             test.equals(server.userCount(), 1);
-            client.end();
+            client.stop();
             test.equals(server.userCount(), 1);
           }, 200);
 
@@ -332,8 +332,8 @@ module.exports = _.extend(suite, {
           var user = server.getUsers()[0];
           var room = server.createRoom();
 
-          user.enterRoom(room);
-          client.end();
+          user.joinRoom(room);
+          client.stop();
 
           setTimeout(function() {
             test.equals(server.userCount(), 1);
@@ -372,7 +372,7 @@ module.exports = _.extend(suite, {
           var room = server.createRoom('My Cool Game');
           test.ok(server.getRoom(room.id), 'room exists');
           test.ok(room.name === 'My Cool Game', 'room name is correct');
-          server.deleteRoom(room);
+          room.delete();
           test.equals(server.getRoom(room.id), false);
           test.done();
         }
@@ -382,9 +382,8 @@ module.exports = _.extend(suite, {
     client.run(this.host);
   },
 
-  // Test the server-side listRooms function
-  listRooms: function(test) {
-    test.expect(5);
+  getRooms: function(test) {
+    test.expect(9);
 
     var server = this.server;
     var client = suite.createClient();
@@ -396,12 +395,17 @@ module.exports = _.extend(suite, {
     client.configure({
       serverEvents: {
         begin: function() {
-          var rooms = server.listRooms();
+          var rooms = server.getRooms();
           test.equals(rooms.length, 0);
           server.createRoom('123');
           server.createRoom('456');
           server.createRoom('789');
-          rooms = server.listRooms();
+          rooms = server.getRooms();
+          test.equals(rooms.length, 3);
+          test.equals(rooms[0].name, '123');
+          test.equals(rooms[1].name, '456');
+          test.equals(rooms[2].name, '789');
+          rooms = server.getRooms(true);
           test.equals(rooms.length, 3);
           test.equals(rooms[0].name, '123');
           test.equals(rooms[1].name, '456');
@@ -499,13 +503,64 @@ module.exports = _.extend(suite, {
           test.equals(server.getUsers().length, 1);
           test.equals(client.connected(), true);
           test.equals(room.getMembers().length, 1);
-          server.deleteUser(user);
+          user.delete();
           test.equals(server.getUsers().length, 0);
           setTimeout(function() {
             test.equals(client.connected(), false);
             test.equals(room.getMembers().length, 0);
             test.done();
           }, 50);
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+  },
+
+  getUsersJson: function(test) {
+    test.expect(3);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var users = server.getUsers(true);
+          test.equals(users.length, 1);
+          test.ok(users[0].id.match(/[\w\d]+/));
+          test.equals(users[0].name, 'Nameless User');
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+  },
+
+  getUser: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          var user = server.getUsers()[0];
+          var userById = server.getUser(user.id);
+          test.equals(user, userById);
+          test.done();
         }
       }
     });
@@ -822,7 +877,7 @@ module.exports = _.extend(suite, {
       serverEvents: {
         roomCreated: function() {
           test.ok(true);
-          server.deleteRoom(room);
+          room.delete();
         },
         roomDeleted: function() {
           test.ok(true);

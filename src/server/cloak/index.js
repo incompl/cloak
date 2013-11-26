@@ -85,7 +85,7 @@ module.exports = (function() {
 
       io.set('log level', config.logLevel);
 
-      lobby = new Room('Lobby', 0, events.lobby, true);
+      lobby = new Room(cloak, 'Lobby', 0, events.lobby, true);
 
       Room.prototype._lobby = lobby;
       Room.prototype._autoJoinLobby = config.autoJoinLobby;
@@ -106,7 +106,7 @@ module.exports = (function() {
         });
 
         socket.on('cloak-begin', function(data) {
-          var user = new User(socket);
+          var user = new User(cloak, socket);
           users[user.id] = user;
           socketIdToUserId[socket.id] = user.id;
           cloak._setupHandlers(socket);
@@ -148,10 +148,10 @@ module.exports = (function() {
           var roomExpired = config.roomLife !== null && new Date().getTime() - room.created >= config.roomLife;
 
           if (roomExpired) {
-            cloak.deleteRoom(room);
+            room.delete();
           }
           else if (config.pruneEmptyRooms && oldEnoughToPrune) {
-            cloak.deleteRoom(room);
+            room.delete();
           }
           else {
             room.pulse();
@@ -173,7 +173,7 @@ module.exports = (function() {
         if (config.minRoomMembers !== null) {
           _(rooms).forEach(function(room) {
             if (room._hasReachedMin && room.members.length < config.minRoomMembers) {
-              cloak.deleteRoom(room);
+              room.delete();
             }
           });
         }
@@ -198,7 +198,7 @@ module.exports = (function() {
             var userExpired = new Date().getTime() - user.disconnectedSince >= wait;
 
             if (wait !== null && userExpired) {
-              cloak.deleteUser(user);
+              user.delete();
             }
           });
         }
@@ -217,36 +217,40 @@ module.exports = (function() {
           try {
             handler(arg, user);
           }
-          catch (err) {
-            console.error(err);
+          catch (error) {
+            console.error('Uncaught error in message handler for "' + name + '"');
+            console.error(error);
           }
         });
       });
 
     },
 
-    listRooms: function() {
-      return _(rooms).invoke('_roomData');
+    getRooms: function(json) {
+      if (json) {
+        return _.invoke(rooms, '_roomData');
+      }
+      else {
+        return _.values(rooms);
+      }
     },
 
     createRoom: function(name, size) {
       var roomName = name || 'Nameless Room';
       var roomSize = size || config.defaultRoomSize;
-      var room = new Room(roomName, roomSize, events.room, false, config.minRoomMembers);
+      var room = new Room(cloak, roomName, roomSize, events.room, false, config.minRoomMembers);
       rooms[room.id] = room;
       if (config.notifyRoomChanges) {
         // Message everyone in lobby
-        lobby._serverMessageMembers('roomCreated', cloak.listRooms());
+        lobby._serverMessageMembers('roomCreated', cloak.getRooms());
       }
       return room;
     },
 
-    deleteRoom: function(room) {
-      var id = room.id;
-      rooms[id]._close();
-      delete rooms[id];
+    _deleteRoom: function(room) {
+      delete rooms[room.id];
       if (config.notifyRoomChanges) {
-        lobby._serverMessageMembers('roomDeleted', cloak.listRooms());
+        lobby._serverMessageMembers('roomDeleted', cloak.getRooms());
       }
     },
 
@@ -258,9 +262,7 @@ module.exports = (function() {
       return lobby;
     },
 
-    deleteUser: function(user) {
-      user.leaveRoom();
-      user._socket.disconnect();
+    _deleteUser: function(user) {
       delete users[user.id];
     },
 
@@ -280,8 +282,17 @@ module.exports = (function() {
       return _(users).size();
     },
 
-    getUsers: function() {
-      return _.values(users);
+    getUser: function(id) {
+      return users[id] || false;
+    },
+
+    getUsers: function(json) {
+      if (json) {
+        return _.invoke(users, '_userData');
+      }
+      else {
+        return _.values(users);
+      }
     },
 
     messageAll: function(name, arg) {
@@ -297,12 +308,12 @@ module.exports = (function() {
 
       // Delete all users
       _(users).forEach(function(user) {
-        cloak.deleteUser(user);
+        user.delete();
       });
 
       // Delete all rooms
       _(rooms).forEach(function(room) {
-        cloak.deleteRoom(room);
+        room.delete();
       });
 
       // Shut down socket server

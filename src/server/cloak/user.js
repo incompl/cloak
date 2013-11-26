@@ -5,9 +5,10 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  function User(socketArg) {
+  function User(cloak, socket) {
+    this.cloak = cloak;
     this.id = uuid.v4();
-    this._socket = socketArg;
+    this._socket = socket;
     this.name = 'Nameless User';
   }
 
@@ -27,7 +28,7 @@ module.exports = (function() {
       }
     },
 
-    enterRoom: function(room) {
+    joinRoom: function(room) {
       room.addMember(this);
     },
 
@@ -44,6 +45,12 @@ module.exports = (function() {
         id: this.id,
         name: this.name
       };
+    },
+
+    delete: function() {
+      this.leaveRoom();
+      this._socket.disconnect();
+      this.cloak._deleteUser(this);
     }
 
   };

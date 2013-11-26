@@ -43,7 +43,10 @@ cloak.configure({
       game.refreshLobby();
     },
 
-    'refreshLobby': function(users) {
+    'refreshLobby': function(data) {
+      var users = data.users;
+      var inLobby = data.inLobby;
+
       var lobbyElement = document.getElementById('lobby'),
         lobbyListElement = document.getElementById('lobby-list'),
         newRoomUIElement = document.getElementById('new-room-ui'),
@@ -59,11 +62,11 @@ cloak.configure({
       lobbyListElement.innerHTML = '<ul>';
       _.chain(users)
         .each(function(user) {
-          if (user.room.lobby) {
+          if (inLobby) {
             lobbyListElement.innerHTML += '<li>' + escape(user.name) + '</li>';
           }
           else {
-            lobbyListElement.innerHTML += '<li>' + escape(user.name) + ' (' + user.room.userCount + '/' + user.room.size + ')</li>';
+            lobbyListElement.innerHTML += '<li>' + escape(user.name) + ' (' + data.roomCount + '/' + data.roomSize + ')</li>';
           }
         });
       lobbyListElement.innerHTML += '</ul>';
@@ -226,4 +229,4 @@ cloak.configure({
 });
 
 Crafty.init(game.config.gameWidth, game.config.gameHeight, gameElement);
-cloak.run('http://10.0.20.12:8090');
+cloak.run('http://localhost:8090');

@@ -138,7 +138,7 @@
           }
           else {
             cloak._trigger('cloak-error', 'Could not resume.');
-            cloak.end();
+            cloak.stop();
           }
         });
 
@@ -168,7 +168,7 @@
 
       },
 
-      end: function() {
+      stop: function() {
         this._disconnect();
         cloak._trigger('cloak-end');
       },

@@ -39,15 +39,20 @@ cloak.configure({
     },
 
     listRooms: function(arg, user) {
-      user.message('listRooms', cloak.listRooms());
+      user.message('listRooms', cloak.getRooms(true));
     },
 
     listUsers: function(arg, user) {
-      user.message('refreshLobby', user.room.getMembers());
+      user.message('refreshLobby', {
+        users: user.room.getMembers(true),
+        inLobby: user.room.isLobby,
+        roomCount: user.room.getMembers().length,
+        roomSize: user.room.size
+      });
     },
 
     refreshWaiting: function(arg, user) {
-      user.message('refreshWaitingResponse', user.room.getMembers());
+      user.message('refreshWaitingResponse', user.room.getMembers(true));
     },
 
     leaveRoom: function(arg, user) {
@@ -175,7 +180,7 @@ cloak.configure({
     memberLeaves: function(user) {
       // if we have 0 people in the room, close the room
       if (this.getMembers().length <= 0) {
-        cloak.deleteRoom(this);
+        this.delete();
       }
     },
 

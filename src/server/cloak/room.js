@@ -5,7 +5,8 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  function Room(nameArg, sizeArg, roomEventsArg, isLobby, minRoomMembers) {
+  function Room(cloak, nameArg, sizeArg, roomEventsArg, isLobby, minRoomMembers) {
+    this.cloak = cloak;
     this._roomEvents = roomEventsArg || {};
     this.isLobby = isLobby;
     this.minRoomMembers = minRoomMembers;
@@ -20,14 +21,6 @@ module.exports = (function() {
   }
 
   Room.prototype = {
-
-    _close: function() {
-      this._closing = true;
-      _(this.members).forEach(function(user) {
-        user.leaveRoom();
-      });
-      this._emitEvent('close', this);
-    },
 
     pulse: function() {
       this._emitEvent('pulse', this);
@@ -72,14 +65,28 @@ module.exports = (function() {
       return new Date().getTime() - this.created;
     },
 
-    getMembers: function() {
-      return _.pluck(this.members, 'id');
+    getMembers: function(json) {
+      if (json) {
+        return _.invoke(this.members, '_userData');
+      }
+      else {
+        return _.values(this.members);
+      }
     },
 
     messageMembers: function(name, arg) {
       _.forEach(this.members, function(member) {
         member.message(name, arg);
       }.bind(this));
+    },
+
+    delete: function() {
+      this._closing = true;
+      _(this.members).forEach(function(user) {
+        user.leaveRoom();
+      });
+      this._emitEvent('close', this);
+      this.cloak._deleteRoom(this);
     },
 
     _serverMessageMembers: function(name, arg) {

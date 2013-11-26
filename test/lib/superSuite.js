@@ -37,7 +37,7 @@ module.exports = {
       _(clients).forEach(function(client) {
         if (client.connected()) {
           console.log('ending client');
-          client.end();
+          client.stop();
         }
         else {
           console.log('client already disconnected');
