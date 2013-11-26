@@ -8,7 +8,7 @@ module.exports = (function() {
   function User(socketArg) {
     this.id = uuid.v4();
     this._socket = socketArg;
-    this.name = 'Nameless Room';
+    this.name = 'Nameless User';
   }
 
   User.prototype = {
