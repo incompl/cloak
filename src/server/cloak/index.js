@@ -242,7 +242,7 @@ module.exports = (function() {
       rooms[room.id] = room;
       if (config.notifyRoomChanges) {
         // Message everyone in lobby
-        lobby._serverMessageMembers('roomCreated', cloak.getRooms());
+        lobby._serverMessageMembers('roomCreated', cloak.roomCount());
       }
       return room;
     },
@@ -250,7 +250,7 @@ module.exports = (function() {
     _deleteRoom: function(room) {
       delete rooms[room.id];
       if (config.notifyRoomChanges) {
-        lobby._serverMessageMembers('roomDeleted', cloak.getRooms());
+        lobby._serverMessageMembers('roomDeleted', cloak.roomCount());
       }
     },
 
@@ -280,6 +280,10 @@ module.exports = (function() {
 
     userCount: function() {
       return _(users).size();
+    },
+
+    roomCount: function() {
+      return _(rooms).size();
     },
 
     getUser: function(id) {

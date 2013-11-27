@@ -382,6 +382,33 @@ module.exports = _.extend(suite, {
     client.run(this.host);
   },
 
+  roomCount: function(test) {
+    test.expect(3);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          test.equals(server.roomCount(), 0);
+          server.createRoom('My Cool Game');
+          test.equals(server.roomCount(), 1);
+          server.createRoom('My Lame Game');
+          test.equals(server.roomCount(), 2);
+          test.done();
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
+  },
+
+
   getRooms: function(test) {
     test.expect(9);
 

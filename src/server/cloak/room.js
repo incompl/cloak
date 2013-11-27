@@ -39,7 +39,7 @@ module.exports = (function() {
         this._hasReachedMin = true;
       }
       this._emitEvent('newMember', this, user);
-      this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'username'));
+      this._serverMessageMembers(this.isLobby ? 'lobbyMemberJoined' : 'roomMemberJoined', _.pick(user, 'id', 'name'));
       user._serverMessage('joinedRoom', _.pick(this, 'name'));
       return true;
     },
@@ -57,7 +57,7 @@ module.exports = (function() {
         this._lobby.addMember(user);
       }
       this._emitEvent('memberLeaves', this, user);
-      this._serverMessageMembers(this.isLobby ? 'lobbyMemberLeft' : 'roomMemberLeft', _.pick(user, 'id', 'username'));
+      this._serverMessageMembers(this.isLobby ? 'lobbyMemberLeft' : 'roomMemberLeft', _.pick(user, 'id', 'name'));
       user._serverMessage('leftRoom', _.pick(this, 'name'));
     },
 
