@@ -840,12 +840,36 @@ module.exports = _.extend(suite, {
 
   },
 
-  // unit test for server messageAll.
+  roomAge: function(test) {
+
+    var server = this.server;
+
+    test.expect(2);
+
+    server.configure({
+      port: this.port
+    });
+
+    server.run();
+
+    var room = server.createRoom();
+
+    test.ok(room.age() < 100);
+
+    setTimeout(function() {
+      test.ok(room.age() >= 100);
+      test.done();
+    }, 100);
+
+  },
+
   messageAll: function(test) {
     var server = this.server;
     var client1 = suite.createClient();
     var client2 = suite.createClient();
     var messages = 2;
+
+    test.expect(2);
 
     server.configure({
       port: this.port,
@@ -855,6 +879,7 @@ module.exports = _.extend(suite, {
     var helloHandler = function(data) {
       if (data === 'world') {
         messages--;
+        test.ok(true);
         if (messages === 0) {
           test.done();
         }
@@ -879,6 +904,53 @@ module.exports = _.extend(suite, {
 
     setTimeout(function() {
       server.messageAll('hello', 'world');
+    }, 50);
+  },
+
+  messageMembers: function(test) {
+    var server = this.server;
+    var client1 = suite.createClient();
+    var client2 = suite.createClient();
+    var messages = 1;
+
+    test.expect(1);
+
+    server.configure({
+      port: this.port,
+      autoJoinLobby: true,
+    });
+
+    var helloHandler = function(data) {
+      if (data === 'world') {
+        messages--;
+        test.ok(true);
+        if (messages === 0) {
+          test.done();
+        }
+      }
+    };
+
+    client1.configure({
+      messages: {
+        hello: helloHandler
+      }
+    });
+
+    client2.configure({
+      messages: {
+        hello: helloHandler
+      }
+    });
+
+    server.run();
+    client1.run(this.host);
+    client2.run(this.host);
+
+    setTimeout(function() {
+      var room = server.createRoom();
+      var user = server.getUsers()[0];
+      room.addMember(user);
+      room.messageMembers('hello', 'world');
     }, 50);
   },
 
