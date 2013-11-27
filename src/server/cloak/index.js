@@ -154,7 +154,7 @@ module.exports = (function() {
             room.delete();
           }
           else {
-            room.pulse();
+            room._pulse();
           }
         });
 

@@ -22,7 +22,7 @@ module.exports = (function() {
 
   Room.prototype = {
 
-    pulse: function() {
+    _pulse: function() {
       this._emitEvent('pulse', this);
     },
 
