@@ -1087,6 +1087,49 @@ module.exports = _.extend(suite, {
     setTimeout(function() {
       client2.run(that.host);
     }, 50);
+  },
+
+  pulse: function(test) {
+    test.expect(20);
+
+    var lobbyPulses = 10;
+    var roomPulses = 10;
+
+    function checkIfDone() {
+      if (lobbyPulses === 0 && roomPulses === 0) {
+        test.done();
+      }
+    }
+
+    var server = this.server;
+    var client = suite.createClient();
+    server.configure({
+      port: this.port,
+      lobby: {
+        pulse: function() {
+          lobbyPulses--;
+          test.ok(true);
+          checkIfDone();
+        }
+      },
+      room: {
+        pulse: function() {
+          roomPulses--;
+          test.ok(true);
+          checkIfDone();
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          server.createRoom();
+        }
+      }
+    });
+    server.run();
+    client.run(this.host);
   }
 
 });
