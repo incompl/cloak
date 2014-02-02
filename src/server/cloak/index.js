@@ -78,6 +78,14 @@ module.exports = (function() {
 
       io = socketIO.listen(config.express || config.port);
 
+      if (config.express) {
+        console.log(('cloak running with express on port ' +
+                    config.express.address().port).info);
+      }
+      else {
+        console.log(('cloak running on port ' + config.port).info);
+      }
+
       // We won't want to try to serialize this later
       if (config.express) {
         delete config.express;
@@ -207,8 +215,6 @@ module.exports = (function() {
         }
 
       }, config.gameLoopSpeed);
-
-      console.log(('cloak running on port ' + config.port).info);
 
     },
 
