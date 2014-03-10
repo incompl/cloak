@@ -1130,6 +1130,38 @@ module.exports = _.extend(suite, {
     });
     server.run();
     client.run(this.host);
+  },
+
+  currentUser: function(test) {
+    var server = this.server;
+    var client = suite.createClient();
+    var userId = undefined;
+
+    test.expect(1);
+
+    var room;
+
+    server.configure({
+      port: this.port,
+      messages: {
+        checkUser: function(arg, user) {
+          test.equals(user.id, userId);
+          test.done();
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          userId = client.currentUser();
+          client.message('checkUser');
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
   }
 
 });
