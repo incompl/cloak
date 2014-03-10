@@ -192,6 +192,10 @@
         callbacks[name].push(callback);
       },
 
+      currentUser: function() {
+        return uid;
+      },
+
       message: function(name, arg) {
         if (this.connected()) {
           socket.emit('message-' + name, arg);
