@@ -3,7 +3,7 @@
 var form = document.querySelector('#input-form');
 var input = document.querySelector('#input');
 var messages = document.querySelector('#messages');
-var counter = document.querySelector('#counter')
+var counter = document.querySelector('#counter');
 
 cloak.configure({
   messages: {
