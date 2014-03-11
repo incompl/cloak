@@ -3,6 +3,7 @@
 var form = document.querySelector('#input-form');
 var input = document.querySelector('#input');
 var messages = document.querySelector('#messages');
+var counter = document.querySelector('#counter');
 
 cloak.configure({
   messages: {
@@ -12,8 +13,11 @@ cloak.configure({
       message.className = 'msg';
       messages.appendChild(message);
       messages.scrollTop = messages.scrollHeight;
+    },
+    userCount: function(count) {
+      counter.innerText = count;
     }
-  }
+  },
 });
 
 cloak.run('http://localhost:8090');

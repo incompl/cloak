@@ -45,3 +45,7 @@ h1 {
   color: #fff;
   font-size: 1.2em;
 }
+
+#userCount {
+  padding: 0em 1em 1em;
+}
