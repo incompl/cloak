@@ -12,7 +12,6 @@
     var config = {};
     var timerEvents = {};
     var serverConfig;
-    var callbacks = {};
 
     var cloak = {
 
@@ -183,13 +182,6 @@
 
       connected: function() {
         return socket.socket.connected;
-      },
-
-      _callback: function(name, callback) {
-        if (callbacks[name] === undefined) {
-          callbacks[name] = [];
-        }
-        callbacks[name].push(callback);
       },
 
       currentUser: function() {
