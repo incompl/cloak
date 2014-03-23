@@ -1,7 +1,19 @@
 /* cloak client */
-/* global cloak:true,module,io:true,console,_:true */
+/* global module,console */
 
-(function() {
+(function(global, factory) {
+
+  if (typeof global.define === 'function' && global.define.amd) {
+    define(['underscore', 'socket.io-client'], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    module.exports = factory(
+      require('underscore'), require('socket.io-client')
+    );
+  } else {
+    global.cloak = factory(global._, global.io);
+  }
+
+})(this, function(_, io) {
 
   var removeKey = function(val, key, obj) {
     delete obj[key];
@@ -17,11 +29,6 @@
     var serverConfig;
 
     var cloak = {
-
-      _setLibs: function(a, b) {
-        _ = a;
-        io = b;
-      },
 
       /**
        * Set configuration options for Cloak. These options will be applied
@@ -226,11 +233,5 @@
 
   };
 
-  if (typeof window === 'undefined') {
-    module.exports = createCloak;
-  }
-  else {
-    cloak = createCloak();
-  }
-
-}());
+  return createCloak();
+});
