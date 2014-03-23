@@ -7,7 +7,6 @@
 
     var uid;
     var socket;
-    var url;
     var events = {};
     var config = {};
     var timerEvents = {};
@@ -56,9 +55,8 @@
         }
       },
 
-      run: function(urlArg) {
+      run: function(url) {
 
-        url = urlArg;
         socket = io.connect(url, {
           'force new connection': true
         });
