@@ -30,6 +30,12 @@
 
     var cloak = {
 
+      /**
+       * Set configuration options for Cloak. These options will be applied
+       * immediately if Cloak has already been started (see `cloak.run`), and
+       * they will be referenced in all future calls to `clock.run` until
+       * overwritten.
+       */
       configure: function(configArg) {
 
         // When specified, the `messages` option should trigger the complete
