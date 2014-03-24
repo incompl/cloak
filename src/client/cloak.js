@@ -7,12 +7,10 @@
 
     var uid;
     var socket;
-    var url;
     var events = {};
     var config = {};
     var timerEvents = {};
     var serverConfig;
-    var callbacks = {};
 
     var cloak = {
 
@@ -57,9 +55,8 @@
         }
       },
 
-      run: function(urlArg) {
+      run: function(url) {
 
-        url = urlArg;
         socket = io.connect(url, {
           'force new connection': true
         });
@@ -183,13 +180,6 @@
 
       connected: function() {
         return socket.socket.connected;
-      },
-
-      _callback: function(name, callback) {
-        if (callbacks[name] === undefined) {
-          callbacks[name] = [];
-        }
-        callbacks[name].push(callback);
       },
 
       currentUser: function() {
