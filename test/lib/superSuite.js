@@ -59,9 +59,12 @@ module.exports = {
   // function instead of doing it manually means clients
   // will be properly cleaned up after tests are done.
   createClient: function() {
-    var client = createCloakClient();
-    client._setLibs(_, io);
+    var client;
+
+    delete require.cache[require.resolve('../../src/client/cloak')];
+    client = require('../../src/client/cloak');
     clients.push(client);
+
     return client;
   }
 
