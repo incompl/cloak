@@ -269,6 +269,90 @@ module.exports = _.extend(suite, {
 
   },
 
+  // When stopped and re-run, Clock should not invoke overwritten message
+  // handlers.
+  stoppingAndRestarting: function(test) {
+
+    test.expect(0);
+
+    var server = this.server;
+    var client = suite.createClient();
+    var host = this.host;
+    var pingCount = 0;
+
+    server.configure({
+      port: this.port
+    });
+
+    // Reconfigure and restart the client once it receives the `begin` event
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          client.stop();
+
+          client.configure({
+            messages: {
+              custom: function() {
+                test.done();
+              }
+            }
+          });
+          client.run(host);
+        },
+        resume: function() {
+          server.messageAll('custom');
+        }
+      }
+    });
+
+    client.configure({
+      messages: {
+        custom: function() {
+          test.ok(false, 'Overwritten message handlers should not be invoked');
+        }
+      }
+    });
+
+    server.run();
+    client.run(host);
+  },
+
+  // When Cloak is configured with a `messages` option, all
+  // previously-specified message handlers should be removed.
+  resetMessageHandlers: function(test) {
+    var server = this.server;
+    var client = suite.createClient();
+
+    test.expect(0);
+    server.configure({
+      port: this.port
+    });
+
+    server.run();
+    client.run(this.host);
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          server.messageAll('custom');
+        }
+      },
+      messages: {
+        custom: function() {
+          test.ok(false, 'Overwritten message handlers should not be invoked');
+        }
+      }
+    });
+
+    client.configure({
+      messages: {
+        custom: function() {
+          test.done();
+        }
+      }
+    });
+  },
+
   // Test that users are pruned if reconnectWait is set
   reconnectWait: function(test) {
 

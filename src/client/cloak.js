@@ -3,6 +3,10 @@
 
 (function() {
 
+  var removeKey = function(val, key, obj) {
+    delete obj[key];
+  };
+
   var createCloak = function() {
 
     var uid;
@@ -19,21 +23,44 @@
         io = b;
       },
 
+      /**
+       * Set configuration options for Cloak. These options will be applied
+       * immediately if Cloak has already been started (see `cloak.run`), and
+       * they will be referenced in all future calls to `clock.run` until
+       * overwritten.
+       */
       configure: function(configArg) {
 
-        _(configArg).forEach(function(val, key) {
-          if (key === 'serverEvents') {
-            _(val).forEach(function(eventHandler, eventName) {
-              cloak._on('cloak-' + eventName, eventHandler);
-            });
-          }
-          else if (key === 'timerEvents') {
-            timerEvents = val;
-          }
-          else {
-            config[key] = val;
-          }
+        // When specified, the `messages` option should trigger the complete
+        // removal of any previously-bound message handlers.
+        if (socket && configArg.messages) {
+          _(config.messages).forEach(function(handler, name, messageHandlers) {
+            socket.removeListener('message-' + name);
+            cloak._off('message-' + name, handler);
+          });
+        }
+
+        _.extend(config, configArg);
+
+        if (socket) {
+          cloak._applyConfig(config);
+        }
+      },
+
+      _applyConfig: function(toApply) {
+
+        _(toApply.messages).forEach(function(handler, name) {
+          socket.on('message-' + name, function(data) {
+            cloak._trigger('message-' + name, data);
+          });
+          cloak._on('message-' + name, handler);
         });
+
+        _(toApply.serverEvents).forEach(function(eventHandler, eventName) {
+          cloak._on('cloak-' + eventName, eventHandler);
+        });
+
+        _.extend(timerEvents, toApply.timerEvents);
       },
 
       _on: function(event, handler) {
@@ -156,18 +183,16 @@
           }
         });
 
-        _(config.messages).forEach(function(handler, name) {
-          socket.on('message-' + name, function(data) {
-            cloak._trigger('message-' + name, data);
-          });
-          cloak._on('message-' + name, handler);
-        });
-
+        cloak._applyConfig(config);
       },
 
       stop: function() {
         this._disconnect();
         cloak._trigger('cloak-end');
+        socket.removeAllListeners();
+        _.forEach(events, removeKey);
+        _.forEach(timerEvents, removeKey);
+        socket = null;
       },
 
       _disconnect: function() {
@@ -179,7 +204,7 @@
       },
 
       connected: function() {
-        return socket.socket.connected;
+        return socket && socket.socket.connected;
       },
 
       currentUser: function() {
