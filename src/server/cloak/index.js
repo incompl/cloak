@@ -13,7 +13,6 @@ var Timer = require('./timer.js');
 module.exports = (function() {
 
   var users = {};
-  var usernames = {};
   var rooms = {};
   var socketIdToUserId = {};
   var io;
