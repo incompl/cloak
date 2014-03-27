@@ -1,5 +1,5 @@
 /* cloak client */
-/* global module,console */
+/* global module,define,require */
 
 (function(global, factory) {
 
@@ -89,11 +89,21 @@
         }
       },
 
-      run: function(url) {
+      run: function(url, options) {
 
-        socket = io.connect(url, {
+        if (options === undefined) {
+          options = {};
+        }
+
+        var ioOptions =  {
           'force new connection': true
-        });
+        };
+
+        if (options['socket.io']) {
+          ioOptions = _.extend(ioOptions, options['socket.io']);
+        }
+
+        socket = io.connect(url, ioOptions);
 
         socket.on('error', function(data) {
           cloak._trigger('cloak-error', data);
