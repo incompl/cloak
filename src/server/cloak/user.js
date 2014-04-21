@@ -48,6 +48,7 @@ module.exports = (function() {
     },
 
     delete: function() {
+      this.disconnectedSince = this.disconnectedSince || new Date().getTime();
       this.leaveRoom();
       this._socket.disconnect();
       this.cloak._deleteUser(this);
