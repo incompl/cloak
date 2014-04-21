@@ -9,13 +9,13 @@ cloak.configure({
   messages: {
     chat: function(msg) {
       var message = document.createElement('div');
-      message.innerText = msg;
+      message.textContent = msg;
       message.className = 'msg';
       messages.appendChild(message);
       messages.scrollTop = messages.scrollHeight;
     },
     userCount: function(count) {
-      counter.innerText = count;
+      counter.textContent = count;
     }
   },
 });
