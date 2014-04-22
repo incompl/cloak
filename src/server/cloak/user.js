@@ -10,6 +10,7 @@ module.exports = (function() {
     this.id = uuid.v4();
     this._socket = socket;
     this.name = 'Nameless User';
+    this.disconnectedSince = null;
   }
 
   User.prototype = {

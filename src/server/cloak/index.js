@@ -130,7 +130,7 @@ module.exports = (function() {
           if (user !== undefined) {
             socketIdToUserId[socket.id] = uid;
             user._socket = socket;
-            delete user.disconnectedSince;
+            user.disconnectedSince = null;
             cloak._setupHandlers(socket);
             socket.emit('cloak-resumeResponse', {
               valid: true,
