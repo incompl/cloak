@@ -278,7 +278,7 @@ module.exports = _.extend(suite, {
     var server = this.server;
     var client = suite.createClient();
     var host = this.host;
-    var pingCount = 0;
+    var secondRun = false;
 
     server.configure({
       port: this.port
@@ -288,6 +288,11 @@ module.exports = _.extend(suite, {
     client.configure({
       serverEvents: {
         begin: function() {
+          if (secondRun) {
+            server.messageAll('custom');
+            return;
+          }
+
           client.stop();
 
           client.configure({
@@ -297,10 +302,9 @@ module.exports = _.extend(suite, {
               }
             }
           });
+
+          secondRun = true;
           client.run(host);
-        },
-        resume: function() {
-          server.messageAll('custom');
         }
       }
     });
