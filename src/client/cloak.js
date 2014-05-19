@@ -210,6 +210,7 @@
         _.forEach(events, removeKey);
         _.forEach(timerEvents, removeKey);
         socket = null;
+        uid = undefined;
       },
 
       _disconnect: function() {
