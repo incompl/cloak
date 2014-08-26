@@ -11,6 +11,7 @@ module.exports = (function() {
     this._socket = socket;
     this.name = 'Nameless User';
     this.disconnectedSince = null;
+    this.data = {};
   }
 
   User.prototype = {

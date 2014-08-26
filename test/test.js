@@ -1177,6 +1177,42 @@ module.exports = _.extend(suite, {
     }, 50);
   },
 
+  // setting and getting user data.
+  settingUserData: function(test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port,
+      messages: {
+        setEgg: function(arg, user) {
+          user.data.egg = arg;
+          user.message('eggUpdate', user.data.egg);
+        }
+      }
+    });
+
+    client.configure({
+      serverEvents: {
+        begin: function() {
+          client.message('setEgg', 123);
+        }
+      },
+      messages: {
+        eggUpdate: function(arg) {
+          test.equals(arg, 123);
+          test.done();
+        }
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+  },
+
+
   pulse: function(test) {
     test.expect(20);
 
