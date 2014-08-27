@@ -1212,6 +1212,32 @@ module.exports = _.extend(suite, {
     client.run(this.host);
   },
 
+  initialData: function (test) {
+    test.expect(1);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port,
+      lobby: {
+        newMember: function (user) {
+          test.equals(user.data.test, 'test');
+          test.done();
+        }
+      }
+    });
+
+    client.configure({
+      initialData: {
+        test: 'test'
+      }
+    });
+
+    server.run();
+    client.run(this.host);
+  },
+
 
   pulse: function(test) {
     test.expect(20);
