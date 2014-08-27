@@ -119,7 +119,7 @@
 
         socket.on('connect', function() {
           if (uid === undefined) {
-            socket.emit('cloak-begin', {});
+            socket.emit('cloak-begin', config.initialData || {});
           }
           else {
             socket.emit('cloak-resume', {uid: uid});

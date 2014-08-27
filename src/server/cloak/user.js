@@ -5,13 +5,13 @@ var uuid = require('node-uuid');
 
 module.exports = (function() {
 
-  function User(cloak, socket) {
+  function User(cloak, socket, data) {
     this.cloak = cloak;
     this.id = uuid.v4();
     this._socket = socket;
     this.name = 'Nameless User';
     this.disconnectedSince = null;
-    this.data = {};
+    this.data = data || {};
   }
 
   User.prototype = {

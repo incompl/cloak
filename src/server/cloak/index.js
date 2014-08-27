@@ -113,7 +113,7 @@ module.exports = (function() {
         });
 
         socket.on('cloak-begin', function(data) {
-          var user = new User(cloak, socket);
+          var user = new User(cloak, socket, data);
           users[user.id] = user;
           socketIdToUserId[socket.id] = user.id;
           cloak._setupHandlers(socket);
