@@ -1,5 +1,3 @@
-[![NPM](https://nodei.co/npm/cloak.png)](https://nodei.co/npm/cloak/)
-
 ## What is Cloak?
 
 [incompl.github.io/cloak/](http://incompl.github.io/cloak/)
