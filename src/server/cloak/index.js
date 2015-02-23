@@ -125,6 +125,9 @@ module.exports = (function() {
           if (config.autoJoinLobby) {
             lobby.addMember(user);
           }
+          if (config.clientEvents && config.clientEvents.begin) {
+            config.clientEvents.begin(user);
+          }
         });
 
         socket.on('cloak-resume', function(data) {
