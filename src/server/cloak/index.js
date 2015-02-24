@@ -109,6 +109,9 @@ module.exports = (function() {
           }
           user.disconnectedSince = new Date().getTime();
           delete socketIdToUserId[socket.id];
+          if (config.clientEvents && config.clientEvents.disconnect) {
+            config.clientEvents.disconnect(user);
+          }
           console.log((cloak._host(socket) + ' disconnects').info);
         });
 
@@ -121,6 +124,9 @@ module.exports = (function() {
           console.log((cloak._host(socket) + ' begins').info);
           if (config.autoJoinLobby) {
             lobby.addMember(user);
+          }
+          if (config.clientEvents && config.clientEvents.begin) {
+            config.clientEvents.begin(user);
           }
         });
 
@@ -136,6 +142,9 @@ module.exports = (function() {
               valid: true,
               config: config
             });
+            if (config.clientEvents && config.clientEvents.resume) {
+              config.clientEvents.resume(user);
+            }
             console.log((cloak._host(socket) + ' resumes').info);
           }
           else {
