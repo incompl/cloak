@@ -1326,13 +1326,11 @@ module.exports = _.extend(suite, {
       port: this.port,
       'socket.io': {
         'heartbeat interval': 123
-      },
-      begin: function() {
-              }
+      }
     });
 
     server.run();
-    
+
     test.equals(server._getIo().get('heartbeat interval'), 123);
     test.done();
 
