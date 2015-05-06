@@ -1324,7 +1324,7 @@ module.exports = _.extend(suite, {
 
     server.configure({
       port: this.port,
-      'socket.io': {
+      socketIo: {
         'heartbeat interval': 123
       }
     });

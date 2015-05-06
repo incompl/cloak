@@ -93,7 +93,7 @@ module.exports = (function() {
       io.set('log level', 1);
 
       // Apply user Socket.IO settings
-      var ioConfig = config['socket.io'];
+      var ioConfig = config.socketIo;
       if (typeof ioConfig === 'object') {
         for (var key in ioConfig) {
           io.set(key, ioConfig[key]);
