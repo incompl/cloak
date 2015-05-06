@@ -1312,6 +1312,29 @@ module.exports = _.extend(suite, {
 
     server.run();
     client.run(this.host);
+  },
+
+  // Test Socket.IO configuration on the server
+  serverIoConfig: function(test) {
+
+    test.expect(1);
+
+    var server = this.server;
+    var client = suite.createClient();
+
+    server.configure({
+      port: this.port,
+      socketIo: {
+        'heartbeat interval': 123
+      }
+    });
+
+    server.run();
+
+    test.equals(server._getIo().get('heartbeat interval'), 123);
+    test.done();
+
+
   }
 
 });

@@ -99,8 +99,8 @@
           'force new connection': true
         };
 
-        if (options['socket.io']) {
-          ioOptions = _.extend(ioOptions, options['socket.io']);
+        if (options.socketIo) {
+          ioOptions = _.extend(ioOptions, options.socketIo);
         }
 
         socket = io.connect(url, ioOptions);
